@@ -1,0 +1,118 @@
+export type AgeRange = '15-17' | '18-24' | '25-34' | '35-44' | '45-54' | '55+';
+
+export type CurrentSituation =
+  | 'lyceen'
+  | 'etudiant'
+  | 'alternant'
+  | 'jeune-diplome'
+  | 'recherche-emploi'
+  | 'en-poste'
+  | 'freelance'
+  | 'entrepreneur'
+  | 'reconversion'
+  | 'pause-carriere'
+  | 'retraite-actif';
+
+export type EducationLevel =
+  | 'college'
+  | 'cap-bep'
+  | 'bac-general'
+  | 'bac-techno'
+  | 'bac-pro'
+  | 'bac-2'
+  | 'bac-3'
+  | 'bac-5-master'
+  | 'ingenieur'
+  | 'commerce-ecole'
+  | 'doctorat'
+  | 'autodidacte'
+  | 'autre';
+
+export type FieldOfStudy =
+  | 'informatique'
+  | 'commerce-gestion'
+  | 'ingenierie'
+  | 'marketing-communication'
+  | 'finance-comptabilite'
+  | 'design-arts'
+  | 'sante-social'
+  | 'droit'
+  | 'sciences'
+  | 'education'
+  | 'artisanat'
+  | 'autre';
+
+export type CareerGoalId =
+  | 'premier-emploi'
+  | 'reconversion'
+  | 'evoluer-poste'
+  | 'meilleur-emploi'
+  | 'augmenter-salaire'
+  | 'opportunites-etranger'
+  | 'reussite-etudes'
+  | 'freelance'
+  | 'creer-entreprise'
+  | 'alternance'
+  | 'retour-apres-pause'
+  | 'developper-competences'
+  | 'bilan-competences'
+  | 'stage'
+  | 'retraite-active';
+
+export interface WorkExperience {
+  id: string;
+  jobTitle: string;
+  company: string;
+  duration: string;
+  isCurrent: boolean;
+}
+
+import type { UserSkill } from './skills/types';
+
+export type { Skill, UserSkill, SkillCategory, SkillLevel } from './skills/types';
+export { MIN_USER_SKILLS, SKILL_LEVEL_CONFIG } from './skills/types';
+
+export interface CareerProfile {
+  firstName: string;
+  ageRange: AgeRange | null;
+  currentSituation: CurrentSituation | null;
+  educationLevel: EducationLevel | null;
+  fieldOfStudy: FieldOfStudy | null;
+  diploma: string;
+  experiences: WorkExperience[];
+  hasNoExperience: boolean;
+  careerGoal: CareerGoalId | null;
+  targetRoles: string[];
+  skills: UserSkill[];
+  completedAt: string | null;
+}
+
+export const EMPTY_CAREER_PROFILE: CareerProfile = {
+  firstName: '',
+  ageRange: null,
+  currentSituation: null,
+  educationLevel: null,
+  fieldOfStudy: null,
+  diploma: '',
+  experiences: [],
+  hasNoExperience: false,
+  careerGoal: null,
+  targetRoles: [],
+  skills: [],
+  completedAt: null,
+};
+
+export type CareerOnboardingStep =
+  | 'welcome'
+  | 'personal'
+  | 'currentProfile'
+  | 'educationDetails'
+  | 'situation'
+  | 'experience'
+  | 'goal'
+  | 'targetRole'
+  | 'skills'
+  | 'summary';
+
+/** @deprecated Migrées vers currentProfile au chargement */
+export type LegacyProfileSteps = 'target' | 'education' | 'educationLevel' | 'situation';

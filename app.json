@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "CareerPilot AI",
+    "slug": "carrer-ia",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "careerpilot",
+    "userInterfaceStyle": "dark",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0E17"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0A0E17",
+          "dark": {
+            "backgroundColor": "#0A0E17"
+          }
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b53b89f3-9625-41a0-be0a-94aba2789fdd"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b53b89f3-9625-41a0-be0a-94aba2789fdd"
+    }
+  }
+}

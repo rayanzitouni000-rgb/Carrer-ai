@@ -1,0 +1,50 @@
+import { Skill, SkillCategory } from './types';
+
+export const SKILLS_CATALOG: Skill[] = [
+  { id: 'developpement-web', label: 'Développement web', category: SkillCategory.TECH, emoji: '🌐' },
+  { id: 'developpement-mobile', label: 'Développement mobile', category: SkillCategory.TECH, emoji: '📱' },
+  { id: 'python', label: 'Python', category: SkillCategory.TECH, emoji: '🐍' },
+  { id: 'data-analyse', label: 'Data / Analyse', category: SkillCategory.TECH, emoji: '📊' },
+  { id: 'intelligence-artificielle', label: 'Intelligence artificielle', category: SkillCategory.TECH, emoji: '🤖' },
+  { id: 'cybersecurite', label: 'Cybersécurité', category: SkillCategory.TECH, emoji: '🔐' },
+  { id: 'cloud', label: 'Cloud (AWS/Azure/GCP)', category: SkillCategory.TECH, emoji: '☁️' },
+  { id: 'no-code', label: 'No-code', category: SkillCategory.TECH, emoji: '⚡' },
+  { id: 'product-ux', label: 'Product / UX', category: SkillCategory.TECH, emoji: '🎯' },
+  { id: 'gestion-projet', label: 'Gestion de projet', category: SkillCategory.BUSINESS, emoji: '📋' },
+  { id: 'vente-negociation', label: 'Vente / Négociation', category: SkillCategory.BUSINESS, emoji: '🤝' },
+  { id: 'marketing-digital', label: 'Marketing digital', category: SkillCategory.BUSINESS, emoji: '📣' },
+  { id: 'finance-comptabilite', label: 'Finance / Comptabilité', category: SkillCategory.BUSINESS, emoji: '💰' },
+  { id: 'ressources-humaines', label: 'Ressources humaines', category: SkillCategory.BUSINESS, emoji: '👥' },
+  { id: 'droit', label: 'Droit', category: SkillCategory.BUSINESS, emoji: '⚖️' },
+  { id: 'design-ui-ux', label: 'Design (UI/UX, graphique)', category: SkillCategory.CREATIVE, emoji: '🎨' },
+  { id: 'redaction-copywriting', label: 'Rédaction / Copywriting', category: SkillCategory.CREATIVE, emoji: '✍️' },
+  { id: 'reseaux-sociaux', label: 'Réseaux sociaux', category: SkillCategory.CREATIVE, emoji: '📲' },
+  { id: 'photo-video', label: 'Photo / Vidéo', category: SkillCategory.CREATIVE, emoji: '🎬' },
+  { id: 'communication', label: 'Communication', category: SkillCategory.SOFT_SKILLS, emoji: '💬' },
+  { id: 'leadership', label: 'Leadership', category: SkillCategory.SOFT_SKILLS, emoji: '🌟' },
+  { id: 'travail-equipe', label: "Travail d'équipe", category: SkillCategory.SOFT_SKILLS, emoji: '🤲' },
+  { id: 'negociation', label: 'Négociation', category: SkillCategory.SOFT_SKILLS, emoji: '🗣️' },
+  { id: 'gestion-stress', label: 'Gestion du stress', category: SkillCategory.SOFT_SKILLS, emoji: '🧘' },
+  { id: 'prise-parole', label: 'Prise de parole en public', category: SkillCategory.SOFT_SKILLS, emoji: '🎤' },
+  { id: 'langues-etrangeres', label: 'Langues étrangères', category: SkillCategory.SOFT_SKILLS, emoji: '🌍' },
+  { id: 'adaptabilite', label: 'Adaptabilité', category: SkillCategory.SOFT_SKILLS, emoji: '🔄' },
+  { id: 'btp-artisanat', label: 'BTP / Artisanat', category: SkillCategory.MANUAL, emoji: '🔨' },
+  { id: 'logistique', label: 'Logistique', category: SkillCategory.MANUAL, emoji: '📦' },
+  { id: 'restauration', label: 'Restauration', category: SkillCategory.MANUAL, emoji: '🍽️' },
+  { id: 'mecanique-technique', label: 'Mécanique / Technique', category: SkillCategory.MANUAL, emoji: '⚙️' },
+  { id: 'soins-accompagnement', label: 'Soins / Accompagnement', category: SkillCategory.HEALTH_SOCIAL, emoji: '❤️' },
+  { id: 'enseignement-formation', label: 'Enseignement / Formation', category: SkillCategory.HEALTH_SOCIAL, emoji: '📚' },
+  { id: 'travail-social', label: 'Travail social', category: SkillCategory.HEALTH_SOCIAL, emoji: '🤝' },
+];
+
+export const SKILLS_BY_ID = new Map(SKILLS_CATALOG.map((skill) => [skill.id, skill]));
+
+export const SKILL_CATEGORIES_ORDER: SkillCategory[] = [
+  SkillCategory.TECH,
+  SkillCategory.BUSINESS,
+  SkillCategory.CREATIVE,
+  SkillCategory.SOFT_SKILLS,
+  SkillCategory.MANUAL,
+  SkillCategory.HEALTH_SOCIAL,
+  SkillCategory.OTHER,
+];
