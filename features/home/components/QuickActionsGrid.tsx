@@ -13,7 +13,7 @@ export function QuickActionsGrid() {
   return (
     <View style={styles.section}>
       <Text variant="title" color={theme.colors.text.primary} style={styles.title}>
-        Quick Actions
+        Actions rapides
       </Text>
 
       <ScrollView

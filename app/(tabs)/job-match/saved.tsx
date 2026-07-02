@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { Icon, PressableScale, Text, useTheme } from '@/design-system';
 import { JobOfferCard } from '@/components/jobMatch/JobOfferCard';
 import { getMockJobById } from '@/data/mockJobOffers';
+import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { enrichOffersWithMatchScore } from '@/utils/matchScoreCalculator';
 import { careerProfileStore } from '@/services/careerProfileStore';
@@ -15,6 +16,7 @@ export default function SavedJobsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { savedJobs, isJobSaved, toggleSaveJob } = useSavedJobs();
+  const { hasAppliedToJob } = useApplicationTracking();
 
   const offers = useMemo(() => {
     const profile = careerProfileStore.get();
@@ -64,6 +66,7 @@ export default function SavedJobsScreen() {
             offer={item}
             index={index}
             isSaved={isJobSaved(item.id)}
+            hasApplied={hasAppliedToJob(item.id)}
             onToggleSave={() => toggleSaveJob(item.id)}
             onPress={() =>
               router.push({ pathname: './job-detail', params: { id: item.id } })

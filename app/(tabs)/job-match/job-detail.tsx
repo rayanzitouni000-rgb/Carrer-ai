@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Heart, MapPin, Sparkles } from 'lucide-react-native';
+import { Heart, MapPin, Sparkles, CheckCircle2 } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useRef } from 'react';
@@ -194,12 +194,25 @@ export default function JobDetailScreen() {
           onPress={() => void handleApply()}
         />
 
-        <OutlineButton
-          label={alreadyApplied ? '✅ Candidature enregistrée' : "J'ai postulé"}
-          fullWidth
-          disabled={alreadyApplied}
-          onPress={() => void handleMarkApplied()}
-        />
+        {alreadyApplied ? (
+          <View
+            style={[
+              styles.appliedBanner,
+              {
+                backgroundColor: 'rgba(34, 197, 94, 0.12)',
+                borderColor: theme.colors.status.success,
+                borderRadius: theme.radius.md,
+              },
+            ]}
+          >
+            <CheckCircle2 size={20} color={theme.colors.status.success} />
+            <Text variant="button" color={theme.colors.status.success}>
+              Candidature enregistrée
+            </Text>
+          </View>
+        ) : (
+          <OutlineButton label="J'ai postulé" fullWidth onPress={() => void handleMarkApplied()} />
+        )}
 
         <OutlineButton label="🎤 Préparer un entretien" fullWidth onPress={() => void handlePrepareInterview()} />
       </ScrollView>
@@ -239,4 +252,13 @@ const styles = StyleSheet.create({
   },
   section: { gap: 10 },
   skillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  appliedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderWidth: 1.5,
+  },
 });

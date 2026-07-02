@@ -83,3 +83,25 @@ export function scoreToLevelLabel(score: number): string {
 export function formatAssessmentLevel(score: number): string {
   return `${scoreToLevelLabel(score)} · ${score.toFixed(1)}/10`;
 }
+
+export function formatShortInterviewDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString('fr-FR', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
+export function formatRelativeInterviewDays(isoDate: string): string {
+  const target = new Date(isoDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target.getTime() - today.getTime()) / 86_400_000);
+
+  if (diffDays === 0) return "Aujourd'hui";
+  if (diffDays === 1) return 'Demain';
+  if (diffDays === -1) return 'Hier';
+  if (diffDays > 1) return `Dans ${diffDays} jours`;
+  return `Il y a ${Math.abs(diffDays)} jours`;
+}

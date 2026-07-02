@@ -26,7 +26,9 @@ function normalizeLegacy(raw: unknown): RealInterviewState {
       pending?: { company: string; jobTitle: string; createdAt: string };
       interviews?: RealInterview[];
     };
-    const interviews = Array.isArray(parsed.interviews) ? parsed.interviews : [];
+    const interviews = Array.isArray(parsed.interviews)
+      ? parsed.interviews.map(withDerivedStatus)
+      : [];
     if (parsed.pending && interviews.length === 0) {
       interviews.push({
         id: `legacy-${Date.now()}`,
@@ -68,6 +70,14 @@ function createId(): string {
   return `ri-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+function deriveStatus(scheduledAt: string): RealInterview['status'] {
+  return new Date(scheduledAt).getTime() < Date.now() ? 'past' : 'upcoming';
+}
+
+function withDerivedStatus(interview: RealInterview): RealInterview {
+  return { ...interview, status: deriveStatus(interview.scheduledAt) };
+}
+
 export interface UseRealInterviewsReturn {
   realInterviewsCount: number;
   interviews: RealInterview[];
@@ -107,7 +117,7 @@ export function useRealInterviews(): UseRealInterviewsReturn {
   }, [refresh]);
 
   const nextInterview =
-    state.interviews.find((item) => item.status === 'upcoming') ?? null;
+    state.interviews.find((item) => deriveStatus(item.scheduledAt) === 'upcoming') ?? null;
 
   const scheduleInterview = useCallback(async () => {
     await incrementRealInterviewCount();

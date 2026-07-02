@@ -14,6 +14,7 @@ import {
 } from '@/design-system';
 import { JobOfferCard } from '@/components/jobMatch/JobOfferCard';
 import { PaywallScreen, PremiumBadge } from '@/components/premium';
+import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useJobSearch } from '@/hooks/useJobSearch';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
@@ -23,6 +24,7 @@ export default function JobMatchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { filters, setFilters, results, isLoading } = useJobSearch();
+  const { hasAppliedToJob } = useApplicationTracking();
   const { isJobSaved, toggleSaveJob, savedJobsCount } = useSavedJobs();
   const { isPremium } = usePremiumStatus();
   const toast = useToast();
@@ -158,6 +160,7 @@ export default function JobMatchScreen() {
               offer={item}
               index={index}
               isSaved={isJobSaved(item.id)}
+              hasApplied={hasAppliedToJob(item.id)}
               onToggleSave={() => toggleSaveJob(item.id)}
               onPress={() => navigateToDetail(item.id)}
               onApply={() => handleApply(item)}

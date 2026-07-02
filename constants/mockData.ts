@@ -144,8 +144,8 @@ export const QUICK_ACTIONS = [
 
 export const PROFILE_MENU = [
   { id: '1', label: 'Paramètres', icon: 'settings-outline', route: '/settings' },
-  { id: '2', label: 'Roadmap', icon: 'map-outline', route: '/roadmap' },
-  { id: '3', label: 'CV Analyzer', icon: 'document-text-outline', route: '/cv-analyzer' },
+  { id: '2', label: 'Ma progression', icon: 'map-outline', route: '/roadmap' },
+  { id: '3', label: 'Analyser mon CV', icon: 'document-text-outline', route: '/cv-analyzer' },
   { id: '4', label: 'Entretien', icon: 'mic-outline', route: '/(tabs)/interview-simulator' },
   { id: '5', label: 'Premium', icon: 'diamond-outline', route: '/premium' },
 ];

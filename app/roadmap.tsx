@@ -7,27 +7,32 @@ import { Card } from '@/components/ui/Card';
 import { ProgressRing } from '@/components/ui/ProgressRing';
 import { PlaceholderContent } from '@/components/PlaceholderContent';
 import { ScreenLayout } from '@/components/layout/ScreenLayout';
-import { MOCK_ROADMAP } from '@/constants/mockData';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { useCareerScore } from '@/hooks/useCareerScore';
+import { useRoadmapProgress } from '@/hooks/useRoadmapProgress';
+import type { RoadmapStep } from '@/types';
 
-const statusConfig = {
-  completed: { label: 'Terminé', variant: 'success' as const, icon: 'checkmark-circle' },
-  'in-progress': { label: 'En cours', variant: 'primary' as const, icon: 'time' },
-  locked: { label: 'Verrouillé', variant: 'default' as const, icon: 'lock-closed' },
+const statusConfig: Record<
+  RoadmapStep['status'],
+  { label: string; variant: 'success' | 'primary' | 'default'; icon: string }
+> = {
+  completed: { label: 'Terminé', variant: 'success', icon: 'checkmark-circle' },
+  'in-progress': { label: 'En cours', variant: 'primary', icon: 'time' },
+  locked: { label: 'Verrouillé', variant: 'default', icon: 'lock-closed' },
 };
 
 export default function RoadmapScreen() {
   const { rank, score } = useCareerScore();
+  const { steps } = useRoadmapProgress();
   const rankHint =
     rank.pointsToNextRank != null
       ? `Encore ${rank.pointsToNextRank} pts pour le rang suivant`
       : 'Rang maximum atteint 👑';
 
   return (
-    <ScreenLayout title="Roadmap" subtitle="Votre parcours vers l'objectif" showBack scrollable>
+    <ScreenLayout title="Ma progression" subtitle="Ton parcours vers l'objectif" showBack scrollable>
       <Card variant="elevated" style={styles.rankCard}>
         <RankBadge rank={rank} size="large" showProgress />
         <Text style={styles.rankScore}>{score}/1000</Text>
@@ -37,13 +42,13 @@ export default function RoadmapScreen() {
       <PlaceholderContent
         icon="map-outline"
         title="Roadmap personnalisée"
-        description="Suivez les étapes clés pour atteindre votre objectif de carrière."
+        description="Suis les étapes clés pour atteindre ton objectif de carrière."
       />
 
       <View style={styles.timeline}>
-        {MOCK_ROADMAP.map((step, index) => {
+        {steps.map((step, index) => {
           const config = statusConfig[step.status];
-          const isLast = index === MOCK_ROADMAP.length - 1;
+          const isLast = index === steps.length - 1;
 
           return (
             <View key={step.id} style={styles.timelineItem}>

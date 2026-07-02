@@ -22,6 +22,7 @@ interface JobOfferCardProps {
   offer: JobOffer;
   index?: number;
   isSaved: boolean;
+  hasApplied?: boolean;
   onToggleSave: () => void;
   onPress: () => void;
   onApply: () => void;
@@ -32,6 +33,7 @@ export function JobOfferCard({
   offer,
   index = 0,
   isSaved,
+  hasApplied = false,
   onToggleSave,
   onPress,
   onApply,
@@ -91,6 +93,9 @@ export function JobOfferCard({
 
             <View style={styles.badgesRow}>
               <SkillBadge label={offer.contractType} variant="primary" />
+              {hasApplied && (
+                <SkillBadge label="Postulé" variant="success" />
+              )}
               <View style={styles.remoteBadge}>
                 {offer.isRemote ? (
                   <Wifi size={12} color={theme.colors.brand.primaryLight} />

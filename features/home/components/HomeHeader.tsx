@@ -7,14 +7,15 @@ import {
   Text,
   useTheme,
 } from '@/design-system';
+import { useProfileDisplay } from '@/hooks/useProfileDisplay';
 
-import { HOME_USER } from '../constants/mockData';
 import { AnimatedGreeting } from './AnimatedEntrance';
 import { useGreeting } from '../hooks';
 
 export function HomeHeader() {
   const theme = useTheme();
   const greeting = useGreeting();
+  const { displayName, fullName } = useProfileDisplay();
 
   return (
     <View style={styles.container}>
@@ -24,19 +25,24 @@ export function HomeHeader() {
             {greeting}
           </Text>
           <Text variant="h2" color={theme.colors.text.primary}>
-            {HOME_USER.name} 👋
+            {displayName} 👋
           </Text>
         </View>
       </AnimatedGreeting>
 
       <View style={styles.actions}>
         <PressableScale scale={0.92}>
-          <View style={[styles.iconBtn, { backgroundColor: theme.colors.card.default, borderColor: theme.colors.border.subtle }]}>
+          <View
+            style={[
+              styles.iconBtn,
+              { backgroundColor: theme.colors.card.default, borderColor: theme.colors.border.subtle },
+            ]}
+          >
             <Icon name="notifications-outline" size="md" color={theme.colors.text.primary} />
             <View style={[styles.notifDot, { backgroundColor: theme.colors.status.danger }]} />
           </View>
         </PressableScale>
-        <Avatar name={HOME_USER.fullName} size="md" showOnline />
+        <Avatar name={fullName} size="md" showOnline />
       </View>
     </View>
   );

@@ -52,7 +52,7 @@ export function TodaysTasksCard() {
     <Card variant="elevated" padding="4" style={styles.card}>
       <View style={styles.header}>
         <Text variant="title" color={theme.colors.text.primary}>
-          Today's Tasks
+          Tâches du jour
         </Text>
         <View style={[styles.badge, { backgroundColor: theme.colors.status.successMuted, borderRadius: theme.radius.full }]}>
           <Text variant="caption" color={theme.colors.status.success}>

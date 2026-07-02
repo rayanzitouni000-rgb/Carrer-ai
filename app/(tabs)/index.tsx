@@ -7,7 +7,6 @@ import { useTheme } from '@/design-system';
 import { useAppStreak } from '@/hooks/useAppStreak';
 
 import {
-  AICoachCard,
   AnimatedEntrance,
   ApplicationsStatsCard,
   CareerScoreCard,
@@ -29,7 +28,6 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary }]}>
-      {/* Ambient gradient — reference top glow */}
       <LinearGradient
         colors={['rgba(6, 182, 212, 0.12)', 'rgba(59, 130, 246, 0.08)', 'transparent']}
         start={{ x: 0.5, y: 0 }}
@@ -67,18 +65,14 @@ export default function HomeScreen() {
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={240}>
-          <AICoachCard />
-        </AnimatedEntrance>
-
-        <AnimatedEntrance delay={320}>
           <QuickActionsGrid />
         </AnimatedEntrance>
 
-        <AnimatedEntrance delay={400}>
+        <AnimatedEntrance delay={320}>
           <ApplicationsStatsCard />
         </AnimatedEntrance>
 
-        <AnimatedEntrance delay={480}>
+        <AnimatedEntrance delay={400}>
           <RoadmapPreviewCard />
         </AnimatedEntrance>
       </ScrollView>
