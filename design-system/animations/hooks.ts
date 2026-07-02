@@ -30,7 +30,7 @@ export function useScalePress(activeScale = scaleToken.press) {
   return { animatedStyle, onPressIn, onPressOut };
 }
 
-export function useFadeIn(delay = 0, durationMs = duration.normal) {
+export function useFadeIn(delay = 0, durationMs: number = duration.normal) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(12);
 

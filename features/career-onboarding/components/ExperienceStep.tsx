@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 import { Pressable, StyleSheet, Switch, View } from 'react-native';
 
+import { AiStepHeader } from '@/components/aiCharacter';
 import { Card, Input, OutlineButton, Text, useTheme } from '@/design-system';
+
+import { ONBOARDING_AI_MESSAGES } from '../constants/aiCharacterMessages';
 
 import type { CareerProfile, WorkExperience } from '../types';
 
@@ -60,12 +63,7 @@ export function ExperienceStep({ profile, onChange }: ExperienceStepProps) {
 
   return (
     <View style={styles.container}>
-      <Text variant="h2" color={theme.colors.text.primary}>
-        Ton parcours professionnel
-      </Text>
-      <Text variant="body" color={theme.colors.text.secondary}>
-        Ça aide ton coach IA à te préparer pour tes entretiens
-      </Text>
+      <AiStepHeader message={ONBOARDING_AI_MESSAGES.experience ?? ''} />
 
       <Card variant="elevated" padding="5" style={styles.card}>
         <View style={styles.toggleRow}>

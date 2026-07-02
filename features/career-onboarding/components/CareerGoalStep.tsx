@@ -1,7 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Card, Text, useTheme } from '@/design-system';
+import { AiStepHeader } from '@/components/aiCharacter';
+import { Card } from '@/design-system';
 
+import { ONBOARDING_AI_MESSAGES } from '../constants/aiCharacterMessages';
 import { CAREER_GOAL_OPTIONS } from '../constants';
 import { OptionCardGrid } from './onboarding/OptionCardGrid';
 import type { CareerGoalId, CareerProfile } from '../types';
@@ -12,16 +14,9 @@ interface CareerGoalStepProps {
 }
 
 export function CareerGoalStep({ profile, onChange }: CareerGoalStepProps) {
-  const theme = useTheme();
-
   return (
     <View style={styles.container}>
-      <Text variant="h2" color={theme.colors.text.primary}>
-        Quel est ton objectif principal ?
-      </Text>
-      <Text variant="body" color={theme.colors.text.secondary}>
-        Choisis ce qui compte le plus pour toi en ce moment.
-      </Text>
+      <AiStepHeader message={ONBOARDING_AI_MESSAGES.goal ?? ''} />
 
       <Card variant="elevated" padding="5" style={styles.card}>
         <OptionCardGrid

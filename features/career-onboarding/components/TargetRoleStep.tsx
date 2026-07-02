@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AiStepHeader } from '@/components/aiCharacter';
 import { Card, Input, Text, useTheme } from '@/design-system';
+
+import { ONBOARDING_AI_MESSAGES } from '../constants/aiCharacterMessages';
 
 import { JOB_ROLES, MAX_TARGET_ROLES, searchJobRoles } from '../data/jobRolesData';
 import type { CareerProfile } from '../types';
@@ -38,12 +41,7 @@ export function TargetRoleStep({ profile, onChange }: TargetRoleStepProps) {
 
   return (
     <View style={styles.container}>
-      <Text variant="h2" color={theme.colors.text.primary}>
-        Quel(s) poste(s) vises-tu ?
-      </Text>
-      <Text variant="body" color={theme.colors.text.secondary}>
-        Pour des entretiens et un CV vraiment ciblés
-      </Text>
+      <AiStepHeader message={ONBOARDING_AI_MESSAGES.targetRole ?? ''} />
 
       <Card variant="elevated" padding="5" style={styles.card}>
         <Input

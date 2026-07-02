@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 
 import {
@@ -25,7 +25,7 @@ import { PersonalInfoStep } from './components/PersonalInfoStep';
 import { SkillsStep } from './components/SkillsStep';
 import { SummaryStep } from './components/SummaryStep';
 import { TargetRoleStep } from './components/TargetRoleStep';
-import { WelcomeStep } from './components/WelcomeStep';
+import { AiWelcomeStep } from './components/AiWelcomeStep';
 import { FORM_STEPS } from './constants';
 import { useCareerOnboarding } from './hooks/useCareerOnboarding';
 import { useResetCareerProfile } from './hooks/useResetCareerProfile';
@@ -45,16 +45,12 @@ function renderStep(
   step: CareerOnboardingStep,
   profile: ReturnType<typeof useCareerOnboarding>['profile'],
   updateProfile: ReturnType<typeof useCareerOnboarding>['updateProfile'],
-  onRegisterSkillsScrollDismiss?: (handler: (() => void) | null) => void
+  onRegisterSkillsScrollDismiss?: (handler: (() => void) | null) => void,
+  onWelcomeIntroComplete?: (complete: boolean) => void
 ) {
   switch (step) {
     case 'welcome':
-      return (
-        <WelcomeStep
-          title="Personnalisons ton expérience CareerPilot"
-          subtitle="Quelques infos sur toi pour que ton coach IA carrière t'accompagne au mieux."
-        />
-      );
+      return <AiWelcomeStep onIntroComplete={onWelcomeIntroComplete} />;
     case 'personal':
       return <PersonalInfoStep profile={profile} onChange={updateProfile} />;
     case 'currentProfile':
@@ -83,7 +79,6 @@ function renderStep(
 }
 
 function getContinueLabel(step: CareerOnboardingStep): string {
-  if (step === 'welcome') return 'Commencer';
   if (step === 'summary') return "Continuer vers l'inscription";
   return 'Continuer';
 }
@@ -107,6 +102,13 @@ export function CareerOnboardingScreen() {
     resetOnboarding,
   } = useCareerOnboarding();
   const skillsScrollDismissRef = useRef<(() => void) | null>(null);
+  const [welcomeIntroComplete, setWelcomeIntroComplete] = useState(false);
+
+  useEffect(() => {
+    if (step === 'welcome') {
+      setWelcomeIntroComplete(false);
+    }
+  }, [step]);
 
   const { confirmReset } = useResetCareerProfile({
     redirectTo: '/career-onboarding',
@@ -187,14 +189,20 @@ export function CareerOnboardingScreen() {
       )}
 
       <StepTransition stepKey={step}>
-        {renderStep(step, profile, updateProfile, handleSkillsScrollDismiss)}
+        {renderStep(
+          step,
+          profile,
+          updateProfile,
+          handleSkillsScrollDismiss,
+          setWelcomeIntroComplete
+        )}
       </StepTransition>
 
       <View style={[styles.footer, { paddingTop: theme.spacing['6'] }]}>
         <PrimaryButton
           label={getContinueLabel(step)}
           onPress={handleContinue}
-          disabled={!canContinue}
+          disabled={!canContinue || (step === 'welcome' && !welcomeIntroComplete)}
           fullWidth
           size="lg"
         />

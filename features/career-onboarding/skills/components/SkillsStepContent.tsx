@@ -1,7 +1,10 @@
 import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useEffect } from 'react';
 
+import { AiStepHeader } from '@/components/aiCharacter';
 import { Input, Text, useTheme } from '@/design-system';
+
+import { ONBOARDING_AI_MESSAGES } from '../../constants/aiCharacterMessages';
 
 import { MIN_USER_SKILLS } from '../types';
 import { useSkillSelector } from '../hooks/useSkillSelector';
@@ -57,14 +60,7 @@ export function SkillsStepContent({
 
   return (
     <Pressable style={styles.container} onPress={closeLevelPicker}>
-      <View style={styles.header}>
-        <Text variant="h2" color={theme.colors.text.primary}>
-          Tes compétences
-        </Text>
-        <Text variant="body" color={theme.colors.text.secondary}>
-          Sélectionne au moins {MIN_USER_SKILLS} compétences
-        </Text>
-      </View>
+      <AiStepHeader message={ONBOARDING_AI_MESSAGES.skills ?? ''} />
 
       <Pressable onPress={(event) => event.stopPropagation()}>
         <Input
@@ -222,9 +218,6 @@ export function SkillsStepContent({
 const styles = StyleSheet.create({
   container: {
     gap: 16,
-  },
-  header: {
-    gap: 6,
   },
   searchPanel: {
     borderWidth: 1,

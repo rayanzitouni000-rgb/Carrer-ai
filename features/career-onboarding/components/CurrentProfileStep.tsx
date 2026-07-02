@@ -1,7 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Card, Text, useTheme } from '@/design-system';
+import { AiStepHeader } from '@/components/aiCharacter';
+import { Card } from '@/design-system';
 
+import { ONBOARDING_AI_MESSAGES } from '../constants/aiCharacterMessages';
 import { CURRENT_PROFILE_OPTIONS, getCurrentProfileOptionId } from '../constants';
 import { OptionCardGrid } from './onboarding/OptionCardGrid';
 import type { CareerProfile } from '../types';
@@ -12,7 +14,6 @@ interface CurrentProfileStepProps {
 }
 
 export function CurrentProfileStep({ profile, onChange }: CurrentProfileStepProps) {
-  const theme = useTheme();
   const selectedId = getCurrentProfileOptionId(profile);
 
   const handleSelect = (id: string) => {
@@ -27,12 +28,7 @@ export function CurrentProfileStep({ profile, onChange }: CurrentProfileStepProp
 
   return (
     <View style={styles.container}>
-      <Text variant="h2" color={theme.colors.text.primary}>
-        Ton profil actuel
-      </Text>
-      <Text variant="body" color={theme.colors.text.secondary}>
-        Où en es-tu aujourd&apos;hui dans ton parcours ?
-      </Text>
+      <AiStepHeader message={ONBOARDING_AI_MESSAGES.currentProfile ?? ''} />
 
       <Card variant="elevated" padding="5" style={styles.card}>
         <OptionCardGrid

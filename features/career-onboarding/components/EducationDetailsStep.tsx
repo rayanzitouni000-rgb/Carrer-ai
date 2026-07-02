@@ -1,6 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 
+import { AiStepHeader } from '@/components/aiCharacter';
 import { Card, Input, Text, useTheme } from '@/design-system';
+
+import { ONBOARDING_AI_MESSAGES } from '../constants/aiCharacterMessages';
 
 import { EDUCATION_LEVEL_OPTIONS, FIELD_OPTIONS } from '../constants';
 import { OptionCardGrid } from './onboarding/OptionCardGrid';
@@ -18,14 +21,7 @@ export function EducationDetailsStep({ profile, onChange }: EducationDetailsStep
 
   return (
     <View style={styles.container}>
-      <Text variant="h2" color={theme.colors.text.primary}>
-        {needsEducationLevel ? 'Précise ta formation' : "Ton domaine d'études"}
-      </Text>
-      <Text variant="body" color={theme.colors.text.secondary}>
-        {needsEducationLevel
-          ? 'Indique ton niveau de diplôme et ta spécialité'
-          : 'Précise ta spécialité'}
-      </Text>
+      <AiStepHeader message={ONBOARDING_AI_MESSAGES.educationDetails ?? ''} />
 
       <Card variant="elevated" padding="5" style={styles.card}>
         {needsEducationLevel && (
