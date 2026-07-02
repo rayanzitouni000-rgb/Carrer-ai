@@ -69,14 +69,14 @@ export default function SavedJobsScreen() {
             hasApplied={hasAppliedToJob(item.id)}
             onToggleSave={() => toggleSaveJob(item.id)}
             onPress={() =>
-              router.push({ pathname: './job-detail', params: { id: item.id } })
+              router.push({ pathname: '/(tabs)/job-match/[id]', params: { id: item.id } })
             }
             onApply={() =>
-              router.push({ pathname: './job-detail', params: { id: item.id } })
+              router.push({ pathname: '/(tabs)/job-match/[id]', params: { id: item.id } })
             }
             onAnalyze={() =>
               router.push({
-                pathname: './job-detail',
+                pathname: '/(tabs)/job-match/[id]',
                 params: { id: item.id, section: 'skills' },
               })
             }

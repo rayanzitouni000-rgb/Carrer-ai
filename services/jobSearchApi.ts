@@ -34,6 +34,18 @@ export async function fetchJobOffersFromApi(
   return data.offers ?? [];
 }
 
+export async function fetchJobOfferById(id: string): Promise<JobOffer | null> {
+  const base = getJobApiBaseUrl();
+  if (!base || !id.trim()) return null;
+
+  const url = `${base.replace(/\/$/, '')}/api/job-offer/${encodeURIComponent(id.trim())}`;
+  const response = await fetch(url);
+  if (!response.ok) return null;
+
+  const data = (await response.json()) as { offer?: JobOffer };
+  return data.offer ?? null;
+}
+
 export function filtersToFetchParams(filters: JobSearchFilters): FetchJobOffersParams {
   return {
     query: filters.query,

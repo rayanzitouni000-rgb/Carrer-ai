@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import {
   Icon,
+  LoadingSpinner,
   OutlineButton,
   PressableScale,
   PrimaryButton,
@@ -17,12 +18,13 @@ import {
   useTheme,
   useToast,
 } from '@/design-system';
-import { getJobOfferById } from '@/utils/jobOfferResolver';
 import type { CareerProfile } from '@/features/career-onboarding/types';
 import { useApplicationTracking } from '@/hooks/useApplicationTracking';
+import { useJobOffer } from '@/hooks/useJobOffer';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { careerProfileStore } from '@/services/careerProfileStore';
+import { normalizeRouteId } from '@/utils/jobOfferResolver';
 import { calculateMatchScore, formatSalaryRange, getCompanyColor, getCompanyInitials } from '@/utils/matchScoreCalculator';
 
 function skillMatchesProfile(skill: string, profile: CareerProfile): boolean {
@@ -39,9 +41,11 @@ export default function JobDetailScreen() {
   const router = useRouter();
   const toast = useToast();
   const scrollRef = useRef<ScrollView>(null);
-  const { id, section } = useLocalSearchParams<{ id: string; section?: string }>();
+  const params = useLocalSearchParams<{ id: string; section?: string }>();
+  const id = normalizeRouteId(params.id);
+  const section = Array.isArray(params.section) ? params.section[0] : params.section;
 
-  const offer = getJobOfferById(id ?? '');
+  const { offer, isLoading } = useJobOffer(id);
   const { isJobSaved, toggleSaveJob, trackApplicationFromMatch } = useSavedJobs();
   const { addApplication, hasAppliedToJob } = useApplicationTracking();
   const { addInterview } = useRealInterviews();
@@ -56,6 +60,14 @@ export default function JobDetailScreen() {
       return () => clearTimeout(timer);
     }
   }, [section]);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.center, { backgroundColor: theme.colors.background.primary }]}>
+        <LoadingSpinner />
+      </View>
+    );
+  }
 
   if (!offer) {
     return (

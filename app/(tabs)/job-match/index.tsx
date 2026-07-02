@@ -44,7 +44,7 @@ export default function JobMatchScreen() {
 
   const navigateToDetail = (id: string, section?: string) => {
     router.push({
-      pathname: './job-detail',
+      pathname: '/(tabs)/job-match/[id]',
       params: { id, ...(section ? { section } : {}) },
     });
   };

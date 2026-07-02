@@ -7,6 +7,10 @@ export const jobOfferStore = {
     return cache.get(id);
   },
 
+  set(offer: JobOffer): void {
+    if (offer.id) cache.set(offer.id, offer);
+  },
+
   setMany(offers: JobOffer[]): void {
     for (const offer of offers) {
       if (offer.id) cache.set(offer.id, offer);

@@ -8,7 +8,7 @@ export default function JobMatchLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="filters" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="job-detail" />
+        <Stack.Screen name="[id]" />
         <Stack.Screen name="saved" />
       </Stack>
     </JobSearchProvider>
