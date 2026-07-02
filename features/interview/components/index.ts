@@ -9,3 +9,7 @@ export { AiFeedbackCard, ImprovementAreasCard } from './FeedbackSections';
 export { CommonQuestionsList } from './CommonQuestionsList';
 export { QuickActionsBar } from './QuickActionsBar';
 export { InterviewHistorySection } from './InterviewHistorySection';
+export { InterviewSetupForm } from './InterviewSetupForm';
+export { FeedbackSummaryCard } from './FeedbackSummaryCard';
+export { FeedbackQuestionAccordion } from './FeedbackQuestionAccordion';
+export { SessionContextBanner } from './SessionContextBanner';

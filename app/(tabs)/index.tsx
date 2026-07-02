@@ -11,7 +11,6 @@ import {
   AnimatedEntrance,
   ApplicationsStatsCard,
   CareerScoreCard,
-  HomeFloatingAI,
   HomeHeader,
   QuickActionsGrid,
   RoadmapPreviewCard,
@@ -83,8 +82,6 @@ export default function HomeScreen() {
           <RoadmapPreviewCard />
         </AnimatedEntrance>
       </ScrollView>
-
-      <HomeFloatingAI />
     </View>
   );
 }

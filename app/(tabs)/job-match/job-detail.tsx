@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Heart, MapPin, Sparkles } from 'lucide-react-native';
@@ -82,9 +82,9 @@ export default function JobDetailScreen() {
   const handlePrepareInterview = async () => {
     await addInterview({ company: offer.company, jobTitle: offer.title });
     router.push({
-      pathname: '/interview',
-      params: { company: offer.company, jobTitle: offer.title },
-    });
+      pathname: '/(tabs)/interview-simulator/session',
+      params: { jobOfferId: offer.id },
+    } as unknown as Href);
   };
 
   return (

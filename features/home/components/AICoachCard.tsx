@@ -60,7 +60,7 @@ export function AICoachCard() {
         <OutlineButton
           label="Ask AI"
           size="sm"
-          onPress={() => router.push('/(tabs)/ai-chat')}
+          onPress={() => router.push('/ai-chat')}
           style={styles.button}
         />
       </LinearGradient>

@@ -6,9 +6,10 @@ import {
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/design-system';
+import { Icon, PressableScale, useTheme } from '@/design-system';
 
 import {
   ChatEmptyState,
@@ -22,11 +23,10 @@ import {
 import { MOCK_CONVERSATION } from '@/features/chat/constants/mockData';
 import { useChat } from '@/features/chat/hooks';
 
-const TAB_BAR_OFFSET = Platform.OS === 'ios' ? 88 : 68;
-
 export default function AiChatScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const {
     messages,
     input,
@@ -70,17 +70,26 @@ export default function AiChatScreen() {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? TAB_BAR_OFFSET : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.bottom : 0}
       >
         <View
           style={[
             styles.container,
             {
               paddingTop: insets.top + 8,
+              paddingBottom: insets.bottom + 12,
               paddingHorizontal: theme.spacing['4'],
             },
           ]}
         >
+          <View style={styles.topBar}>
+            <PressableScale scale={0.92} onPress={() => router.back()}>
+              <View style={[styles.closeBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
+                <Icon name="close" size="sm" color={theme.colors.text.primary} />
+              </View>
+            </PressableScale>
+          </View>
+
           <ChatHeader />
 
           <View style={styles.messagesArea}>
@@ -99,8 +108,6 @@ export default function AiChatScreen() {
             onSend={handleSend}
             disabled={isTyping}
           />
-
-          <View style={{ height: TAB_BAR_OFFSET - 20 }} />
         </View>
       </KeyboardAvoidingView>
     </View>
@@ -113,6 +120,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     gap: 12,
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: -4,
+  },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   messagesArea: {
     flex: 1,

@@ -10,4 +10,5 @@ export const STORAGE_KEYS = {
   realInterviews: '@careerpilot/real-interviews',
   savedJobs: '@careerpilot/saved-jobs',
   jobMatchApplications: '@careerpilot/job-match-applications',
+  onboardingAssessment: '@careerpilot/onboarding-assessment',
 } as const;

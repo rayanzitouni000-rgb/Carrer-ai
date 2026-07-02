@@ -9,10 +9,10 @@ export function InterviewHeader() {
   return (
     <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.container}>
       <Text variant="h2" color={theme.colors.text.primary}>
-        Interview Simulator
+        Entretien
       </Text>
       <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.subtitle}>
-        Practice interviews with your AI Career Coach.
+        Simule tes entretiens avec ton coach IA carrière.
       </Text>
     </Animated.View>
   );

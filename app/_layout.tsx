@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
+import { GlobalFloatingAI } from '@/components/layout/GlobalFloatingAI';
 import {
   ThemeProvider,
   ToastProvider,
@@ -58,6 +59,7 @@ function RootNavigator() {
         <Stack.Screen name="cv-manager/generate/index" options={{ presentation: 'card' }} />
         <Stack.Screen name="cv-manager/generate/form" options={{ presentation: 'card' }} />
         <Stack.Screen name="cv-manager/generate/preview" options={{ presentation: 'card' }} />
+        <Stack.Screen name="ai-chat" options={{ presentation: 'modal' }} />
         <Stack.Screen name="interview" options={{ presentation: 'card' }} />
         <Stack.Screen name="roadmap" options={{ presentation: 'card' }} />
         <Stack.Screen name="premium" options={{ presentation: 'modal' }} />
@@ -80,6 +82,7 @@ export default function RootLayout() {
         <ThemeProvider initialMode="dark">
           <ToastProvider>
             <RootNavigator />
+            <GlobalFloatingAI />
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>

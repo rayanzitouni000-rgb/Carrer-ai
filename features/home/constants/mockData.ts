@@ -45,7 +45,7 @@ export interface QuickAction {
 
 export const HOME_QUICK_ACTIONS: QuickAction[] = [
   { id: '1', label: 'Analyze CV', icon: 'document-text-outline', route: '/cv-analyzer', gradient: ['#2563EB', '#6366F1'] },
-  { id: '2', label: 'Interview Practice', icon: 'mic-outline', route: '/interview', gradient: ['#06B6D4', '#3B82F6'] },
+  { id: '2', label: 'Interview Practice', icon: 'mic-outline', route: '/(tabs)/interview-simulator', gradient: ['#06B6D4', '#3B82F6'] },
   { id: '3', label: 'Cover Letter', icon: 'create-outline' as const, route: '/ai-chat', gradient: ['#8B5CF6', '#EC4899'] },
   { id: '4', label: 'Générer un CV', icon: 'document-text-outline', route: '/cv-manager/generate', gradient: ['#3B82F6', '#06B6D4'] },
   { id: '5', label: 'Salary Insights', icon: 'cash-outline', route: '/premium', gradient: ['#F59E0B', '#EF4444'] },

@@ -63,11 +63,11 @@ export const ANALYSIS_HISTORY: AnalysisHistoryItem[] = [
 ];
 
 export const QUICK_ACTIONS = [
-  { id: '1', label: 'Optimize CV', icon: 'sparkles-outline' as const, route: '/(tabs)/ai-chat' },
-  { id: '2', label: 'New Resume', icon: 'document-text-outline' as const, route: '/(tabs)/ai-chat' },
-  { id: '3', label: 'Cover Letter', icon: 'create-outline' as const, route: '/(tabs)/ai-chat' },
+  { id: '1', label: 'Optimize CV', icon: 'sparkles-outline' as const, route: '/ai-chat' },
+  { id: '2', label: 'New Resume', icon: 'document-text-outline' as const, route: '/ai-chat' },
+  { id: '3', label: 'Cover Letter', icon: 'create-outline' as const, route: '/ai-chat' },
   { id: '4', label: 'Générer un CV', icon: 'document-text-outline' as const, route: '/cv-manager/generate' },
-  { id: '5', label: 'Interview', icon: 'mic-outline' as const, route: '/interview' },
+  { id: '5', label: 'Interview', icon: 'mic-outline' as const, route: '/(tabs)/interview-simulator' },
 ];
 
 export const SUPPORTED_FORMATS = ['PDF', 'DOCX'] as const;

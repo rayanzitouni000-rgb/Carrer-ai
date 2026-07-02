@@ -45,7 +45,7 @@ export function QuickActionsSection({ onAnalyzeAgain }: QuickActionsSectionProps
         ))}
       </ScrollView>
       <View style={styles.buttons}>
-        <PrimaryButton label="Optimize CV" size="sm" onPress={() => router.push('/(tabs)/ai-chat')} style={styles.btn} />
+        <PrimaryButton label="Optimize CV" size="sm" onPress={() => router.push('/ai-chat')} style={styles.btn} />
         <OutlineButton label="Analyze Again" size="sm" style={styles.btn} onPress={onAnalyzeAgain} />
       </View>
     </Animated.View>

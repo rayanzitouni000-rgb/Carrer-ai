@@ -12,7 +12,7 @@ export function HomeFloatingAI() {
   return (
     <PressableScale
       scale={0.94}
-      onPress={() => router.push('/(tabs)/ai-chat')}
+      onPress={() => router.push('/ai-chat')}
       style={styles.wrap}
       accessibilityRole="button"
       accessibilityLabel="Ouvrir le coach IA carrière"

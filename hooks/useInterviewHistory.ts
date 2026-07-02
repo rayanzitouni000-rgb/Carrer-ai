@@ -2,47 +2,74 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import type { InterviewSession } from '@/types/interviewSimulator';
 import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 
-async function readCount(): Promise<number> {
+interface StoredInterviewHistory {
+  sessions: InterviewSession[];
+  count: number;
+}
+
+const DEFAULT_STATE: StoredInterviewHistory = {
+  sessions: [],
+  count: 0,
+};
+
+function normalizeStored(raw: unknown): StoredInterviewHistory {
+  if (!raw) return { ...DEFAULT_STATE };
+  if (typeof raw === 'number') {
+    return { sessions: [], count: raw };
+  }
+  if (typeof raw === 'object' && raw !== null) {
+    const parsed = raw as Partial<StoredInterviewHistory>;
+    const sessions = Array.isArray(parsed.sessions) ? (parsed.sessions as InterviewSession[]) : [];
+    const count = typeof parsed.count === 'number' ? parsed.count : sessions.length;
+    return { sessions, count };
+  }
+  return { ...DEFAULT_STATE };
+}
+
+async function readState(): Promise<StoredInterviewHistory> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.interviewSessions);
-    if (!raw) return 0;
-    const parsed = JSON.parse(raw);
-    return typeof parsed === 'number' ? parsed : Number(parsed?.count ?? 0);
+    if (!raw) return { ...DEFAULT_STATE };
+    return normalizeStored(JSON.parse(raw));
   } catch {
-    return 0;
+    return { ...DEFAULT_STATE };
   }
 }
 
-async function writeCount(count: number): Promise<void> {
-  await AsyncStorage.setItem(STORAGE_KEYS.interviewSessions, JSON.stringify({ count }));
+async function writeState(state: StoredInterviewHistory): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEYS.interviewSessions, JSON.stringify(state));
 }
 
 export async function incrementInterviewSessionCount(): Promise<void> {
-  const count = await readCount();
-  await writeCount(count + 1);
+  const current = await readState();
+  await writeState({ ...current, count: current.count + 1 });
   notifyGamification();
 }
 
 export interface UseInterviewHistoryReturn {
+  sessions: InterviewSession[];
   interviewSessionsCount: number;
   isReady: boolean;
+  saveSession: (session: InterviewSession) => Promise<void>;
+  getSessionById: (id: string) => InterviewSession | undefined;
 }
 
 export function useInterviewHistory(): UseInterviewHistoryReturn {
-  const [count, setCount] = useState(0);
+  const [state, setState] = useState<StoredInterviewHistory>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
   const refresh = useCallback(async () => {
-    setCount(await readCount());
+    setState(await readState());
   }, []);
 
   useEffect(() => {
     let mounted = true;
-    void readCount().then((stored) => {
+    void readState().then((stored) => {
       if (!mounted) return;
-      setCount(stored);
+      setState(stored);
       setIsReady(true);
     });
     const unsubscribe = subscribeGamification(() => {
@@ -54,5 +81,27 @@ export function useInterviewHistory(): UseInterviewHistoryReturn {
     };
   }, [refresh]);
 
-  return { interviewSessionsCount: count, isReady };
+  const saveSession = useCallback(async (session: InterviewSession) => {
+    const current = await readState();
+    const next: StoredInterviewHistory = {
+      sessions: [session, ...current.sessions.filter((item) => item.id !== session.id)],
+      count: current.count + 1,
+    };
+    await writeState(next);
+    notifyGamification();
+    setState(next);
+  }, []);
+
+  const getSessionById = useCallback(
+    (id: string) => state.sessions.find((session) => session.id === id),
+    [state.sessions]
+  );
+
+  return {
+    sessions: state.sessions,
+    interviewSessionsCount: state.count,
+    isReady,
+    saveSession,
+    getSessionById,
+  };
 }

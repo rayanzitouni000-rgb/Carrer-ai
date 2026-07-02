@@ -2,33 +2,55 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import type { RealInterview } from '@/types/interviewSimulator';
 import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
-
-export interface PendingRealInterview {
-  company: string;
-  jobTitle: string;
-  createdAt: string;
-}
 
 interface RealInterviewState {
   count: number;
-  pending: PendingRealInterview | null;
+  interviews: RealInterview[];
+}
+
+const DEFAULT_STATE: RealInterviewState = {
+  count: 0,
+  interviews: [],
+};
+
+function normalizeLegacy(raw: unknown): RealInterviewState {
+  if (!raw) return { ...DEFAULT_STATE };
+  if (typeof raw === 'number') {
+    return { count: raw, interviews: [] };
+  }
+  if (typeof raw === 'object' && raw !== null) {
+    const parsed = raw as {
+      count?: number;
+      pending?: { company: string; jobTitle: string; createdAt: string };
+      interviews?: RealInterview[];
+    };
+    const interviews = Array.isArray(parsed.interviews) ? parsed.interviews : [];
+    if (parsed.pending && interviews.length === 0) {
+      interviews.push({
+        id: `legacy-${Date.now()}`,
+        company: parsed.pending.company,
+        jobTitle: parsed.pending.jobTitle,
+        scheduledAt: parsed.pending.createdAt,
+        status: 'upcoming',
+      });
+    }
+    return {
+      count: typeof parsed.count === 'number' ? parsed.count : interviews.length,
+      interviews,
+    };
+  }
+  return { ...DEFAULT_STATE };
 }
 
 async function readState(): Promise<RealInterviewState> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.realInterviews);
-    if (!raw) return { count: 0, pending: null };
-    const parsed = JSON.parse(raw);
-    if (typeof parsed === 'number') {
-      return { count: parsed, pending: null };
-    }
-    return {
-      count: Number(parsed?.count ?? 0),
-      pending: parsed?.pending ?? null,
-    };
+    if (!raw) return { ...DEFAULT_STATE };
+    return normalizeLegacy(JSON.parse(raw));
   } catch {
-    return { count: 0, pending: null };
+    return { ...DEFAULT_STATE };
   }
 }
 
@@ -42,16 +64,26 @@ export async function incrementRealInterviewCount(): Promise<void> {
   notifyGamification();
 }
 
+function createId(): string {
+  return `ri-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export interface UseRealInterviewsReturn {
   realInterviewsCount: number;
-  pendingInterview: PendingRealInterview | null;
+  interviews: RealInterview[];
+  nextInterview: RealInterview | null;
   isReady: boolean;
   scheduleInterview: () => Promise<void>;
-  addInterview: (data: { company: string; jobTitle: string }) => Promise<void>;
+  addInterview: (data: {
+    company: string;
+    jobTitle: string;
+    scheduledAt?: string;
+  }) => Promise<RealInterview>;
+  linkSessionToInterview: (interviewId: string, sessionId: string) => Promise<void>;
 }
 
 export function useRealInterviews(): UseRealInterviewsReturn {
-  const [state, setState] = useState<RealInterviewState>({ count: 0, pending: null });
+  const [state, setState] = useState<RealInterviewState>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -74,31 +106,58 @@ export function useRealInterviews(): UseRealInterviewsReturn {
     };
   }, [refresh]);
 
+  const nextInterview =
+    state.interviews.find((item) => item.status === 'upcoming') ?? null;
+
   const scheduleInterview = useCallback(async () => {
     await incrementRealInterviewCount();
     setState(await readState());
   }, []);
 
-  const addInterview = useCallback(async (data: { company: string; jobTitle: string }) => {
-    const current = await readState();
-    const next: RealInterviewState = {
-      count: current.count + 1,
-      pending: {
+  const addInterview = useCallback(
+    async (data: { company: string; jobTitle: string; scheduledAt?: string }) => {
+      const current = await readState();
+      const interview: RealInterview = {
+        id: createId(),
         company: data.company,
         jobTitle: data.jobTitle,
-        createdAt: new Date().toISOString(),
-      },
+        scheduledAt: data.scheduledAt ?? new Date().toISOString(),
+        status: 'upcoming',
+      };
+      const next: RealInterviewState = {
+        count: current.count + 1,
+        interviews: [interview, ...current.interviews],
+      };
+      await writeState(next);
+      notifyGamification();
+      setState(next);
+      return interview;
+    },
+    []
+  );
+
+  const linkSessionToInterview = useCallback(async (interviewId: string, sessionId: string) => {
+    const current = await readState();
+    const next: RealInterviewState = {
+      ...current,
+      interviews: current.interviews.map((item) =>
+        item.id === interviewId ? { ...item, linkedSessionId: sessionId } : item
+      ),
     };
     await writeState(next);
-    notifyGamification();
     setState(next);
   }, []);
 
   return {
     realInterviewsCount: state.count,
-    pendingInterview: state.pending,
+    interviews: state.interviews,
+    nextInterview,
     isReady,
     scheduleInterview,
     addInterview,
+    linkSessionToInterview,
   };
 }
+
+/** @deprecated Utiliser nextInterview */
+export type PendingRealInterview = RealInterview;

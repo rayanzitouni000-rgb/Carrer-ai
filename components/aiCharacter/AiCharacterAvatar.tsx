@@ -27,33 +27,35 @@ const SIZE_MAP: Record<AiCharacterSize, { width: number; height: number; clip: n
 };
 
 export function AiCharacterAvatar({
+  state = 'idle',
   size = 'medium',
   style,
 }: AiCharacterAvatarProps) {
   const dimensions = SIZE_MAP[size];
   const clipSize = dimensions.clip;
   const clipRadius = clipSize / 2;
+  const isSpeaking = state === 'speaking';
   const floatY = useSharedValue(0);
   const haloScale = useSharedValue(1);
   const haloOpacity = useSharedValue(0.6);
 
   useEffect(() => {
     floatY.value = withRepeat(
-      withTiming(-6, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+      withTiming(isSpeaking ? -4 : -6, { duration: isSpeaking ? 900 : 1500, easing: Easing.inOut(Easing.sin) }),
       -1,
       true
     );
     haloScale.value = withRepeat(
-      withTiming(1.08, { duration: 1250, easing: Easing.inOut(Easing.sin) }),
+      withTiming(isSpeaking ? 1.18 : 1.08, { duration: isSpeaking ? 700 : 1250, easing: Easing.inOut(Easing.sin) }),
       -1,
       true
     );
     haloOpacity.value = withRepeat(
-      withTiming(1, { duration: 1250, easing: Easing.inOut(Easing.sin) }),
+      withTiming(isSpeaking ? 1 : 0.75, { duration: isSpeaking ? 700 : 1250, easing: Easing.inOut(Easing.sin) }),
       -1,
       true
     );
-  }, [floatY, haloOpacity, haloScale]);
+  }, [floatY, haloOpacity, haloScale, isSpeaking]);
 
   const containerStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: floatY.value }],
@@ -85,6 +87,9 @@ export function AiCharacterAvatar({
               width: clipSize,
               height: clipSize,
               borderRadius: clipRadius,
+              backgroundColor: isSpeaking ? 'rgba(139, 92, 246, 0.45)' : 'rgba(99, 102, 241, 0.35)',
+              shadowColor: isSpeaking ? '#A78BFA' : '#818CF8',
+              shadowRadius: isSpeaking ? 32 : 24,
             },
           ]}
         />

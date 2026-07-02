@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 
 import {
   Icon,
@@ -27,6 +27,7 @@ import { TargetRoleStep } from './components/TargetRoleStep';
 import { AiWelcomeStep } from './components/AiWelcomeStep';
 import { FORM_STEPS } from './constants';
 import { useCareerOnboarding } from './hooks/useCareerOnboarding';
+import { useOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
 import { useResetCareerProfile } from './hooks/useResetCareerProfile';
 import type { CareerOnboardingStep } from './types';
 
@@ -97,6 +98,7 @@ export function CareerOnboardingScreen() {
     isReady,
     resetOnboarding,
   } = useCareerOnboarding();
+  const { shouldOfferAssessmentAfterWizard } = useOnboardingAssessment();
   const skillsScrollDismissRef = useRef<(() => void) | null>(null);
   const [welcomeIntroComplete, setWelcomeIntroComplete] = useState(false);
 
@@ -137,9 +139,14 @@ export function CareerOnboardingScreen() {
       ? `Étape ${formStepIndex + 1} sur ${FORM_STEPS.length} · ${STEP_LABELS[step as (typeof FORM_STEPS)[number]]}`
       : '';
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (isSummary) {
       completeOnboarding();
+      const offerAssessment = await shouldOfferAssessmentAfterWizard();
+      if (offerAssessment) {
+        router.replace('/(tabs)/interview-simulator/onboarding-assessment' as Href);
+        return;
+      }
       router.replace('/signup');
       return;
     }
