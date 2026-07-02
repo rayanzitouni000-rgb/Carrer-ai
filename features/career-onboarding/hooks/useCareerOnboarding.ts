@@ -5,6 +5,7 @@ import { persistenceService } from '@/services/persistence';
 
 import { FORM_STEPS } from '../constants';
 import { isSituationDetailsComplete } from '../utils/situationDetailsValidation';
+import { requiresPastEducationInput } from '../utils/educationSituationUtils';
 import {
   CareerOnboardingStep,
   CareerProfile,
@@ -92,12 +93,16 @@ export function useCareerOnboarding() {
         return true;
       case 'personal':
         return profile.firstName.trim().length > 0 && profile.ageRange !== null;
-      case 'educationDetails':
-        return (
+      case 'educationDetails': {
+        const situationComplete =
           profile.currentSituation !== null &&
-          isSituationDetailsComplete(profile.currentSituation, profile.situationDetails) &&
-          profile.educationLevel !== null
-        );
+          isSituationDetailsComplete(profile.currentSituation, profile.situationDetails);
+        if (!situationComplete) return false;
+        if (requiresPastEducationInput(profile.currentSituation)) {
+          return profile.educationLevel !== null;
+        }
+        return true;
+      }
       case 'experience':
         return (
           profile.hasNoExperience ||

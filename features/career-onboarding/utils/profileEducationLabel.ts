@@ -4,15 +4,23 @@ import {
   getNiveauCursusLabel,
 } from '../data/cursusSuperieurData';
 import type { CareerProfile } from '../types';
+import { deriveEducationLevel } from './deriveEducationLevel';
 
 /** Résumé formation pour récap onboarding et pré-remplissage CV. */
 export function formatProfileEducationSummary(profile: CareerProfile): string {
   const parts: string[] = [];
 
-  const level = getOptionLabel(EDUCATION_LEVEL_OPTIONS, profile.educationLevel);
-  if (level && level !== '—') parts.push(level);
-
   const { currentSituation, situationDetails: d } = profile;
+  const hasDetailedCursus =
+    (currentSituation === 'etudiant' || currentSituation === 'alternant') && Boolean(d.typeCursus);
+
+  if (!hasDetailedCursus) {
+    const level = getOptionLabel(
+      EDUCATION_LEVEL_OPTIONS,
+      profile.educationLevel ?? deriveEducationLevel(profile)
+    );
+    if (level && level !== '—') parts.push(level);
+  }
 
   if (currentSituation === 'etudiant' || currentSituation === 'alternant') {
     const cursus = getCursusLabel(d.typeCursus);

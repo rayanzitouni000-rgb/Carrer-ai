@@ -1,6 +1,7 @@
 import type { SituationDetails } from '@/types/onboarding';
 import { EMPTY_SITUATION_DETAILS } from '@/types/onboarding';
 
+import { deriveEducationLevel } from '../utils/deriveEducationLevel';
 import type { CareerProfile, CurrentSituation } from '../types';
 import { EMPTY_CAREER_PROFILE } from '../types';
 import { normalizeUserSkills } from './data/skillsData';
@@ -85,11 +86,15 @@ export function normalizeCareerProfile(raw: LegacyCareerProfile): CareerProfile 
     ...(rest.situationDetails ?? {}),
   });
 
+  const mergedForDerive = { ...rest, currentSituation, situationDetails };
+  const educationLevel = rest.educationLevel ?? deriveEducationLevel(mergedForDerive);
+
   return {
     ...EMPTY_CAREER_PROFILE,
     ...rest,
     currentSituation,
     situationDetails,
+    educationLevel,
     experiences: Array.isArray(rest.experiences) ? rest.experiences : [],
     hasNoExperience: rest.hasNoExperience ?? false,
     targetRoles: Array.isArray(rest.targetRoles) ? rest.targetRoles : [],
