@@ -1,3 +1,7 @@
+import { Briefcase } from 'lucide-react-native';
+
+import type { SelectOption } from '@/types/onboarding';
+
 export interface JobRole {
   id: string;
   label: string;
@@ -62,6 +66,53 @@ export const JOB_ROLES: JobRole[] = [
   { id: 'architecte', label: 'Architecte' },
   { id: 'pharmacien', label: 'Pharmacien(ne)' },
 ];
+
+export const CUSTOM_ROLE_PREFIX = 'custom:';
+
+export const JOB_ROLE_SELECT_OPTIONS: SelectOption[] = JOB_ROLES.map((role) => ({
+  id: role.id,
+  label: role.label,
+  icon: Briefcase,
+}));
+
+export function jobRoleLabelToId(label: string): string {
+  const match = JOB_ROLES.find((role) => role.label.toLowerCase() === label.toLowerCase());
+  return match?.id ?? `${CUSTOM_ROLE_PREFIX}${encodeURIComponent(label)}`;
+}
+
+export function jobRoleIdToLabel(id: string): string {
+  if (id.startsWith(CUSTOM_ROLE_PREFIX)) {
+    return decodeURIComponent(id.slice(CUSTOM_ROLE_PREFIX.length));
+  }
+  return JOB_ROLES.find((role) => role.id === id)?.label ?? id;
+}
+
+export function buildJobRoleSelectOptions(selectedLabels: string[] = []): SelectOption[] {
+  const customLabels = selectedLabels.filter(
+    (label) => !JOB_ROLES.some((role) => role.label.toLowerCase() === label.toLowerCase())
+  );
+
+  const customOptions = customLabels.map((label) => ({
+    id: jobRoleLabelToId(label),
+    label,
+    icon: Briefcase,
+  }));
+
+  return [...JOB_ROLE_SELECT_OPTIONS, ...customOptions];
+}
+
+export function labelsToRoleIds(labels: string[]): string[] {
+  return labels.map(jobRoleLabelToId);
+}
+
+export function filterSelectOptionsByQuery(
+  query: string,
+  options: SelectOption[]
+): SelectOption[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return options;
+  return options.filter((option) => option.label.toLowerCase().includes(normalized));
+}
 
 export function searchJobRoles(query: string, excludeLabels: string[]): JobRole[] {
   if (!query.trim()) return [];
