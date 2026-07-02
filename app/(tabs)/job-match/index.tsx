@@ -3,7 +3,6 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Bell, Heart, SlidersHorizontal } from 'lucide-react-native';
-import * as Linking from 'expo-linking';
 
 import {
   LoadingSpinner,
@@ -24,7 +23,7 @@ export default function JobMatchScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { filters, setFilters, results, isLoading } = useJobSearch();
-  const { isJobSaved, toggleSaveJob, savedJobsCount, trackApplicationFromMatch } = useSavedJobs();
+  const { isJobSaved, toggleSaveJob, savedJobsCount } = useSavedJobs();
   const { isPremium } = usePremiumStatus();
   const toast = useToast();
   const [paywallVisible, setPaywallVisible] = useState(false);
@@ -48,12 +47,7 @@ export default function JobMatchScreen() {
     });
   };
 
-  const handleApply = async (offer: (typeof results)[number]) => {
-    if (offer.sourceUrl) {
-      await trackApplicationFromMatch();
-      await Linking.openURL(offer.sourceUrl);
-      return;
-    }
+  const handleApply = (offer: (typeof results)[number]) => {
     navigateToDetail(offer.id);
   };
 
@@ -166,7 +160,7 @@ export default function JobMatchScreen() {
               isSaved={isJobSaved(item.id)}
               onToggleSave={() => toggleSaveJob(item.id)}
               onPress={() => navigateToDetail(item.id)}
-              onApply={() => void handleApply(item)}
+              onApply={() => handleApply(item)}
               onAnalyze={() => navigateToDetail(item.id, 'skills')}
             />
           )}

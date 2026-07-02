@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   userAccount: '@careerpilot/user-account',
   userSession: '@careerpilot/user-session',
   cvSentEntries: '@careerpilot/cv-sent-entries',
+  applicationEntries: '@careerpilot/application-entries',
   cvActionsTracking: '@careerpilot/cv-actions-tracking',
   appStreak: '@careerpilot/app-streak',
   interviewSessions: '@careerpilot/interview-sessions',

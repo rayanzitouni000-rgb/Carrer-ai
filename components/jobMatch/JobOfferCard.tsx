@@ -122,7 +122,7 @@ export function JobOfferCard({
               onPress={onToggleSave}
               style={styles.actionBtn}
             />
-            <PrimaryButton label="Apply" size="sm" onPress={onApply} style={styles.actionBtn} />
+            <PrimaryButton label="Voir l'offre" size="sm" onPress={onApply} style={styles.actionBtn} />
             <OutlineButton label="Analyze" size="sm" onPress={onAnalyze} style={styles.actionBtn} />
         </View>
       </View>

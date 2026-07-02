@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Heart, MapPin, Sparkles } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
+import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useRef } from 'react';
 
 import {
@@ -11,14 +12,14 @@ import {
   OutlineButton,
   PressableScale,
   PrimaryButton,
-  SecondaryButton,
   SkillBadge,
   Text,
   useTheme,
+  useToast,
 } from '@/design-system';
 import { getMockJobById } from '@/data/mockJobOffers';
 import type { CareerProfile } from '@/features/career-onboarding/types';
-import { useCvTracking } from '@/hooks/useCvTracking';
+import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { careerProfileStore } from '@/services/careerProfileStore';
@@ -36,16 +37,18 @@ export default function JobDetailScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const toast = useToast();
   const scrollRef = useRef<ScrollView>(null);
   const { id, section } = useLocalSearchParams<{ id: string; section?: string }>();
 
   const offer = getMockJobById(id ?? '');
   const { isJobSaved, toggleSaveJob, trackApplicationFromMatch } = useSavedJobs();
-  const { addEntry } = useCvTracking();
+  const { addApplication, hasAppliedToJob } = useApplicationTracking();
   const { addInterview } = useRealInterviews();
 
   const profile = useMemo(() => careerProfileStore.get(), []);
   const matchScore = offer ? calculateMatchScore(profile, offer) : 0;
+  const alreadyApplied = offer ? hasAppliedToJob(offer.id) : false;
 
   useEffect(() => {
     if (section === 'skills') {
@@ -75,8 +78,21 @@ export default function JobDetailScreen() {
     }
   };
 
-  const handleAddToTracking = () => {
-    addEntry(`${offer.company} — ${offer.title}`);
+  const handleMarkApplied = async () => {
+    if (alreadyApplied) return;
+
+    addApplication({
+      company: offer.company,
+      jobTitle: offer.title,
+      jobOfferId: offer.id,
+    });
+
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    toast.show({
+      type: 'success',
+      title: 'Candidature enregistrée',
+      message: `${offer.company} — ${offer.title}`,
+    });
   };
 
   const handlePrepareInterview = async () => {
@@ -177,7 +193,14 @@ export default function JobDetailScreen() {
           disabled={!offer.sourceUrl}
           onPress={() => void handleApply()}
         />
-        <SecondaryButton label="+ Ajouter au suivi CV Manager" fullWidth onPress={handleAddToTracking} />
+
+        <OutlineButton
+          label={alreadyApplied ? '✅ Candidature enregistrée' : "J'ai postulé"}
+          fullWidth
+          disabled={alreadyApplied}
+          onPress={() => void handleMarkApplied()}
+        />
+
         <OutlineButton label="🎤 Préparer un entretien" fullWidth onPress={() => void handlePrepareInterview()} />
       </ScrollView>
     </View>

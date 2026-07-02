@@ -10,7 +10,7 @@ import { notifyGamification, subscribeGamification } from '@/utils/gamificationS
 
 import { useAppStreak } from './useAppStreak';
 import { useCvActionsTracking } from './useCvActionsTracking';
-import { useCvTracking } from './useCvTracking';
+import { useApplicationTracking } from './useApplicationTracking';
 import { useInterviewHistory } from './useInterviewHistory';
 import { useRealInterviews } from './useRealInterviews';
 
@@ -25,7 +25,7 @@ export interface UseCareerScoreReturn {
 export function useCareerScore(): UseCareerScoreReturn {
   const [profile, setProfile] = useState<CareerProfile>(careerProfileStore.get());
   const cvActions = useCvActionsTracking();
-  const cvTracking = useCvTracking();
+  const applicationTracking = useApplicationTracking();
   const interviewHistory = useInterviewHistory();
   const realInterviews = useRealInterviews();
   const savedJobs = useSavedJobs();
@@ -47,7 +47,7 @@ export function useCareerScore(): UseCareerScoreReturn {
         profile,
         cvAnalyzedCount: cvActions.cvAnalyzedCount,
         cvGeneratedCount: cvActions.cvGeneratedCount,
-        applicationsSentCount: cvTracking.entries.length,
+        applicationsSentCount: applicationTracking.entries.length,
         interviewSessionsCount: interviewHistory.interviewSessionsCount,
         realInterviewsCount: realInterviews.realInterviewsCount,
         savedJobsCount: savedJobs.savedJobsCount,
@@ -57,7 +57,7 @@ export function useCareerScore(): UseCareerScoreReturn {
       profile,
       cvActions.cvAnalyzedCount,
       cvActions.cvGeneratedCount,
-      cvTracking.entries.length,
+      applicationTracking.entries.length,
       interviewHistory.interviewSessionsCount,
       realInterviews.realInterviewsCount,
       savedJobs.savedJobsCount,
@@ -69,7 +69,7 @@ export function useCareerScore(): UseCareerScoreReturn {
 
   const isReady =
     cvActions.isReady &&
-    cvTracking.isReady &&
+    applicationTracking.isReady &&
     interviewHistory.isReady &&
     realInterviews.isReady &&
     savedJobs.isReady;
