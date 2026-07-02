@@ -1,61 +1,62 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon, PressableScale, useTheme } from '@/design-system';
-
+import { LoadingSpinner, Text, useTheme } from '@/design-system';
 import {
-  ChatEmptyState,
   ChatHeader,
-  ChatInputBar,
-  ChatMessageList,
-  SmartActions,
-  SuggestedPrompts,
-  WelcomeCard,
-} from '@/features/chat/components';
-import { MOCK_CONVERSATION } from '@/features/chat/constants/mockData';
-import { useChat } from '@/features/chat/hooks';
+  ChatInput,
+  ChatMessageBubble,
+  ChatSuggestedPrompts,
+  ChatTypingIndicator,
+} from '@/components/aiChat';
+import { PaywallScreen } from '@/components/premium';
+import { useAiChat } from '@/hooks/useAiChat';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
+import { FREE_CHAT_MESSAGES_PER_DAY } from '@/types/premium';
+import type { ChatMessage } from '@/types/aiChat';
 
 export default function AiChatScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const {
-    messages,
-    input,
-    setInput,
-    isTyping,
-    sendMessage,
-    isEmpty,
-  } = useChat(MOCK_CONVERSATION);
+  const listRef = useRef<FlatList<ChatMessage>>(null);
+  const { isPremium } = usePremiumStatus();
+  const { chatMessagesToday } = useUsageLimits();
+  const { messages, isTyping, isReady, canSendMessage, sendMessage } = useAiChat();
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
-  const handleSend = useCallback(() => {
-    sendMessage(input);
-  }, [input, sendMessage]);
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToEnd({ animated: true });
+    });
+  }, []);
 
-  const handlePrompt = useCallback(
-    (prompt: string) => {
-      sendMessage(prompt);
+  useEffect(() => {
+    if (!isReady) return;
+    scrollToBottom();
+  }, [isReady, messages.length, isTyping, scrollToBottom]);
+
+  const handleSend = useCallback(
+    (text: string) => {
+      if (!canSendMessage) {
+        setPaywallVisible(true);
+        return;
+      }
+      if (!text.trim() || isTyping) return;
+      sendMessage(text);
     },
-    [sendMessage]
+    [canSendMessage, isTyping, sendMessage]
   );
 
-  const listHeader = useMemo(
-    () => (
-      <View style={styles.listHeader}>
-        <WelcomeCard />
-        {isEmpty && <ChatEmptyState />}
-      </View>
-    ),
-    [isEmpty]
-  );
+  const showSuggestedPrompts = messages.length <= 1;
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary }]}>
@@ -70,7 +71,7 @@ export default function AiChatScreen() {
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.bottom : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}
       >
         <View
           style={[
@@ -82,34 +83,46 @@ export default function AiChatScreen() {
             },
           ]}
         >
-          <View style={styles.topBar}>
-            <PressableScale scale={0.92} onPress={() => router.back()}>
-              <View style={[styles.closeBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
-                <Icon name="close" size="sm" color={theme.colors.text.primary} />
-              </View>
-            </PressableScale>
-          </View>
-
           <ChatHeader />
 
           <View style={styles.messagesArea}>
-            <ChatMessageList
-              messages={messages}
-              isTyping={isTyping}
-              ListHeaderComponent={listHeader}
-            />
+            {!isReady ? (
+              <View style={styles.loading}>
+                <LoadingSpinner />
+              </View>
+            ) : (
+              <FlatList
+                ref={listRef}
+                data={messages}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <ChatMessageBubble message={item} />}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+                onContentSizeChange={scrollToBottom}
+                ListFooterComponent={isTyping ? <ChatTypingIndicator /> : null}
+              />
+            )}
           </View>
 
-          <SuggestedPrompts onSelect={handlePrompt} disabled={isTyping} />
-          <SmartActions />
-          <ChatInputBar
-            value={input}
-            onChangeText={setInput}
-            onSend={handleSend}
-            disabled={isTyping}
-          />
+          {isReady && showSuggestedPrompts && (
+            <ChatSuggestedPrompts onSelect={handleSend} disabled={isTyping} />
+          )}
+
+          {!isPremium && isReady && (
+            <Text variant="caption" color={theme.colors.text.muted} align="center">
+              {chatMessagesToday}/{FREE_CHAT_MESSAGES_PER_DAY} messages aujourd&apos;hui
+            </Text>
+          )}
+
+          <ChatInput onSend={handleSend} disabled={!canSendMessage || isTyping} />
         </View>
       </KeyboardAvoidingView>
+
+      <PaywallScreen
+        visible={paywallVisible}
+        triggerContext="chat_limit"
+        onClose={() => setPaywallVisible(false)}
+      />
     </View>
   );
 }
@@ -121,23 +134,19 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 12,
   },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: -4,
-  },
-  closeBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   messagesArea: {
     flex: 1,
     minHeight: 120,
   },
-  listHeader: {
-    gap: 16,
-    marginBottom: 8,
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listContent: {
+    paddingTop: 8,
+    paddingBottom: 8,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
   },
 });

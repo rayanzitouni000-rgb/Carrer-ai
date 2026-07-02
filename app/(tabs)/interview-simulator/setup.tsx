@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, PressableScale, PrimaryButton, Text, useTheme } from '@/design-system';
+import { PaywallScreen } from '@/components/premium';
 import { InterviewSetupForm } from '@/features/interview/components';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import type { InterviewDifficulty, InterviewSessionType } from '@/types/interviewSimulator';
 import { suggestDifficultyFromSkills } from '@/utils/interviewSimulatorUtils';
@@ -19,8 +21,25 @@ export default function InterviewSetupScreen() {
   const [difficulty, setDifficulty] = useState<InterviewDifficulty>(
     suggestDifficultyFromSkills(profile)
   );
+  const { canStartInterviewSession } = useUsageLimits();
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   const canStart = targetRole.trim().length > 0;
+
+  const handleStartSession = () => {
+    if (!canStartInterviewSession) {
+      setPaywallVisible(true);
+      return;
+    }
+    router.push({
+      pathname: './session',
+      params: {
+        targetRole: targetRole.trim(),
+        type,
+        difficulty,
+      },
+    });
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary }]}>
@@ -58,18 +77,15 @@ export default function InterviewSetupScreen() {
           label="Démarrer la session"
           fullWidth
           disabled={!canStart}
-          onPress={() =>
-            router.push({
-              pathname: './session',
-              params: {
-                targetRole: targetRole.trim(),
-                type,
-                difficulty,
-              },
-            })
-          }
+          onPress={handleStartSession}
         />
       </ScrollView>
+
+      <PaywallScreen
+        visible={paywallVisible}
+        triggerContext="interview_limit"
+        onClose={() => setPaywallVisible(false)}
+      />
     </View>
   );
 }

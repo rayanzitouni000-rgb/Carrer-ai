@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Heart, SlidersHorizontal } from 'lucide-react-native';
+import { Bell, Heart, SlidersHorizontal } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 
 import {
@@ -10,9 +11,12 @@ import {
   SearchInput,
   Text,
   useTheme,
+  useToast,
 } from '@/design-system';
 import { JobOfferCard } from '@/components/jobMatch/JobOfferCard';
+import { PaywallScreen, PremiumBadge } from '@/components/premium';
 import { useJobSearch } from '@/hooks/useJobSearch';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 
 export default function JobMatchScreen() {
@@ -21,6 +25,21 @@ export default function JobMatchScreen() {
   const router = useRouter();
   const { filters, setFilters, results, isLoading } = useJobSearch();
   const { isJobSaved, toggleSaveJob, savedJobsCount, trackApplicationFromMatch } = useSavedJobs();
+  const { isPremium } = usePremiumStatus();
+  const toast = useToast();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+
+  const handleJobAlerts = () => {
+    if (!isPremium) {
+      setPaywallVisible(true);
+      return;
+    }
+    toast.show({
+      type: 'info',
+      title: 'Alertes emploi',
+      message: 'La configuration des alertes arrive bientôt.',
+    });
+  };
 
   const navigateToDetail = (id: string, section?: string) => {
     router.push({
@@ -45,19 +64,49 @@ export default function JobMatchScreen() {
           <Text variant="h2" color={theme.colors.text.primary}>
             Job Match
           </Text>
-          <PressableScale scale={0.92} onPress={() => router.push('./saved')}>
-            <View style={[styles.savedBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
-              <Heart size={18} color={theme.colors.status.danger} />
-              {savedJobsCount > 0 && (
-                <View style={[styles.badge, { backgroundColor: theme.colors.status.danger, borderRadius: theme.radius.full }]}>
-                  <Text variant="caption" color="#FFFFFF">
-                    {savedJobsCount}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </PressableScale>
+          <View style={styles.headerActions}>
+            <PressableScale scale={0.92} onPress={handleJobAlerts}>
+              <View style={[styles.iconBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
+                <Bell size={18} color={theme.colors.brand.primaryLight} />
+              </View>
+            </PressableScale>
+            <PressableScale scale={0.92} onPress={() => router.push('./saved')}>
+              <View style={[styles.iconBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
+                <Heart size={18} color={theme.colors.status.danger} />
+                {savedJobsCount > 0 && (
+                  <View style={[styles.badge, { backgroundColor: theme.colors.status.danger, borderRadius: theme.radius.full }]}>
+                    <Text variant="caption" color="#FFFFFF">
+                      {savedJobsCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </PressableScale>
+          </View>
         </View>
+
+        <PressableScale scale={0.98} onPress={handleJobAlerts}>
+          <View
+            style={[
+              styles.alertBanner,
+              {
+                backgroundColor: theme.colors.card.elevated,
+                borderColor: theme.colors.border.subtle,
+                borderRadius: theme.radius.lg,
+              },
+            ]}
+          >
+            <View style={styles.alertBannerLeft}>
+              <Text variant="label" color={theme.colors.text.primary}>
+                Alertes emploi personnalisées
+              </Text>
+              <Text variant="caption" color={theme.colors.text.secondary}>
+                Reçois une notification quand une offre correspond à ton profil
+              </Text>
+            </View>
+            {!isPremium && <PremiumBadge />}
+          </View>
+        </PressableScale>
 
         <View style={styles.searchRow}>
           <View style={styles.searchField}>
@@ -123,6 +172,12 @@ export default function JobMatchScreen() {
           )}
         />
       )}
+
+      <PaywallScreen
+        visible={paywallVisible}
+        triggerContext="job_alerts"
+        onClose={() => setPaywallVisible(false)}
+      />
     </View>
   );
 }
@@ -135,11 +190,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  savedBtn: {
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  iconBtn: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  alertBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    padding: 12,
+    borderWidth: 1,
+  },
+  alertBannerLeft: {
+    flex: 1,
+    gap: 2,
   },
   badge: {
     position: 'absolute',

@@ -6,4 +6,5 @@ export { AtsScoreCard, OverallScoreCard } from './ScoreCards';
 export { StrengthsCard, ImprovementsCard } from './InsightsCards';
 export { MissingKeywordsCard, AiRecommendationsCard } from './KeywordsAndAi';
 export { QuickActionsSection } from './QuickActionsSection';
+export { GenerateCvCtaSection } from './GenerateCvCtaSection';
 export { AnalysisHistorySection } from './AnalysisHistorySection';

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,9 +11,10 @@ import {
   Text,
   useTheme,
 } from '@/design-system';
+import { PaywallScreen } from '@/components/premium';
 import { useOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
-import { careerProfileStore } from '@/services/careerProfileStore';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { formatAssessmentLevel } from '@/utils/interviewSimulatorUtils';
 
 export default function InterviewHubScreen() {
@@ -22,6 +24,16 @@ export default function InterviewHubScreen() {
   const { hasCompletedAssessment, hasSkippedAssessment, lastAssessmentScore } =
     useOnboardingAssessment();
   const { nextInterview } = useRealInterviews();
+  const { canStartInterviewSession, interviewSessionsThisMonth } = useUsageLimits();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+
+  const handleNewSimulation = () => {
+    if (!canStartInterviewSession) {
+      setPaywallVisible(true);
+      return;
+    }
+    router.push('./setup');
+  };
 
   const renderLevelCard = () => {
     if (lastAssessmentScore !== null) {
@@ -99,8 +111,14 @@ export default function InterviewHubScreen() {
           label="🎯 Nouvelle simulation"
           fullWidth
           size="lg"
-          onPress={() => router.push('./setup')}
+          onPress={handleNewSimulation}
         />
+
+        {!canStartInterviewSession && (
+          <Text variant="caption" color={theme.colors.status.warning} align="center">
+            Limite atteinte ({interviewSessionsThisMonth}/2 ce mois-ci) — passe à Premium pour continuer.
+          </Text>
+        )}
 
         <View
           style={[
@@ -145,6 +163,12 @@ export default function InterviewHubScreen() {
 
         <OutlineButton label="📋 Mes entretiens" fullWidth onPress={() => router.push('./my-interviews')} />
       </ScrollView>
+
+      <PaywallScreen
+        visible={paywallVisible}
+        triggerContext="interview_limit"
+        onClose={() => setPaywallVisible(false)}
+      />
     </View>
   );
 }

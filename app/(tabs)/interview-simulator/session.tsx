@@ -8,6 +8,7 @@ import { getMockJobById } from '@/data/mockJobOffers';
 import { useInterviewSession } from '@/features/interview/hooks';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
+import { useUsageLimits } from '@/hooks/useUsageLimits';
 import type { InterviewDifficulty, InterviewSessionType, SessionSource } from '@/types/interviewSimulator';
 import { getQuestionsForSession, suggestDifficultyFromSkills } from '@/utils/interviewSimulatorUtils';
 
@@ -31,6 +32,7 @@ export default function InterviewSessionScreen() {
 
   const profile = useMemo(() => careerProfileStore.get(), []);
   const { interviews } = useRealInterviews();
+  const { incrementInterviewSessions } = useUsageLimits();
   const sessionApi = useInterviewSession();
   const startedRef = useRef(false);
   const speakTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -90,6 +92,9 @@ export default function InterviewSessionScreen() {
       realInterviewId: params.interviewId,
       questions,
     });
+    if (!isAssessment) {
+      void incrementInterviewSessions();
+    }
     triggerAiSpeaking();
   }, [
     sessionApi,
@@ -99,6 +104,8 @@ export default function InterviewSessionScreen() {
     sessionSource,
     params.jobOfferId,
     params.interviewId,
+    isAssessment,
+    incrementInterviewSessions,
     triggerAiSpeaking,
   ]);
 

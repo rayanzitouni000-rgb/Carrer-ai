@@ -11,4 +11,7 @@ export const STORAGE_KEYS = {
   savedJobs: '@careerpilot/saved-jobs',
   jobMatchApplications: '@careerpilot/job-match-applications',
   onboardingAssessment: '@careerpilot/onboarding-assessment',
+  premiumStatusSimulated: 'premium_status_simulated',
+  usageLimits: '@careerpilot/usage-limits',
+  aiChatHistory: 'ai_chat_history',
 } as const;

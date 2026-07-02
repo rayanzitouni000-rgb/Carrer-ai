@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -11,21 +12,24 @@ import {
   useTheme,
   useToast,
 } from '@/design-system';
+import { PaywallScreen, PremiumBadge } from '@/components/premium';
+import { cvAnalysisContextStore } from '@/services/cvAnalysisContextStore';
+import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 
 interface ModeCardProps {
   title: string;
   subtitle: string;
   icon: IconName;
   gradient: readonly [string, string];
-  disabled?: boolean;
+  isPremiumFeature?: boolean;
   onPress: () => void;
 }
 
-function ModeCard({ title, subtitle, icon, gradient, disabled, onPress }: ModeCardProps) {
+function ModeCard({ title, subtitle, icon, gradient, isPremiumFeature, onPress }: ModeCardProps) {
   const theme = useTheme();
 
   return (
-    <PressableScale scale={disabled ? 1 : 0.98} onPress={onPress}>
+    <PressableScale scale={0.98} onPress={onPress}>
       <View
         style={[
           styles.card,
@@ -34,7 +38,6 @@ function ModeCard({ title, subtitle, icon, gradient, disabled, onPress }: ModeCa
             backgroundColor: theme.colors.card.elevated,
             borderColor: theme.colors.border.subtle,
             borderRadius: theme.radius.lg,
-            opacity: disabled ? 0.55 : 1,
           },
         ]}
       >
@@ -52,30 +55,14 @@ function ModeCard({ title, subtitle, icon, gradient, disabled, onPress }: ModeCa
             <Text variant="title" color={theme.colors.text.primary}>
               {title}
             </Text>
-            {disabled && (
-              <View
-                style={[
-                  styles.badge,
-                  {
-                    backgroundColor: theme.colors.status.warningMuted,
-                    borderRadius: theme.radius.full,
-                  },
-                ]}
-              >
-                <Text variant="caption" color={theme.colors.status.warning}>
-                  Bientôt disponible
-                </Text>
-              </View>
-            )}
+            {isPremiumFeature && <PremiumBadge />}
           </View>
           <Text variant="caption" color={theme.colors.text.secondary}>
             {subtitle}
           </Text>
         </View>
 
-        {!disabled && (
-          <Icon name="chevron-forward" size="sm" color={theme.colors.text.muted} />
-        )}
+        <Icon name="chevron-forward" size="sm" color={theme.colors.text.muted} />
       </View>
     </PressableScale>
   );
@@ -85,12 +72,27 @@ export default function GenerateModeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const toast = useToast();
+  const { isPremium } = usePremiumStatus();
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   const showComingSoon = () => {
     toast.show({
       type: 'info',
       title: 'Cette fonctionnalité arrive bientôt !',
     });
+  };
+
+  const handlePremiumCvMode = () => {
+    if (!isPremium) {
+      setPaywallVisible(true);
+      return;
+    }
+
+    // TODO: utiliser cvAnalysisContextStore.get() une fois l'appel IA backend en place —
+    // transmettre improvements / aiRecommendation pour personnaliser la génération.
+    const _analysisContext = cvAnalysisContextStore.get();
+
+    showComingSoon();
   };
 
   return (
@@ -116,8 +118,8 @@ export default function GenerateModeScreen() {
           subtitle="L'IA rédige ton CV à partir de ton profil"
           icon="sparkles-outline"
           gradient={['#8B5CF6', '#EC4899']}
-          disabled
-          onPress={showComingSoon}
+          isPremiumFeature
+          onPress={handlePremiumCvMode}
         />
 
         {/* TODO: nécessite le backend — upload du CV existant (PDF/DOCX),
@@ -128,10 +130,16 @@ export default function GenerateModeScreen() {
           subtitle="Importe ton CV actuel, l'IA le reformule et l'améliore"
           icon="cloud-upload-outline"
           gradient={['#F59E0B', '#EF4444']}
-          disabled
-          onPress={showComingSoon}
+          isPremiumFeature
+          onPress={handlePremiumCvMode}
         />
       </View>
+
+      <PaywallScreen
+        visible={paywallVisible}
+        triggerContext="cv_ai"
+        onClose={() => setPaywallVisible(false)}
+      />
     </ScreenContainer>
   );
 }
@@ -165,9 +173,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     flexWrap: 'wrap',
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
   },
 });

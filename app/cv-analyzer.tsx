@@ -12,6 +12,7 @@ import {
   AtsScoreCard,
   CareerScoreResult,
   CvAnalyzerHeader,
+  GenerateCvCtaSection,
   ImprovementsCard,
   MissingKeywordsCard,
   OverallScoreCard,
@@ -86,6 +87,7 @@ export default function CvAnalyzerScreen() {
 
             <MissingKeywordsCard />
             <AiRecommendationsCard />
+            <GenerateCvCtaSection sourceFileName={analysis.fileName} />
             <QuickActionsSection onAnalyzeAgain={analysis.reset} />
             <AnalysisHistorySection />
           </View>
