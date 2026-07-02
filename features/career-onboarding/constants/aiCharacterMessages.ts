@@ -5,8 +5,7 @@ export const WELCOME_AI_MESSAGE =
 
 export const ONBOARDING_AI_MESSAGES: Partial<Record<CareerOnboardingStep, string>> = {
   personal: "Commençons par les bases — comment tu t'appelles ?",
-  currentProfile: "Et aujourd'hui, où en es-tu ?",
-  educationDetails: 'Parle-moi un peu de ton parcours scolaire.',
+  educationDetails: "Parle-moi de ta situation et de ton parcours scolaire.",
   experience: 'As-tu déjà une expérience professionnelle ?',
   goal: 'Quel est ton objectif principal ?',
   targetRole: 'Quel(s) poste(s) vises-tu ?',

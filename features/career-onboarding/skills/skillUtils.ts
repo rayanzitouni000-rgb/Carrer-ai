@@ -1,3 +1,6 @@
+import type { SituationDetails } from '@/types/onboarding';
+import { EMPTY_SITUATION_DETAILS } from '@/types/onboarding';
+
 import type { CareerProfile } from '../types';
 import { EMPTY_CAREER_PROFILE } from '../types';
 import { normalizeUserSkills } from './data/skillsData';
@@ -17,6 +20,7 @@ export function formatUserSkillsSummary(skills: UserSkill[]): string {
 type LegacyCareerProfile = CareerProfile & {
   opportunityType?: unknown;
   opportunityTypes?: unknown;
+  situationDetails?: SituationDetails;
 };
 
 export function normalizeCareerProfile(raw: LegacyCareerProfile): CareerProfile {
@@ -25,6 +29,10 @@ export function normalizeCareerProfile(raw: LegacyCareerProfile): CareerProfile 
   return {
     ...EMPTY_CAREER_PROFILE,
     ...rest,
+    situationDetails: {
+      ...EMPTY_SITUATION_DETAILS,
+      ...(rest.situationDetails ?? {}),
+    },
     experiences: Array.isArray(rest.experiences) ? rest.experiences : [],
     hasNoExperience: rest.hasNoExperience ?? false,
     targetRoles: Array.isArray(rest.targetRoles) ? rest.targetRoles : [],

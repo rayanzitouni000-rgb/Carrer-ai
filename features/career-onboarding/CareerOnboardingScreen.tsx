@@ -14,7 +14,6 @@ import {
 } from '@/design-system';
 
 import { CareerGoalStep } from './components/CareerGoalStep';
-import { CurrentProfileStep } from './components/CurrentProfileStep';
 import { EducationDetailsStep } from './components/EducationDetailsStep';
 import { ExperienceStep } from './components/ExperienceStep';
 import {
@@ -33,8 +32,7 @@ import type { CareerOnboardingStep } from './types';
 
 const STEP_LABELS: Record<(typeof FORM_STEPS)[number], string> = {
   personal: 'Informations personnelles',
-  currentProfile: 'Profil actuel',
-  educationDetails: "Domaine d'études",
+  educationDetails: 'Profil & formation',
   experience: 'Expérience professionnelle',
   goal: 'Objectif principal',
   targetRole: 'Poste(s) visé(s)',
@@ -53,8 +51,6 @@ function renderStep(
       return <AiWelcomeStep onIntroComplete={onWelcomeIntroComplete} />;
     case 'personal':
       return <PersonalInfoStep profile={profile} onChange={updateProfile} />;
-    case 'currentProfile':
-      return <CurrentProfileStep profile={profile} onChange={updateProfile} />;
     case 'educationDetails':
       return <EducationDetailsStep profile={profile} onChange={updateProfile} />;
     case 'experience':

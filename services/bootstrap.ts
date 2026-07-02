@@ -12,8 +12,8 @@ export type BootstrapRoute =
 function normalizeStoredStep(step: string | null): CareerOnboardingStep | null {
   if (!step) return null;
   if (step === 'target') return 'targetRole';
-  if (step === 'education' || step === 'educationLevel' || step === 'situation') {
-    return 'currentProfile';
+  if (step === 'education' || step === 'educationLevel' || step === 'situation' || step === 'currentProfile') {
+    return 'educationDetails';
   }
   return step as CareerOnboardingStep;
 }
@@ -37,9 +37,10 @@ export async function resolveBootstrapRoute(): Promise<BootstrapRoute> {
   if (
     storedStepRaw === 'education' ||
     storedStepRaw === 'educationLevel' ||
-    storedStepRaw === 'situation'
+    storedStepRaw === 'situation' ||
+    storedStepRaw === 'currentProfile'
   ) {
-    void persistenceService.saveOnboardingStep('currentProfile');
+    void persistenceService.saveOnboardingStep('educationDetails');
   }
 
   if (session) {

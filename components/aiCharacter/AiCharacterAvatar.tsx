@@ -20,10 +20,10 @@ interface AiCharacterAvatarProps {
   style?: ViewStyle;
 }
 
-const SIZE_MAP: Record<AiCharacterSize, { width: number; height: number }> = {
-  small: { width: 48, height: 48 },
-  medium: { width: 120, height: 160 },
-  large: { width: 250, height: 350 },
+const SIZE_MAP: Record<AiCharacterSize, { width: number; height: number; clip: number }> = {
+  small: { width: 48, height: 48, clip: 48 },
+  medium: { width: 120, height: 160, clip: 112 },
+  large: { width: 250, height: 350, clip: 220 },
 };
 
 export function AiCharacterAvatar({
@@ -31,10 +31,11 @@ export function AiCharacterAvatar({
   style,
 }: AiCharacterAvatarProps) {
   const dimensions = SIZE_MAP[size];
+  const clipSize = dimensions.clip;
+  const clipRadius = clipSize / 2;
   const floatY = useSharedValue(0);
   const haloScale = useSharedValue(1);
   const haloOpacity = useSharedValue(0.6);
-  const useDarkBackdrop = size === 'large';
 
   useEffect(() => {
     floatY.value = withRepeat(
@@ -69,15 +70,21 @@ export function AiCharacterAvatar({
       accessibilityRole="image"
       accessibilityLabel="Assistant IA carrière"
     >
-      <Animated.View style={[styles.inner, containerStyle]}>
+      <Animated.View
+        style={[
+          styles.inner,
+          containerStyle,
+          { width: clipSize, height: clipSize, borderRadius: clipRadius },
+        ]}
+      >
         <Animated.View
           style={[
             styles.halo,
             haloStyle,
             {
-              width: dimensions.width * 0.85,
-              height: dimensions.width * 0.85,
-              borderRadius: dimensions.width * 0.425,
+              width: clipSize,
+              height: clipSize,
+              borderRadius: clipRadius,
             },
           ]}
         />
@@ -85,14 +92,18 @@ export function AiCharacterAvatar({
         <View
           style={[
             styles.imageFrame,
-            useDarkBackdrop && styles.imageFrameDark,
-            { width: dimensions.width, height: dimensions.height },
+            {
+              width: clipSize,
+              height: clipSize,
+              borderRadius: clipRadius,
+            },
           ]}
         >
           <Image
             source={AI_CHARACTER_IMAGE}
             style={styles.image}
-            contentFit="contain"
+            contentFit="cover"
+            contentPosition="top center"
             transition={0}
           />
         </View>
@@ -109,6 +120,7 @@ const styles = StyleSheet.create({
   inner: {
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   halo: {
     position: 'absolute',
@@ -120,15 +132,12 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   imageFrame: {
-    position: 'relative',
-    overflow: 'visible',
-  },
-  imageFrameDark: {
+    overflow: 'hidden',
     backgroundColor: '#000000',
-    borderRadius: 16,
   },
   image: {
     width: '100%',
     height: '100%',
+    transform: [{ scale: 0.94 }],
   },
 });

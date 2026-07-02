@@ -2,12 +2,16 @@ export type AgeRange = '15-17' | '18-24' | '25-34' | '35-44' | '45-54' | '55+';
 
 export type CurrentSituation =
   | 'lyceen'
+  | 'bac2'
   | 'etudiant'
+  | 'etudiant-grande-ecole'
   | 'alternant'
   | 'jeune-diplome'
   | 'recherche-emploi'
   | 'en-poste'
   | 'freelance'
+  | 'sans-emploi'
+  | 'autre'
   | 'entrepreneur'
   | 'reconversion'
   | 'pause-carriere'
@@ -67,6 +71,9 @@ export interface WorkExperience {
   isCurrent: boolean;
 }
 
+import type { SituationDetails } from '@/types/onboarding';
+import { EMPTY_SITUATION_DETAILS } from '@/types/onboarding';
+
 import type { UserSkill } from './skills/types';
 
 export type { Skill, UserSkill, SkillCategory, SkillLevel } from './skills/types';
@@ -76,6 +83,7 @@ export interface CareerProfile {
   firstName: string;
   ageRange: AgeRange | null;
   currentSituation: CurrentSituation | null;
+  situationDetails: SituationDetails;
   educationLevel: EducationLevel | null;
   fieldOfStudy: FieldOfStudy | null;
   diploma: string;
@@ -91,6 +99,7 @@ export const EMPTY_CAREER_PROFILE: CareerProfile = {
   firstName: '',
   ageRange: null,
   currentSituation: null,
+  situationDetails: { ...EMPTY_SITUATION_DETAILS },
   educationLevel: null,
   fieldOfStudy: null,
   diploma: '',
@@ -114,5 +123,5 @@ export type CareerOnboardingStep =
   | 'skills'
   | 'summary';
 
-/** @deprecated Migrées vers currentProfile au chargement */
-export type LegacyProfileSteps = 'target' | 'education' | 'educationLevel' | 'situation';
+/** @deprecated Migrées vers educationDetails au chargement */
+export type LegacyProfileSteps = 'target' | 'education' | 'educationLevel' | 'situation' | 'currentProfile';

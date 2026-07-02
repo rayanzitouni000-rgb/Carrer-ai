@@ -5,3 +5,21 @@ export interface SelectOption {
   label: string;
   icon: LucideIcon;
 }
+
+export interface SituationDetails {
+  classe?: 'seconde' | 'premiere' | 'terminale';
+  filiere?: 'general' | 'techno' | 'pro';
+  specialites?: string[];
+  serieTechno?: string;
+  filiereProLibre?: string;
+  typeBacPlus2?: 'bts' | 'but';
+  specialiteBacPlus2?: string;
+  specialiteBacPlus2Libre?: string;
+  niveauEtudes?: string;
+  masterSpecialite?: string;
+  niveauGrandeEcole?: string;
+  typeContratAlternance?: 'apprentissage' | 'professionnalisation';
+  secteurActivite?: string;
+}
+
+export const EMPTY_SITUATION_DETAILS: SituationDetails = {};

@@ -4,6 +4,7 @@ import { careerProfileStore } from '@/services/careerProfileStore';
 import { persistenceService } from '@/services/persistence';
 
 import { FORM_STEPS } from '../constants';
+import { isSituationDetailsComplete } from '../utils/situationDetailsValidation';
 import {
   CareerOnboardingStep,
   CareerProfile,
@@ -19,9 +20,10 @@ const STEP_ORDER: CareerOnboardingStep[] = [
 
 const LEGACY_STEP_MAP: Record<string, CareerOnboardingStep> = {
   target: 'targetRole',
-  education: 'currentProfile',
-  educationLevel: 'currentProfile',
-  situation: 'currentProfile',
+  education: 'educationDetails',
+  educationLevel: 'educationDetails',
+  situation: 'educationDetails',
+  currentProfile: 'educationDetails',
 };
 
 function normalizeOnboardingStep(stored: string | null): CareerOnboardingStep | null {
@@ -90,10 +92,13 @@ export function useCareerOnboarding() {
         return true;
       case 'personal':
         return profile.firstName.trim().length > 0 && profile.ageRange !== null;
-      case 'currentProfile':
-        return profile.currentSituation !== null;
       case 'educationDetails':
-        return profile.fieldOfStudy !== null && profile.educationLevel !== null;
+        return (
+          profile.currentSituation !== null &&
+          isSituationDetailsComplete(profile.currentSituation, profile.situationDetails) &&
+          profile.fieldOfStudy !== null &&
+          profile.educationLevel !== null
+        );
       case 'experience':
         return (
           profile.hasNoExperience ||

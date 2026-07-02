@@ -166,7 +166,6 @@ export const CAREER_GOAL_OPTIONS: SelectOption<CareerGoalId>[] = [
 
 export const FORM_STEPS = [
   'personal',
-  'currentProfile',
   'educationDetails',
   'experience',
   'goal',
