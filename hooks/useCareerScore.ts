@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import type { CareerProfile } from '@/features/career-onboarding/types';
-import { useSavedJobs } from '@/features/jobs/hooks/useSavedJobs';
+import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import type { RankInfo } from '@/types/rank';
 import { calculateCareerScore, type ScoreBreakdown } from '@/utils/careerScoreCalculator';

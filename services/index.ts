@@ -9,7 +9,7 @@ export const navigationService = {
     home: '/(tabs)',
     cvManager: '/(tabs)/cv-manager',
     aiChat: '/(tabs)/ai-chat',
-    progress: '/(tabs)/progress',
+    jobMatch: '/(tabs)/job-match',
     profile: '/(tabs)/profile',
     cvAnalyzer: '/cv-analyzer',
     interview: '/interview',

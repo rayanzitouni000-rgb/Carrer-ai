@@ -69,11 +69,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="progress"
+        name="job-match"
         options={{
-          title: 'Progress',
+          title: 'Job Match',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'stats-chart' : 'stats-chart-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'briefcase' : 'briefcase-outline'} color={color} focused={focused} />
           ),
         }}
       />
