@@ -133,7 +133,7 @@ export default function JobDetailScreen() {
               <Icon name="chevron-back" size="sm" color={theme.colors.text.primary} />
             </View>
           </PressableScale>
-          <PressableScale scale={0.92} onPress={() => toggleSaveJob(offer.id)}>
+          <PressableScale scale={0.92} onPress={() => toggleSaveJob(offer)}>
             <View style={[styles.iconBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
               <Heart size={18} color={saved ? theme.colors.status.danger : theme.colors.text.secondary} fill={saved ? theme.colors.status.danger : 'transparent'} />
             </View>

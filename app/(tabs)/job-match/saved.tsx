@@ -5,7 +5,6 @@ import { useMemo } from 'react';
 
 import { Icon, PressableScale, Text, useTheme } from '@/design-system';
 import { JobOfferCard } from '@/components/jobMatch/JobOfferCard';
-import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { enrichOffersWithMatchScore } from '@/utils/matchScoreCalculator';
@@ -20,9 +19,7 @@ export default function SavedJobsScreen() {
 
   const offers = useMemo(() => {
     const profile = careerProfileStore.get();
-    const resolved = savedJobs
-      .map((saved) => getJobOfferById(saved.jobOfferId))
-      .filter((offer): offer is NonNullable<typeof offer> => offer !== undefined);
+    const resolved = savedJobs.map((saved) => saved.jobOffer);
     return enrichOffersWithMatchScore(profile, resolved);
   }, [savedJobs]);
 
@@ -67,7 +64,7 @@ export default function SavedJobsScreen() {
             index={index}
             isSaved={isJobSaved(item.id)}
             hasApplied={hasAppliedToJob(item.id)}
-            onToggleSave={() => toggleSaveJob(item.id)}
+            onToggleSave={() => toggleSaveJob(item)}
             onPress={() =>
               router.push({ pathname: '/(tabs)/job-match/[id]', params: { id: item.id } })
             }

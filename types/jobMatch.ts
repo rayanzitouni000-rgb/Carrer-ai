@@ -26,8 +26,15 @@ export interface JobSearchFilters {
   datePosted: 'today' | 'week' | 'month' | 'all';
 }
 
+export interface JobSearchPreferences {
+  location: string;
+  locationLabel: string;
+  radius: number;
+  hasBeenSet: boolean;
+}
+
 export interface SavedJob {
-  jobOfferId: string;
+  jobOffer: JobOffer;
   savedAt: string;
 }
 
@@ -38,7 +45,15 @@ export const CONTRACT_TYPE_OPTIONS = [
   'Alternance',
   'Freelance',
   'Intérim',
+  'Temps partiel',
 ] as const;
+
+export const DEFAULT_JOB_SEARCH_PREFERENCES: JobSearchPreferences = {
+  location: '',
+  locationLabel: '',
+  radius: 50,
+  hasBeenSet: false,
+};
 
 export const DATE_POSTED_OPTIONS: { id: JobSearchFilters['datePosted']; label: string }[] = [
   { id: 'today', label: '24h' },

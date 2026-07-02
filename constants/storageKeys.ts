@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
   interviewSessions: '@careerpilot/interview-sessions',
   realInterviews: '@careerpilot/real-interviews',
   savedJobs: '@careerpilot/saved-jobs',
+  jobSearchPreferences: '@careerpilot/job-search-preferences',
   jobMatchApplications: '@careerpilot/job-match-applications',
   onboardingAssessment: '@careerpilot/onboarding-assessment',
   premiumStatusSimulated: 'premium_status_simulated',

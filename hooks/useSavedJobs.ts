@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
-import type { SavedJob } from '@/types/jobMatch';
+import type { JobOffer, SavedJob } from '@/types/jobMatch';
+import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
+import { jobOfferStore } from '@/services/jobOfferStore';
 
 interface JobMatchState {
   savedJobs: SavedJob[];
@@ -15,17 +17,51 @@ const DEFAULT_STATE: JobMatchState = {
   jobApplicationsFromMatchCount: 0,
 };
 
+function isJobOffer(value: unknown): value is JobOffer {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    'id' in value &&
+    'title' in value &&
+    typeof (value as JobOffer).id === 'string'
+  );
+}
+
 function normalizeSavedJobs(raw: unknown): SavedJob[] {
   if (!Array.isArray(raw)) return [];
+
   return raw
     .map((item) => {
-      if (item && typeof item === 'object' && 'jobOfferId' in item) {
-        return item as SavedJob;
+      if (!item || typeof item !== 'object') return null;
+
+      if ('jobOffer' in item && isJobOffer((item as SavedJob).jobOffer)) {
+        const saved = item as SavedJob;
+        return {
+          jobOffer: saved.jobOffer,
+          savedAt: saved.savedAt ?? new Date().toISOString(),
+        };
       }
-      if (item && typeof item === 'object' && 'id' in item) {
+
+      if ('jobOfferId' in item && typeof (item as { jobOfferId: string }).jobOfferId === 'string') {
+        const legacy = item as { jobOfferId: string; savedAt?: string };
+        const offer = getJobOfferById(legacy.jobOfferId);
+        if (!offer) return null;
+        return {
+          jobOffer: offer,
+          savedAt: legacy.savedAt ?? new Date().toISOString(),
+        };
+      }
+
+      if ('id' in item && typeof (item as { id: string }).id === 'string') {
         const legacy = item as { id: string; savedAt?: string };
-        return { jobOfferId: legacy.id, savedAt: legacy.savedAt ?? new Date().toISOString() };
+        const offer = getJobOfferById(legacy.id);
+        if (!offer) return null;
+        return {
+          jobOffer: offer,
+          savedAt: legacy.savedAt ?? new Date().toISOString(),
+        };
       }
+
       return null;
     })
     .filter((item): item is SavedJob => item !== null);
@@ -75,7 +111,7 @@ export interface UseSavedJobsReturn {
   jobApplicationsFromMatchCount: number;
   isReady: boolean;
   isJobSaved: (jobOfferId: string) => boolean;
-  toggleSaveJob: (jobOfferId: string) => void;
+  toggleSaveJob: (offer: JobOffer) => void;
   trackApplicationFromMatch: () => Promise<void>;
 }
 
@@ -91,6 +127,7 @@ export function useSavedJobs(): UseSavedJobsReturn {
     let mounted = true;
     void readState().then((stored) => {
       if (!mounted) return;
+      stored.savedJobs.forEach((saved) => jobOfferStore.set(saved.jobOffer));
       setState(stored);
       setIsReady(true);
     });
@@ -104,19 +141,20 @@ export function useSavedJobs(): UseSavedJobsReturn {
   }, [refresh]);
 
   const isJobSaved = useCallback(
-    (jobOfferId: string) => state.savedJobs.some((job) => job.jobOfferId === jobOfferId),
+    (jobOfferId: string) => state.savedJobs.some((job) => job.jobOffer.id === jobOfferId),
     [state.savedJobs]
   );
 
-  const toggleSaveJob = useCallback((jobOfferId: string) => {
+  const toggleSaveJob = useCallback((offer: JobOffer) => {
     void (async () => {
+      jobOfferStore.set(offer);
       const current = await readState();
-      const exists = current.savedJobs.some((job) => job.jobOfferId === jobOfferId);
+      const exists = current.savedJobs.some((job) => job.jobOffer.id === offer.id);
       const next: JobMatchState = {
         ...current,
         savedJobs: exists
-          ? current.savedJobs.filter((job) => job.jobOfferId !== jobOfferId)
-          : [{ jobOfferId, savedAt: new Date().toISOString() }, ...current.savedJobs],
+          ? current.savedJobs.filter((job) => job.jobOffer.id !== offer.id)
+          : [{ jobOffer: offer, savedAt: new Date().toISOString() }, ...current.savedJobs],
       };
       await writeState(next);
       notifyGamification();

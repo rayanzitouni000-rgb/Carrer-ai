@@ -98,7 +98,7 @@ export default function CoverLetterIndexScreen() {
   useEffect(() => {
     if (jobOfferId) return;
     if (savedJobs.length > 0) {
-      const firstId = savedJobs[0].jobOfferId;
+      const firstId = savedJobs[0].jobOffer.id;
       setSelectedJobId(firstId);
       loadFromJobOffer(firstId);
       return;
@@ -107,14 +107,11 @@ export default function CoverLetterIndexScreen() {
   }, [jobOfferId, savedJobs, loadFromJobOffer]);
 
   const jobOptions = useMemo(() => {
-    const savedOptions = savedJobs
-      .map((saved) => getJobOfferById(saved.jobOfferId))
-      .filter((offer): offer is NonNullable<typeof offer> => offer !== undefined)
-      .map((offer) => ({
-        id: offer.id,
-        label: `${offer.title} — ${offer.company}`,
-        icon: Briefcase,
-      }));
+    const savedOptions = savedJobs.map((saved) => ({
+      id: saved.jobOffer.id,
+      label: `${saved.jobOffer.title} — ${saved.jobOffer.company}`,
+      icon: Briefcase,
+    }));
 
     return [...savedOptions, { id: MANUAL_JOB_ID, label: 'Saisir manuellement', icon: PencilLine }];
   }, [savedJobs]);

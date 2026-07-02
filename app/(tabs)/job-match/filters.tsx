@@ -1,7 +1,8 @@
 import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 import {
   Input,
@@ -12,8 +13,8 @@ import {
   useTheme,
 } from '@/design-system';
 import { useJobSearch } from '@/hooks/useJobSearch';
+import { useJobSearchPreferences } from '@/hooks/useJobSearchPreferences';
 import {
-  DEFAULT_JOB_SEARCH_FILTERS,
   CONTRACT_TYPE_OPTIONS,
   DATE_POSTED_OPTIONS,
   RADIUS_OPTIONS,
@@ -24,9 +25,19 @@ export default function JobMatchFiltersScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { filters, setFilters } = useJobSearch();
+  const { filters, setFilters, resetFilters } = useJobSearch();
+  const { preferences } = useJobSearchPreferences();
 
   const [local, setLocal] = useState<JobSearchFilters>(filters);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLocal({
+        ...filters,
+        location: filters.location || preferences.locationLabel || preferences.location,
+      });
+    }, [filters, preferences.location, preferences.locationLabel])
+  );
 
   const toggleContractType = (type: string) => {
     setLocal((prev) => ({
@@ -42,6 +53,11 @@ export default function JobMatchFiltersScreen() {
     router.back();
   };
 
+  const handleReset = () => {
+    resetFilters();
+    router.back();
+  };
+
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary, paddingTop: insets.top + 8 }]}>
       <View style={[styles.header, { paddingHorizontal: theme.spacing['4'] }]}>
@@ -53,11 +69,7 @@ export default function JobMatchFiltersScreen() {
         <Text variant="h3" color={theme.colors.text.primary}>
           Filtres
         </Text>
-        <PressableScale scale={0.92} onPress={() => setLocal({ ...DEFAULT_JOB_SEARCH_FILTERS, query: filters.query })}>
-          <Text variant="label" color={theme.colors.text.muted}>
-            Reset
-          </Text>
-        </PressableScale>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -201,7 +213,7 @@ export default function JobMatchFiltersScreen() {
         </View>
 
         <PrimaryButton label="Appliquer les filtres" fullWidth onPress={applyFilters} />
-        <OutlineButton label="Annuler" fullWidth onPress={() => router.back()} />
+        <OutlineButton label="Réinitialiser" fullWidth onPress={handleReset} />
       </ScrollView>
     </View>
   );
@@ -215,6 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
   },
+  headerSpacer: { width: 56 },
   content: { gap: 20 },
   section: { gap: 10 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

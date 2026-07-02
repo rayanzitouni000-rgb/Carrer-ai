@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Bell, Heart, SlidersHorizontal } from 'lucide-react-native';
@@ -16,19 +16,37 @@ import { JobOfferCard } from '@/components/jobMatch/JobOfferCard';
 import { PaywallScreen, PremiumBadge } from '@/components/premium';
 import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useJobSearch } from '@/hooks/useJobSearch';
+import { useJobSearchPreferences } from '@/hooks/useJobSearchPreferences';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
+import { formatLastSearchLabel } from '@/utils/jobSearchDefaults';
 
 export default function JobMatchScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { filters, setFilters, results, isLoading, usesLiveApi, apiError } = useJobSearch();
+  const {
+    filters,
+    setFilters,
+    results,
+    isLoading,
+    isRefreshing,
+    refresh,
+    lastSearchAt,
+    usesLiveApi,
+    apiError,
+  } = useJobSearch();
+  const { hasBeenSet, isReady: preferencesReady } = useJobSearchPreferences();
   const { hasAppliedToJob } = useApplicationTracking();
   const { isJobSaved, toggleSaveJob, savedJobsCount } = useSavedJobs();
   const { isPremium } = usePremiumStatus();
   const toast = useToast();
   const [paywallVisible, setPaywallVisible] = useState(false);
+
+  useEffect(() => {
+    if (!preferencesReady || hasBeenSet) return;
+    router.replace('/(tabs)/job-match/location-setup');
+  }, [preferencesReady, hasBeenSet, router]);
 
   const handleJobAlerts = () => {
     if (!isPremium) {
@@ -52,6 +70,17 @@ export default function JobMatchScreen() {
   const handleApply = (offer: (typeof results)[number]) => {
     navigateToDetail(offer.id);
   };
+
+  const lastSearchLabel = formatLastSearchLabel(lastSearchAt);
+  const showFullLoader = isLoading && !isRefreshing && results.length === 0;
+
+  if (!preferencesReady || !hasBeenSet) {
+    return (
+      <View style={[styles.center, { backgroundColor: theme.colors.background.primary }]}>
+        <LoadingSpinner />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary, paddingTop: insets.top + 8 }]}>
@@ -120,10 +149,15 @@ export default function JobMatchScreen() {
         </View>
 
         <Text variant="bodySmall" color={theme.colors.text.secondary}>
-          {isLoading
+          {isLoading && !isRefreshing
             ? 'Recherche en cours...'
             : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}${usesLiveApi ? ' · France Travail' : ''}`}
         </Text>
+        {lastSearchLabel && (
+          <Text variant="caption" color={theme.colors.text.muted}>
+            {lastSearchLabel}
+          </Text>
+        )}
         {apiError && (
           <Text variant="caption" color={theme.colors.status.warning}>
             {apiError}
@@ -131,7 +165,7 @@ export default function JobMatchScreen() {
         )}
       </View>
 
-      {isLoading ? (
+      {showFullLoader ? (
         <View style={styles.center}>
           <LoadingSpinner />
         </View>
@@ -139,6 +173,14 @@ export default function JobMatchScreen() {
         <FlatList
           data={results}
           keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refresh}
+              tintColor="#8B5CF6"
+              colors={['#8B5CF6']}
+            />
+          }
           contentContainerStyle={[
             styles.list,
             {
@@ -168,7 +210,7 @@ export default function JobMatchScreen() {
               index={index}
               isSaved={isJobSaved(item.id)}
               hasApplied={hasAppliedToJob(item.id)}
-              onToggleSave={() => toggleSaveJob(item.id)}
+              onToggleSave={() => toggleSaveJob(item)}
               onPress={() => navigateToDetail(item.id)}
               onApply={() => handleApply(item)}
               onAnalyze={() => navigateToDetail(item.id, 'skills')}
