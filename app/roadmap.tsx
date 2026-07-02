@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { RankBadge } from '@/components/gamification';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { ProgressRing } from '@/components/ui/ProgressRing';
@@ -10,6 +11,7 @@ import { MOCK_ROADMAP } from '@/constants/mockData';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
+import { useCareerScore } from '@/hooks/useCareerScore';
 
 const statusConfig = {
   completed: { label: 'Terminé', variant: 'success' as const, icon: 'checkmark-circle' },
@@ -18,8 +20,20 @@ const statusConfig = {
 };
 
 export default function RoadmapScreen() {
+  const { rank, score } = useCareerScore();
+  const rankHint =
+    rank.pointsToNextRank != null
+      ? `Encore ${rank.pointsToNextRank} pts pour le rang suivant`
+      : 'Rang maximum atteint 👑';
+
   return (
     <ScreenLayout title="Roadmap" subtitle="Votre parcours vers l'objectif" showBack scrollable>
+      <Card variant="elevated" style={styles.rankCard}>
+        <RankBadge rank={rank} size="large" showProgress />
+        <Text style={styles.rankScore}>{score}/1000</Text>
+        <Text style={styles.rankHint}>{rankHint}</Text>
+      </Card>
+
       <PlaceholderContent
         icon="map-outline"
         title="Roadmap personnalisée"
@@ -61,6 +75,18 @@ export default function RoadmapScreen() {
 }
 
 const styles = StyleSheet.create({
+  rankCard: {
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  rankScore: {
+    ...typography.h3,
+    color: colors.textPrimary,
+  },
+  rankHint: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+  },
   timeline: {
     gap: spacing.sm,
   },

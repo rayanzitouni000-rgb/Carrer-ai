@@ -1,7 +1,6 @@
 import type {
   ChatMessage,
   GoalOption,
-  JobListing,
   OnboardingSlide,
   RoadmapStep,
   SkillProgress,
@@ -71,53 +70,6 @@ export const GOAL_OPTIONS: GoalOption[] = [
     title: 'Stage / Alternance',
     description: 'Trouver une opportunité pour acquérir de l\'expérience',
     icon: 'book-outline',
-  },
-];
-
-export const MOCK_JOBS: JobListing[] = [
-  {
-    id: '1',
-    title: 'Développeur React Native',
-    company: 'TechFlow',
-    location: 'Paris, France',
-    salary: '45 000 - 55 000 €',
-    type: 'full-time',
-    matchScore: 92,
-    postedAt: 'Il y a 2 jours',
-    tags: ['React Native', 'TypeScript', 'Expo'],
-  },
-  {
-    id: '2',
-    title: 'Frontend Developer',
-    company: 'StartupLab',
-    location: 'Remote',
-    salary: '40 000 - 50 000 €',
-    type: 'remote',
-    matchScore: 87,
-    postedAt: 'Il y a 3 jours',
-    tags: ['React', 'JavaScript', 'CSS'],
-  },
-  {
-    id: '3',
-    title: 'Mobile Developer Junior',
-    company: 'AppCraft',
-    location: 'Lyon, France',
-    salary: '38 000 - 45 000 €',
-    type: 'full-time',
-    matchScore: 78,
-    postedAt: 'Il y a 5 jours',
-    tags: ['Mobile', 'iOS', 'Android'],
-  },
-  {
-    id: '4',
-    title: 'Développeur Full Stack',
-    company: 'DigitalWave',
-    location: 'Bordeaux, France',
-    salary: '42 000 - 52 000 €',
-    type: 'full-time',
-    matchScore: 85,
-    postedAt: 'Il y a 1 semaine',
-    tags: ['Node.js', 'React', 'MongoDB'],
   },
 ];
 

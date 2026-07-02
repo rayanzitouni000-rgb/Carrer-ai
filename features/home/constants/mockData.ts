@@ -66,50 +66,6 @@ export const APPLICATION_STATS: ApplicationStat[] = [
   { id: '4', label: 'Offers', value: 2, icon: 'trophy-outline' },
 ];
 
-export interface JobMatch {
-  id: string;
-  company: string;
-  companyInitials: string;
-  title: string;
-  salary: string;
-  location: string;
-  matchScore: number;
-  logoColor: string;
-}
-
-export const RECENT_JOB_MATCHES: JobMatch[] = [
-  {
-    id: '1',
-    company: 'TechFlow',
-    companyInitials: 'TF',
-    title: 'Senior React Native Developer',
-    salary: '$95k – $120k',
-    location: 'Remote',
-    matchScore: 94,
-    logoColor: '#3B82F6',
-  },
-  {
-    id: '2',
-    company: 'StartupLab',
-    companyInitials: 'SL',
-    title: 'Full Stack Engineer',
-    salary: '$85k – $105k',
-    location: 'Paris, FR',
-    matchScore: 89,
-    logoColor: '#8B5CF6',
-  },
-  {
-    id: '3',
-    company: 'AppCraft',
-    companyInitials: 'AC',
-    title: 'Mobile Developer',
-    salary: '$78k – $95k',
-    location: 'Lyon, FR',
-    matchScore: 82,
-    logoColor: '#06B6D4',
-  },
-];
-
 export interface RoadmapPosition {
   id: string;
   label: string;

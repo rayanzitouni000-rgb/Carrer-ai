@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
+import { RankBadge } from '@/components/gamification';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -11,14 +12,17 @@ import { MOCK_USER, PROFILE_MENU } from '@/constants/mockData';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
+import { useCareerScore } from '@/hooks/useCareerScore';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { rank } = useCareerScore();
 
   return (
     <ScreenLayout title="Profil" scrollable safeAreaBottom={false}>
       <Card variant="elevated" style={styles.profileCard}>
         <Avatar name={MOCK_USER.name} size="xl" />
+        <RankBadge rank={rank} size="medium" />
         <Text style={styles.name}>{MOCK_USER.name}</Text>
         <Text style={styles.email}>{MOCK_USER.email}</Text>
         <Text style={styles.title}>{MOCK_USER.title}</Text>

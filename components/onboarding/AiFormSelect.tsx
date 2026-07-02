@@ -1,12 +1,15 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import Animated, {
   Easing,
@@ -207,9 +210,11 @@ export function AiFormSelect(props: AiFormSelectProps) {
   const showCustomAddRow =
     props.mode === 'multi' &&
     props.searchable &&
-    trimmedSearch.length > 1 &&
+    trimmedSearch.length >= 1 &&
     filteredOptions.length === 0 &&
     !atMaxMulti;
+
+  const useSearchSheet = props.mode === 'multi' && props.searchable;
 
   const handleSingleSelect = (id: string) => {
     if (props.mode !== 'single') return;
@@ -246,6 +251,75 @@ export function AiFormSelect(props: AiFormSelectProps) {
 
   const SelectedIcon =
     props.mode === 'single' && selectedSingle ? resolveIcon(selectedSingle) : null;
+
+  const { height: windowHeight } = useWindowDimensions();
+  const sheetListMaxHeight = Math.min(windowHeight * 0.38, DROPDOWN_MAX_HEIGHT);
+
+  const renderOptionList = () => (
+    <>
+      {filteredOptions.length === 0 && !showCustomAddRow ? (
+        <View style={styles.emptyState}>
+          <Text variant="body" color={theme.colors.text.muted}>
+            {trimmedSearch
+              ? 'Aucun résultat — tu peux ajouter un poste personnalisé ci-dessous'
+              : 'Aucune option disponible'}
+          </Text>
+        </View>
+      ) : null}
+
+      {filteredOptions.map((option) => {
+        const selected =
+          props.mode === 'single'
+            ? props.selectedId === option.id
+            : props.selectedIds.includes(option.id);
+        const disabled = props.mode === 'multi' && !selected && !!atMaxMulti;
+
+        return (
+          <OptionRow
+            key={option.id}
+            option={option}
+            selected={selected}
+            disabled={disabled}
+            mode={props.mode}
+            onPress={() =>
+              props.mode === 'single'
+                ? handleSingleSelect(option.id)
+                : handleMultiToggle(option.id)
+            }
+          />
+        );
+      })}
+
+      {showCustomAddRow ? (
+        <Pressable onPress={handleCustomAdd} style={styles.customRow}>
+          <Text variant="body" color={theme.colors.brand.primary}>
+            + Ajouter « {trimmedSearch} » comme poste personnalisé
+          </Text>
+        </Pressable>
+      ) : null}
+    </>
+  );
+
+  const renderMultiFooter = () =>
+    props.mode === 'multi' ? (
+      <>
+        {atMaxMulti ? (
+          <Text variant="caption" color={theme.colors.text.muted} style={styles.maxHint}>
+            Maximum {props.maxSelection} postes
+          </Text>
+        ) : null}
+        <Pressable
+          onPress={close}
+          style={[styles.doneBtn, { borderTopColor: theme.colors.border.subtle }]}
+          accessibilityRole="button"
+          accessibilityLabel="Valider la sélection"
+        >
+          <Text variant="label" color={theme.colors.brand.primaryLight}>
+            Valider{props.selectedIds.length > 0 ? ` (${props.selectedIds.length})` : ''}
+          </Text>
+        </Pressable>
+      </>
+    ) : null;
 
   return (
     <View style={styles.container}>
@@ -291,6 +365,62 @@ export function AiFormSelect(props: AiFormSelectProps) {
       </Pressable>
       </View>
 
+      {useSearchSheet ? (
+        <Modal visible={isOpen} transparent animationType="slide" onRequestClose={close}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.sheetRoot}
+          >
+            <Pressable style={styles.backdropDim} onPress={close} accessibilityLabel="Fermer la liste" />
+            <View
+              style={[
+                styles.searchSheet,
+                {
+                  backgroundColor: theme.colors.card.elevated,
+                  borderTopColor: theme.colors.border.subtle,
+                  maxHeight: windowHeight * 0.72,
+                },
+              ]}
+            >
+              <View style={[styles.sheetHeader, { borderBottomColor: theme.colors.border.subtle }]}>
+                <Text variant="label" color={theme.colors.text.primary}>
+                  {props.label}
+                </Text>
+                <Pressable onPress={close} hitSlop={12} accessibilityLabel="Fermer">
+                  <Text variant="label" color={theme.colors.text.muted}>
+                    ✕
+                  </Text>
+                </Pressable>
+              </View>
+
+              <View style={[styles.searchRow, { borderBottomColor: theme.colors.border.subtle }]}>
+                <Search size={18} color={theme.colors.text.muted} />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Rechercher un poste..."
+                  placeholderTextColor={theme.colors.text.muted}
+                  style={[styles.searchInput, { color: theme.colors.text.primary }]}
+                  autoFocus
+                  autoCorrect={false}
+                  returnKeyType="search"
+                />
+              </View>
+
+              <ScrollView
+                style={[styles.sheetList, { maxHeight: sheetListMaxHeight }]}
+                keyboardShouldPersistTaps="always"
+                nestedScrollEnabled
+                showsVerticalScrollIndicator
+              >
+                {renderOptionList()}
+              </ScrollView>
+
+              {renderMultiFooter()}
+            </View>
+          </KeyboardAvoidingView>
+        </Modal>
+      ) : (
       <Modal visible={isOpen} transparent animationType="none" onRequestClose={close}>
         <Pressable style={styles.backdrop} onPress={close} accessibilityLabel="Fermer la liste" />
         {fieldLayout ? (
@@ -329,59 +459,14 @@ export function AiFormSelect(props: AiFormSelectProps) {
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
             >
-              {filteredOptions.map((option) => {
-                const selected =
-                  props.mode === 'single'
-                    ? props.selectedId === option.id
-                    : props.selectedIds.includes(option.id);
-                const disabled = props.mode === 'multi' && !selected && !!atMaxMulti;
-
-                return (
-                  <OptionRow
-                    key={option.id}
-                    option={option}
-                    selected={selected}
-                    disabled={disabled}
-                    mode={props.mode}
-                    onPress={() =>
-                      props.mode === 'single'
-                        ? handleSingleSelect(option.id)
-                        : handleMultiToggle(option.id)
-                    }
-                  />
-                );
-              })}
-
-              {showCustomAddRow ? (
-                <Pressable onPress={handleCustomAdd} style={styles.customRow}>
-                  <Text variant="body" color={theme.colors.brand.primary}>
-                    + Ajouter « {trimmedSearch} » comme poste personnalisé
-                  </Text>
-                </Pressable>
-              ) : null}
+              {renderOptionList()}
             </ScrollView>
 
-            {props.mode === 'multi' && atMaxMulti ? (
-              <Text variant="caption" color={theme.colors.text.muted} style={styles.maxHint}>
-                Maximum {props.maxSelection} postes
-              </Text>
-            ) : null}
-
-            {props.mode === 'multi' ? (
-              <Pressable
-                onPress={close}
-                style={[styles.doneBtn, { borderTopColor: theme.colors.border.subtle }]}
-                accessibilityRole="button"
-                accessibilityLabel="Valider la sélection"
-              >
-                <Text variant="label" color={theme.colors.brand.primaryLight}>
-                  Valider
-                </Text>
-              </Pressable>
-            ) : null}
+            {renderMultiFooter()}
           </Animated.View>
         ) : null}
       </Modal>
+      )}
     </View>
   );
 }
@@ -408,6 +493,35 @@ const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
+  },
+  backdropDim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  sheetRoot: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  searchSheet: {
+    borderTopWidth: 1,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  sheetList: {
+    flexGrow: 0,
+  },
+  emptyState: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
   },
   dropdownFloating: {
     position: 'absolute',

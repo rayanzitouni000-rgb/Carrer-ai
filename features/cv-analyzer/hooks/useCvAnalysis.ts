@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { ANALYSIS_STEPS } from '../constants/mockData';
+import { incrementCvAnalyzedCount } from '@/hooks/useCvActionsTracking';
 
 export type AnalysisPhase = 'idle' | 'analyzing' | 'complete';
 
@@ -33,6 +34,7 @@ export function useCvAnalysis() {
     const completeTimer = setTimeout(() => {
       setProgress(100);
       setPhase('complete');
+      void incrementCvAnalyzedCount();
     }, ANALYSIS_DURATION);
 
     return () => {

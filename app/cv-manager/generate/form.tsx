@@ -21,6 +21,7 @@ import type {
 } from '@/types/cvGenerator';
 import { buildCvDataFromProfile } from '@/features/cv-manager/generate/prefillCvData';
 import { cvGeneratorStore } from '@/features/cv-manager/generate/cvGeneratorStore';
+import { incrementCvGeneratedCount } from '@/hooks/useCvActionsTracking';
 
 const MAX_EXPERIENCES = 6;
 const MAX_EDUCATION = 4;
@@ -152,6 +153,7 @@ export default function CvFormScreen() {
 
   const handleGenerate = () => {
     cvGeneratorStore.set(data);
+    void incrementCvGeneratedCount();
     router.push('/cv-manager/generate/preview');
   };
 

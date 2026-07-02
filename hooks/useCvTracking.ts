@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { CvSentEntry } from '@/types/cvTracking';
 import { getCountByPeriod } from '@/utils/cvTrackingUtils';
+import { notifyGamification } from '@/utils/gamificationSync';
 
 export interface UseCvTrackingReturn {
   entries: CvSentEntry[];
@@ -32,6 +33,7 @@ async function readEntries(): Promise<CvSentEntry[]> {
 
 function persistEntries(entries: CvSentEntry[]): void {
   void AsyncStorage.setItem(STORAGE_KEYS.cvSentEntries, JSON.stringify(entries));
+  notifyGamification();
 }
 
 export function useCvTracking(): UseCvTrackingReturn {

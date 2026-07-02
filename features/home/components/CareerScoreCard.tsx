@@ -8,14 +8,24 @@ import {
   usePulseAnimation,
   useTheme,
 } from '@/design-system';
+import { RankBadge } from '@/components/gamification';
+import { useCareerScore } from '@/hooks/useCareerScore';
 
-import { CAREER_SCORE } from '../constants/mockData';
 import { useAnimatedCounter } from '../hooks';
 
 export function CareerScoreCard() {
   const theme = useTheme();
   const glowStyle = usePulseAnimation(0.97, 1.03);
-  const animatedScore = useAnimatedCounter(CAREER_SCORE.current, 1600, 200);
+  const { score, rank, streakDays, isReady } = useCareerScore();
+  const animatedScore = useAnimatedCounter(score, 1600, 200);
+  const percentage = Math.round((score / 1000) * 100);
+
+  const statusLabel =
+    rank.tier === 'champion'
+      ? 'Rang maximum atteint 👑'
+      : rank.pointsToNextRank != null
+        ? `Encore ${rank.pointsToNextRank} pts pour le rang suivant`
+        : 'Continue à progresser';
 
   return (
     <View style={styles.wrapper}>
@@ -29,12 +39,12 @@ export function CareerScoreCard() {
           styles.card,
           {
             borderRadius: theme.radius.xl,
-            borderColor: 'rgba(59, 130, 246, 0.25)',
+            borderColor: `${rank.color}55`,
           },
         ]}
       >
         <LinearGradient
-          colors={['rgba(59,130,246,0.15)', 'transparent']}
+          colors={[`${rank.color}22`, 'transparent']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.xl }]}
@@ -42,31 +52,31 @@ export function CareerScoreCard() {
 
         <View style={styles.content}>
           <View style={styles.left}>
-            <Text variant="label" color={theme.colors.text.secondary}>
-              Career Score
-            </Text>
+            <RankBadge rank={rank} size="large" showProgress streakDays={streakDays} />
+
             <View style={styles.scoreRow}>
               <Text variant="hero" color={theme.colors.text.primary} style={styles.score}>
-                {animatedScore}
+                {isReady ? animatedScore : '—'}
               </Text>
               <Text variant="subtitle" color={theme.colors.text.muted}>
-                / {CAREER_SCORE.max}
+                / 1000
               </Text>
             </View>
-            <Text variant="title" color={theme.colors.brand.primaryLight} style={styles.status}>
-              {CAREER_SCORE.status}
+
+            <Text variant="title" color={rank.color} style={styles.status}>
+              {rank.label}
             </Text>
             <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.desc}>
-              {CAREER_SCORE.description}
+              {statusLabel}
             </Text>
           </View>
 
           <View style={styles.ringWrap}>
             <CircularProgress
-              progress={CAREER_SCORE.percentage}
+              progress={percentage}
               size={100}
               strokeWidth={7}
-              color={theme.colors.brand.primaryLight}
+              color={rank.color}
               trackColor="rgba(255,255,255,0.08)"
               showLabel
             />
@@ -99,10 +109,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
-  left: { flex: 1, gap: 4 },
-  scoreRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
+  left: { flex: 1, gap: 10 },
+  scoreRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 4 },
   score: { fontSize: 40, lineHeight: 48 },
-  status: { marginTop: 4 },
-  desc: { marginTop: 6, lineHeight: 20 },
+  status: { marginTop: 2 },
+  desc: { marginTop: 2, lineHeight: 20 },
   ringWrap: { alignItems: 'center', justifyContent: 'center' },
 });

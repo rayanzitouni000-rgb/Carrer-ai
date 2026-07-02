@@ -1,8 +1,10 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useEffect } from 'react';
 
 import { useTheme } from '@/design-system';
+import { useAppStreak } from '@/hooks/useAppStreak';
 
 import {
   AICoachCard,
@@ -12,7 +14,6 @@ import {
   HomeFloatingAI,
   HomeHeader,
   QuickActionsGrid,
-  RecentJobMatches,
   RoadmapPreviewCard,
   TodaysTasksCard,
   UpcomingInterviewCard,
@@ -21,6 +22,11 @@ import {
 export default function HomeScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { recordAppOpen } = useAppStreak();
+
+  useEffect(() => {
+    void recordAppOpen();
+  }, [recordAppOpen]);
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary }]}>
@@ -74,10 +80,6 @@ export default function HomeScreen() {
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={480}>
-          <RecentJobMatches />
-        </AnimatedEntrance>
-
-        <AnimatedEntrance delay={560}>
           <RoadmapPreviewCard />
         </AnimatedEntrance>
       </ScrollView>

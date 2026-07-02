@@ -15,18 +15,6 @@ export interface UserProfile {
   isPremium: boolean;
 }
 
-export interface JobListing {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  salary: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'remote';
-  matchScore: number;
-  postedAt: string;
-  tags: string[];
-}
-
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';

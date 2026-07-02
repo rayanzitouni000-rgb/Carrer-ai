@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
 
+import { incrementInterviewSessionCount } from '@/hooks/useInterviewHistory';
+
 export function useInterviewTimer(active: boolean) {
   const [seconds, setSeconds] = useState(0);
 
@@ -20,19 +22,25 @@ export function useInterviewTimer(active: boolean) {
 export function useInterviewSession() {
   const [isLive, setIsLive] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
-  const { formatted, reset } = useInterviewTimer(isLive);
+  const { seconds, formatted, reset } = useInterviewTimer(isLive);
+  const hadLiveSessionRef = useRef(false);
 
   const startInterview = useCallback(() => {
     reset();
     setIsLive(true);
+    hadLiveSessionRef.current = true;
     setTimeout(() => {
       scrollRef.current?.scrollTo({ y: 600, animated: true });
     }, 300);
   }, [reset]);
 
   const endInterview = useCallback(() => {
+    if (isLive && hadLiveSessionRef.current && seconds >= 10) {
+      void incrementInterviewSessionCount();
+    }
+    hadLiveSessionRef.current = false;
     setIsLive(false);
-  }, []);
+  }, [isLive, seconds]);
 
   return {
     isLive,

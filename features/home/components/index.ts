@@ -6,6 +6,5 @@ export { UpcomingInterviewCard } from './UpcomingInterviewCard';
 export { AICoachCard } from './AICoachCard';
 export { QuickActionsGrid } from './QuickActionsGrid';
 export { ApplicationsStatsCard } from './ApplicationsStatsCard';
-export { RecentJobMatches } from './RecentJobMatches';
 export { RoadmapPreviewCard } from './RoadmapPreviewCard';
 export { HomeFloatingAI } from './HomeFloatingAI';
