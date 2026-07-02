@@ -40,7 +40,7 @@ export const HOME_QUICK_ACTIONS: QuickAction[] = [
     id: '3',
     label: 'Lettre de motivation',
     icon: 'create-outline',
-    route: '/cover-letter-generator',
+    route: '/cover-letter',
     gradient: ['#8B5CF6', '#EC4899'],
   },
   {

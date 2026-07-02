@@ -215,6 +215,17 @@ export default function JobDetailScreen() {
         )}
 
         <OutlineButton label="🎤 Préparer un entretien" fullWidth onPress={() => void handlePrepareInterview()} />
+
+        <OutlineButton
+          label="✉️ Générer une lettre de motivation"
+          fullWidth
+          onPress={() =>
+            router.push({
+              pathname: '/cover-letter',
+              params: { jobOfferId: offer.id },
+            } as never)
+          }
+        />
       </ScrollView>
     </View>
   );

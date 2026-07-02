@@ -7,6 +7,7 @@ export { useCvActionsTracking, incrementCvAnalyzedCount, incrementCvGeneratedCou
 export { useInterviewHistory, incrementInterviewSessionCount } from './useInterviewHistory';
 export { useRealInterviews, incrementRealInterviewCount } from './useRealInterviews';
 export { useApplicationTracking } from './useApplicationTracking';
+export { useCoverLetterGenerator } from './useCoverLetterGenerator';
 export { useRoadmapProgress } from './useRoadmapProgress';
 export { useProfileDisplay } from './useProfileDisplay';
 export { usePremiumStatus } from './usePremiumStatus';

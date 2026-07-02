@@ -62,7 +62,10 @@ function RootNavigator() {
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal' }} />
         <Stack.Screen name="interview" options={{ presentation: 'card' }} />
         <Stack.Screen name="roadmap" options={{ presentation: 'card' }} />
-        <Stack.Screen name="cover-letter-generator" options={{ presentation: 'card' }} />
+        <Stack.Screen name="cover-letter/index" options={{ presentation: 'card' }} />
+        <Stack.Screen name="cover-letter/template" options={{ presentation: 'card' }} />
+        <Stack.Screen name="cover-letter/generate" options={{ presentation: 'card' }} />
+        <Stack.Screen name="cover-letter/preview" options={{ presentation: 'card' }} />
         <Stack.Screen name="premium" options={{ presentation: 'modal' }} />
         <Stack.Screen name="settings" options={{ presentation: 'card' }} />
         <Stack.Screen name="+not-found" />

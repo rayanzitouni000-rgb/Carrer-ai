@@ -1,5 +1,6 @@
 export type PaywallTriggerContext =
   | 'cv_ai'
+  | 'cover_letter_ai'
   | 'interview_limit'
   | 'chat_limit'
   | 'job_alerts'
@@ -25,6 +26,7 @@ export const FREE_CHAT_MESSAGES_PER_DAY = 5;
 
 export const PAYWALL_CONTEXT_MESSAGES: Record<PaywallTriggerContext, string> = {
   cv_ai: 'Débloque la génération IA de CV',
+  cover_letter_ai: 'Débloque la génération IA de lettre de motivation',
   interview_limit: "Tu as atteint ta limite d'entretiens ce mois-ci",
   chat_limit: 'Continue de discuter avec ton coach IA',
   job_alerts: 'Reçois des alertes personnalisées',
