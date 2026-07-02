@@ -96,7 +96,6 @@ export function useCareerOnboarding() {
         return (
           profile.currentSituation !== null &&
           isSituationDetailsComplete(profile.currentSituation, profile.situationDetails) &&
-          profile.fieldOfStudy !== null &&
           profile.educationLevel !== null
         );
       case 'experience':

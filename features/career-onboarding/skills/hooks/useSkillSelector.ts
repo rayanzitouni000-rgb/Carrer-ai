@@ -59,10 +59,10 @@ export function useSkillSelector({
   );
 
   const suggestedSkills = useMemo(() => {
-    const suggestions = getSuggestedSkillsForProfile(profile.fieldOfStudy);
+    const suggestions = getSuggestedSkillsForProfile(profile);
     const selectedSet = new Set(selectedIds);
     return suggestions.filter((skill) => !selectedSet.has(skill.id));
-  }, [profile.fieldOfStudy, selectedIds]);
+  }, [profile, selectedIds]);
 
   const canContinue = selectedSkills.length >= MIN_USER_SKILLS;
 

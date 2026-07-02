@@ -1,8 +1,5 @@
-import {
-  EDUCATION_LEVEL_OPTIONS,
-  FIELD_OPTIONS,
-  getOptionLabel,
-} from '@/features/career-onboarding/constants';
+import { EDUCATION_LEVEL_OPTIONS, getOptionLabel } from '@/features/career-onboarding/constants';
+import { formatProfileEducationSummary } from '@/features/career-onboarding/utils/profileEducationLabel';
 import type { CareerProfile } from '@/features/career-onboarding/types';
 import type {
   GeneratedCvData,
@@ -16,19 +13,23 @@ function createId(prefix: string): string {
 }
 
 function buildEducation(profile: CareerProfile): GeneratedCvEducation[] {
-  const level = getOptionLabel(EDUCATION_LEVEL_OPTIONS, profile.educationLevel);
-  const field = getOptionLabel(FIELD_OPTIONS, profile.fieldOfStudy);
+  const summary = formatProfileEducationSummary(profile);
   const diploma = profile.diploma?.trim();
+  const level = getOptionLabel(EDUCATION_LEVEL_OPTIONS, profile.educationLevel);
 
-  const degree = diploma || [level, field].filter((v) => v && v !== '—').join(' · ');
+  const degree = diploma || (summary !== '—' ? summary : level !== '—' ? level : '');
 
   if (!degree) return [];
+
+  const school =
+    profile.situationDetails.masterSpecialite?.trim() ||
+    (summary !== '—' ? summary.split(' · ').slice(-1)[0] : '');
 
   return [
     {
       id: createId('edu'),
       degree,
-      school: field !== '—' ? field : '',
+      school: school !== degree ? school : '',
       year: '',
     },
   ];

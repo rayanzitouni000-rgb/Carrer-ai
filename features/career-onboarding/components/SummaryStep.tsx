@@ -14,10 +14,11 @@ import { Card, Icon, Text, useFadeIn, usePulseAnimation, useTheme } from '@/desi
 
 import {
   CAREER_GOAL_OPTIONS,
-  FIELD_OPTIONS,
   getCurrentProfileLabel,
   getOptionLabel,
 } from '../constants';
+
+import { formatProfileEducationSummary } from '../utils/profileEducationLabel';
 
 import { formatUserSkillsSummary } from '../skills/skillUtils';
 
@@ -113,14 +114,7 @@ export function SummaryStep({ profile }: SummaryStepProps) {
 
   const profileSummary = getCurrentProfileLabel(profile);
 
-  const education = [
-    getOptionLabel(FIELD_OPTIONS, profile.fieldOfStudy),
-    profile.diploma.trim(),
-  ]
-
-    .filter(Boolean)
-
-    .join(' · ');
+  const education = formatProfileEducationSummary(profile);
 
 
 

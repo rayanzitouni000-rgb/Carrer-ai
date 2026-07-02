@@ -3,7 +3,6 @@ import type {
   CareerGoalId,
   CurrentSituation,
   EducationLevel,
-  FieldOfStudy,
 } from './types';
 
 export interface SelectOption<T extends string = string> {
@@ -52,13 +51,6 @@ export const CURRENT_PROFILE_OPTIONS: CurrentProfileOption[] = [
   { id: 'etudiant-bac2', label: 'Étudiant(e) · Bac+2', emoji: '📚', currentSituation: 'etudiant', educationLevel: 'bac-2' },
   { id: 'etudiant-bac3', label: 'Étudiant(e) · Bac+3', emoji: '📚', currentSituation: 'etudiant', educationLevel: 'bac-3' },
   { id: 'etudiant-bac5', label: 'Étudiant(e) · Bac+5', emoji: '🎓', currentSituation: 'etudiant', educationLevel: 'bac-5-master' },
-  {
-    id: 'etudiant-grande-ecole',
-    label: 'Étudiant(e) · Grande école',
-    emoji: '🏫',
-    currentSituation: 'etudiant',
-    educationLevel: 'ingenieur',
-  },
   { id: 'alternant', label: 'Alternant(e)', emoji: '🤝', currentSituation: 'alternant', educationLevel: 'bac-2' },
   { id: 'jeune-diplome', label: 'Jeune diplômé(e)', emoji: '🎉', currentSituation: 'jeune-diplome' },
   { id: 'recherche-emploi', label: "En recherche d'emploi", emoji: '🔍', currentSituation: 'recherche-emploi' },
@@ -113,21 +105,6 @@ export function getCurrentProfileLabel(profile: {
   }
   return '—';
 }
-
-export const FIELD_OPTIONS: SelectOption<FieldOfStudy>[] = [
-  { id: 'informatique', label: 'Informatique / Tech' },
-  { id: 'commerce-gestion', label: 'Commerce / Gestion' },
-  { id: 'ingenierie', label: 'Ingénierie' },
-  { id: 'marketing-communication', label: 'Marketing / Communication' },
-  { id: 'finance-comptabilite', label: 'Finance / Comptabilité' },
-  { id: 'design-arts', label: 'Design / Arts' },
-  { id: 'sante-social', label: 'Santé / Social' },
-  { id: 'droit', label: 'Droit' },
-  { id: 'sciences', label: 'Sciences' },
-  { id: 'education', label: 'Éducation' },
-  { id: 'artisanat', label: 'Artisanat / Métiers manuels' },
-  { id: 'autre', label: 'Autre' },
-];
 
 export const PRIMARY_CAREER_GOAL_IDS = [
   'premier-emploi',

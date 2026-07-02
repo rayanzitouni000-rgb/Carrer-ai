@@ -1,4 +1,5 @@
-import type { FieldOfStudy } from '../../types';
+import type { CareerProfile } from '../../types';
+import { inferSkillSuggestionKey } from '../../utils/inferSkillSuggestion';
 import type { Skill, UserSkill } from '../types';
 
 export const SKILLS: Skill[] = [
@@ -51,33 +52,26 @@ export const SUGGESTIONS_BY_FIELD: Record<string, string[]> = {
   default: ['communication', 'travail-equipe', 'adaptabilite'],
 };
 
-const FIELD_OF_STUDY_TO_SUGGESTION_KEY: Record<FieldOfStudy, string> = {
-  informatique: 'Informatique',
-  'commerce-gestion': 'Commerce / Gestion',
-  ingenierie: 'Ingénierie',
-  'marketing-communication': 'Marketing / Communication',
-  'finance-comptabilite': 'Finance',
-  'design-arts': 'Design / Arts',
-  'sante-social': 'Santé / Social',
-  droit: 'Droit',
-  sciences: 'default',
-  education: 'default',
-  artisanat: 'default',
-  autre: 'default',
+const FIELD_OF_STUDY_TO_SUGGESTION_KEY: Record<string, string> = {
+  Informatique: 'Informatique',
+  'Commerce / Gestion': 'Commerce / Gestion',
+  Ingénierie: 'Ingénierie',
+  'Marketing / Communication': 'Marketing / Communication',
+  Finance: 'Finance',
+  'Design / Arts': 'Design / Arts',
+  'Santé / Social': 'Santé / Social',
+  Droit: 'Droit',
+  default: 'default',
 };
-
-export function getEducationFieldLabel(fieldOfStudy: FieldOfStudy | null): string {
-  if (!fieldOfStudy) return 'default';
-  return FIELD_OF_STUDY_TO_SUGGESTION_KEY[fieldOfStudy] ?? 'default';
-}
 
 export function getSuggestedSkills(educationField: string): Skill[] {
   const ids = SUGGESTIONS_BY_FIELD[educationField] ?? SUGGESTIONS_BY_FIELD.default;
   return SKILLS.filter((skill) => ids.includes(skill.id));
 }
 
-export function getSuggestedSkillsForProfile(fieldOfStudy: FieldOfStudy | null): Skill[] {
-  return getSuggestedSkills(getEducationFieldLabel(fieldOfStudy));
+export function getSuggestedSkillsForProfile(profile: CareerProfile): Skill[] {
+  const key = inferSkillSuggestionKey(profile);
+  return getSuggestedSkills(FIELD_OF_STUDY_TO_SUGGESTION_KEY[key] ?? key);
 }
 
 export function searchSkills(query: string, excludeIds: string[]): Skill[] {

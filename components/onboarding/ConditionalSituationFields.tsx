@@ -10,19 +10,20 @@ import {
   TYPES_BAC_PLUS_2,
 } from '@/features/career-onboarding/data/bacPlus2Data';
 import {
+  getNiveauOptionsForCursus,
+  isMasterNiveauCursus,
+  TYPES_CONTRAT_ALTERNANCE,
+  TYPES_CURSUS,
+} from '@/features/career-onboarding/data/cursusSuperieurData';
+import {
   CLASSES_LYCEE,
   FILIERES_BAC,
   SERIES_TECHNO,
   SPECIALITES_BAC_GENERAL,
 } from '@/features/career-onboarding/data/lyceenData';
-import {
-  NIVEAUX_ETUDES,
-  NIVEAUX_GRANDE_ECOLE,
-  TYPES_CONTRAT_ALTERNANCE,
-} from '@/features/career-onboarding/data/niveauEtudesData';
 import { SECTEURS_ACTIVITE } from '@/features/career-onboarding/data/secteurActiviteData';
 import type { CurrentSituation } from '@/features/career-onboarding/types';
-import type { SituationDetails } from '@/types/onboarding';
+import type { SituationDetails, TypeCursus } from '@/types/onboarding';
 
 interface ConditionalSituationFieldsProps {
   situationId: CurrentSituation | null;
@@ -41,12 +42,91 @@ function RevealField({ children, delay = 0 }: { children: ReactNode; delay?: num
   );
 }
 
-function isMasterNiveauEtudes(niveau?: string) {
-  return niveau === 'm1' || niveau === 'm2';
-}
+function CursusFields({
+  details,
+  onChange,
+  contractDelay = 80,
+  showContract = false,
+}: {
+  details: SituationDetails;
+  onChange: (details: Partial<SituationDetails>) => void;
+  contractDelay?: number;
+  showContract?: boolean;
+}) {
+  const niveauOptions = getNiveauOptionsForCursus(details.typeCursus);
+  const showMasterSpecialite =
+    (details.typeCursus === 'master-univ' || details.typeCursus === 'master-ecole') &&
+    isMasterNiveauCursus(details.niveauCursus);
 
-function isMasterGrandeEcole(niveau?: string) {
-  return niveau === 'master1-ecole' || niveau === 'master2-ecole';
+  return (
+    <>
+      <RevealField>
+        <AiFormSelect
+          mode="single"
+          label="Mon cursus"
+          options={TYPES_CURSUS}
+          selectedId={details.typeCursus ?? null}
+          onSelect={(id) =>
+            onChange({
+              typeCursus: id as TypeCursus,
+              niveauCursus: undefined,
+              masterSpecialite: undefined,
+            })
+          }
+        />
+      </RevealField>
+
+      {details.typeCursus && niveauOptions ? (
+        <RevealField delay={40}>
+          <AiFormSelect
+            mode="single"
+            label="Mon niveau"
+            options={niveauOptions}
+            selectedId={details.niveauCursus ?? null}
+            onSelect={(id) =>
+              onChange({
+                niveauCursus: id,
+                masterSpecialite: isMasterNiveauCursus(id)
+                  ? details.masterSpecialite
+                  : undefined,
+              })
+            }
+          />
+        </RevealField>
+      ) : null}
+
+      {showMasterSpecialite ? (
+        <RevealField delay={80}>
+          <Input
+            label="Spécialité de mon Master"
+            placeholder={
+              details.typeCursus === 'master-ecole'
+                ? 'Ex. Master Finance, Master Marketing Digital...'
+                : 'Ex. Master Informatique - Intelligence Artificielle'
+            }
+            value={details.masterSpecialite ?? ''}
+            onChangeText={(masterSpecialite) => onChange({ masterSpecialite })}
+          />
+        </RevealField>
+      ) : null}
+
+      {showContract ? (
+        <RevealField delay={contractDelay}>
+          <AiFormSelect
+            mode="single"
+            label="Type de contrat"
+            options={TYPES_CONTRAT_ALTERNANCE}
+            selectedId={details.typeContratAlternance ?? null}
+            onSelect={(id) =>
+              onChange({
+                typeContratAlternance: id as SituationDetails['typeContratAlternance'],
+              })
+            }
+          />
+        </RevealField>
+      ) : null}
+    </>
+  );
 }
 
 export function ConditionalSituationFields({
@@ -196,94 +276,14 @@ export function ConditionalSituationFields({
     case 'etudiant':
       return (
         <View style={styles.group}>
-          <RevealField>
-            <AiFormSelect
-              mode="single"
-              label="Mon niveau"
-              options={NIVEAUX_ETUDES}
-              selectedId={details.niveauEtudes ?? null}
-              onSelect={(id) =>
-                onChange({
-                  niveauEtudes: id,
-                  masterSpecialite: isMasterNiveauEtudes(id)
-                    ? details.masterSpecialite
-                    : undefined,
-                })
-              }
-            />
-          </RevealField>
-
-          {isMasterNiveauEtudes(details.niveauEtudes) ? (
-            <RevealField delay={40}>
-              <Input
-                label="Spécialité de mon Master (optionnel)"
-                placeholder="Ex. Master Informatique - Intelligence Artificielle"
-                value={details.masterSpecialite ?? ''}
-                onChangeText={(masterSpecialite) => onChange({ masterSpecialite })}
-              />
-            </RevealField>
-          ) : null}
-        </View>
-      );
-
-    case 'etudiant-grande-ecole':
-      return (
-        <View style={styles.group}>
-          <RevealField>
-            <AiFormSelect
-              mode="single"
-              label="Mon niveau"
-              options={NIVEAUX_GRANDE_ECOLE}
-              selectedId={details.niveauGrandeEcole ?? null}
-              onSelect={(id) =>
-                onChange({
-                  niveauGrandeEcole: id,
-                  masterSpecialite: isMasterGrandeEcole(id)
-                    ? details.masterSpecialite
-                    : undefined,
-                })
-              }
-            />
-          </RevealField>
-
-          {isMasterGrandeEcole(details.niveauGrandeEcole) ? (
-            <RevealField delay={40}>
-              <Input
-                label="Spécialité de mon Master (optionnel)"
-                placeholder="Ex. Master Finance, Master Marketing Digital..."
-                value={details.masterSpecialite ?? ''}
-                onChangeText={(masterSpecialite) => onChange({ masterSpecialite })}
-              />
-            </RevealField>
-          ) : null}
+          <CursusFields details={details} onChange={onChange} />
         </View>
       );
 
     case 'alternant':
       return (
         <View style={styles.group}>
-          <RevealField>
-            <AiFormSelect
-              mode="single"
-              label="Mon niveau"
-              options={NIVEAUX_ETUDES}
-              selectedId={details.niveauEtudes ?? null}
-              onSelect={(id) => onChange({ niveauEtudes: id })}
-            />
-          </RevealField>
-          <RevealField delay={40}>
-            <AiFormSelect
-              mode="single"
-              label="Type de contrat"
-              options={TYPES_CONTRAT_ALTERNANCE}
-              selectedId={details.typeContratAlternance ?? null}
-              onSelect={(id) =>
-                onChange({
-                  typeContratAlternance: id as SituationDetails['typeContratAlternance'],
-                })
-              }
-            />
-          </RevealField>
+          <CursusFields details={details} onChange={onChange} showContract contractDelay={120} />
         </View>
       );
 

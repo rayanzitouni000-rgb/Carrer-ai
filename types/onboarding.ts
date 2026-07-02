@@ -6,6 +6,14 @@ export interface SelectOption {
   icon: LucideIcon;
 }
 
+export type TypeCursus =
+  | 'licence-univ'
+  | 'bachelor-ecole'
+  | 'master-univ'
+  | 'master-ecole'
+  | 'doctorat'
+  | 'classe-prepa';
+
 export interface SituationDetails {
   classe?: 'seconde' | 'premiere' | 'terminale';
   filiere?: 'general' | 'techno' | 'pro';
@@ -15,9 +23,9 @@ export interface SituationDetails {
   typeBacPlus2?: 'bts' | 'but';
   specialiteBacPlus2?: string;
   specialiteBacPlus2Libre?: string;
-  niveauEtudes?: string;
+  typeCursus?: TypeCursus;
+  niveauCursus?: string;
   masterSpecialite?: string;
-  niveauGrandeEcole?: string;
   typeContratAlternance?: 'apprentissage' | 'professionnalisation';
   secteurActivite?: string;
 }

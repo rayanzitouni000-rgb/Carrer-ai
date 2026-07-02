@@ -1,6 +1,13 @@
 import type { SituationDetails } from '@/types/onboarding';
 
+import { cursusRequiresNiveau } from '../data/cursusSuperieurData';
 import type { CurrentSituation } from '../types';
+
+function isCursusComplete(details: SituationDetails): boolean {
+  if (!details.typeCursus) return false;
+  if (!cursusRequiresNiveau(details.typeCursus)) return true;
+  return Boolean(details.niveauCursus);
+}
 
 export function isSituationDetailsComplete(
   situation: CurrentSituation | null,
@@ -30,11 +37,9 @@ export function isSituationDetailsComplete(
       return true;
     }
     case 'etudiant':
-      return Boolean(details.niveauEtudes);
-    case 'etudiant-grande-ecole':
-      return Boolean(details.niveauGrandeEcole);
+      return isCursusComplete(details);
     case 'alternant':
-      return Boolean(details.niveauEtudes && details.typeContratAlternance);
+      return isCursusComplete(details) && Boolean(details.typeContratAlternance);
     case 'en-poste':
     case 'freelance':
       return Boolean(details.secteurActivite);

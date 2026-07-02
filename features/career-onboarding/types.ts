@@ -4,7 +4,6 @@ export type CurrentSituation =
   | 'lyceen'
   | 'bac2'
   | 'etudiant'
-  | 'etudiant-grande-ecole'
   | 'alternant'
   | 'jeune-diplome'
   | 'recherche-emploi'
@@ -30,20 +29,6 @@ export type EducationLevel =
   | 'commerce-ecole'
   | 'doctorat'
   | 'autodidacte'
-  | 'autre';
-
-export type FieldOfStudy =
-  | 'informatique'
-  | 'commerce-gestion'
-  | 'ingenierie'
-  | 'marketing-communication'
-  | 'finance-comptabilite'
-  | 'design-arts'
-  | 'sante-social'
-  | 'droit'
-  | 'sciences'
-  | 'education'
-  | 'artisanat'
   | 'autre';
 
 export type CareerGoalId =
@@ -85,7 +70,6 @@ export interface CareerProfile {
   currentSituation: CurrentSituation | null;
   situationDetails: SituationDetails;
   educationLevel: EducationLevel | null;
-  fieldOfStudy: FieldOfStudy | null;
   diploma: string;
   experiences: WorkExperience[];
   hasNoExperience: boolean;
@@ -101,7 +85,6 @@ export const EMPTY_CAREER_PROFILE: CareerProfile = {
   currentSituation: null,
   situationDetails: { ...EMPTY_SITUATION_DETAILS },
   educationLevel: null,
-  fieldOfStudy: null,
   diploma: '',
   experiences: [],
   hasNoExperience: false,
