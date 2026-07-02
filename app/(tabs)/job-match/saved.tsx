@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 
 import { Icon, PressableScale, Text, useTheme } from '@/design-system';
 import { JobOfferCard } from '@/components/jobMatch/JobOfferCard';
-import { getMockJobById } from '@/data/mockJobOffers';
+import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { enrichOffersWithMatchScore } from '@/utils/matchScoreCalculator';
@@ -21,7 +21,7 @@ export default function SavedJobsScreen() {
   const offers = useMemo(() => {
     const profile = careerProfileStore.get();
     const resolved = savedJobs
-      .map((saved) => getMockJobById(saved.jobOfferId))
+      .map((saved) => getJobOfferById(saved.jobOfferId))
       .filter((offer): offer is NonNullable<typeof offer> => offer !== undefined);
     return enrichOffersWithMatchScore(profile, resolved);
   }, [savedJobs]);

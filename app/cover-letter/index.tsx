@@ -15,7 +15,7 @@ import {
   Text,
   useTheme,
 } from '@/design-system';
-import { getMockJobById } from '@/data/mockJobOffers';
+import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { useCoverLetterGenerator } from '@/hooks/useCoverLetterGenerator';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
@@ -84,7 +84,7 @@ export default function CoverLetterIndexScreen() {
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(MANUAL_JOB_ID);
 
-  const lockedOffer = jobOfferId ? getMockJobById(jobOfferId) : undefined;
+  const lockedOffer = jobOfferId ? getJobOfferById(jobOfferId) : undefined;
   const isLocked = Boolean(lockedOffer);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function CoverLetterIndexScreen() {
 
   const jobOptions = useMemo(() => {
     const savedOptions = savedJobs
-      .map((saved) => getMockJobById(saved.jobOfferId))
+      .map((saved) => getJobOfferById(saved.jobOfferId))
       .filter((offer): offer is NonNullable<typeof offer> => offer !== undefined)
       .map((offer) => ({
         id: offer.id,

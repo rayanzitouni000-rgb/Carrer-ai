@@ -6,7 +6,7 @@ import {
   MOTIVATION_OPTIONS,
   fillTemplate,
 } from '@/data/coverLetterTemplates';
-import { getMockJobById } from '@/data/mockJobOffers';
+import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import { coverLetterStore } from '@/services/coverLetterStore';
 import type { CoverLetterData } from '@/types/coverLetter';
@@ -88,7 +88,7 @@ export function useCoverLetterGenerator(): UseCoverLetterGeneratorReturn {
 
   const loadFromJobOffer = useCallback(
     (jobOfferId: string) => {
-      const offer = getMockJobById(jobOfferId);
+      const offer = getJobOfferById(jobOfferId);
       if (!offer) return;
 
       commit((current) => ({

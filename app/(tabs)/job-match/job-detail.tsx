@@ -17,7 +17,7 @@ import {
   useTheme,
   useToast,
 } from '@/design-system';
-import { getMockJobById } from '@/data/mockJobOffers';
+import { getJobOfferById } from '@/utils/jobOfferResolver';
 import type { CareerProfile } from '@/features/career-onboarding/types';
 import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
@@ -41,7 +41,7 @@ export default function JobDetailScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const { id, section } = useLocalSearchParams<{ id: string; section?: string }>();
 
-  const offer = getMockJobById(id ?? '');
+  const offer = getJobOfferById(id ?? '');
   const { isJobSaved, toggleSaveJob, trackApplicationFromMatch } = useSavedJobs();
   const { addApplication, hasAppliedToJob } = useApplicationTracking();
   const { addInterview } = useRealInterviews();

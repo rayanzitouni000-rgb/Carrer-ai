@@ -1,7 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { isJobApiConfigured } from '@/constants/apiConfig';
 import { MOCK_JOB_OFFERS } from '@/data/mockJobOffers';
 import type { CareerProfile } from '@/features/career-onboarding/types';
+import { filtersToFetchParams, fetchJobOffersFromApi } from '@/services/jobSearchApi';
+import { jobOfferStore } from '@/services/jobOfferStore';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import {
   DEFAULT_JOB_SEARCH_FILTERS,
@@ -16,6 +19,8 @@ export interface UseJobSearchReturn {
   resetFilters: () => void;
   results: JobOffer[];
   isLoading: boolean;
+  usesLiveApi: boolean;
+  apiError: string | null;
 }
 
 const JobSearchContext = createContext<UseJobSearchReturn | null>(null);
@@ -31,25 +36,30 @@ function matchesDatePosted(publishedDate: string, datePosted: JobSearchFilters['
   return true;
 }
 
-function filterOffers(offers: JobOffer[], filters: JobSearchFilters): JobOffer[] {
+function filterOffers(
+  offers: JobOffer[],
+  filters: JobSearchFilters,
+  fromLiveApi: boolean
+): JobOffer[] {
   const query = filters.query.trim().toLowerCase();
 
   return offers.filter((offer) => {
-    if (query) {
-      const haystack = `${offer.title} ${offer.company}`.toLowerCase();
-      if (!haystack.includes(query)) return false;
-    }
+    if (!fromLiveApi) {
+      if (query) {
+        const haystack = `${offer.title} ${offer.company}`.toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
 
-    if (filters.contractTypes.length > 0 && !filters.contractTypes.includes(offer.contractType)) {
-      return false;
-    }
+      if (filters.contractTypes.length > 0 && !filters.contractTypes.includes(offer.contractType)) {
+        return false;
+      }
 
-    if (filters.remoteOnly && !offer.isRemote) return false;
+      if (filters.remoteOnly && !offer.isRemote) return false;
 
-    if (filters.location.trim()) {
-      const locationQuery = filters.location.trim().toLowerCase();
-      // TODO: remplacer par géolocalisation / rayon réel avec l'API France Travail
-      if (!offer.location.toLowerCase().includes(locationQuery)) return false;
+      if (filters.location.trim()) {
+        const locationQuery = filters.location.trim().toLowerCase();
+        if (!offer.location.toLowerCase().includes(locationQuery)) return false;
+      }
     }
 
     if (filters.minSalary !== undefined && filters.minSalary > 0) {
@@ -68,19 +78,50 @@ function JobSearchProviderInner({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<CareerProfile>(careerProfileStore.get());
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedFilters, setDebouncedFilters] = useState(filters);
+  const [apiOffers, setApiOffers] = useState<JobOffer[] | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const usesLiveApi = isJobApiConfigured();
 
   useEffect(() => {
     void careerProfileStore.hydrate().then(setProfile);
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setDebouncedFilters(filters);
-      setIsLoading(false);
-    }, 400);
+    const timer = setTimeout(() => setDebouncedFilters(filters), 400);
     return () => clearTimeout(timer);
   }, [filters]);
+
+  useEffect(() => {
+    if (!usesLiveApi) {
+      setApiOffers(null);
+      setApiError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoading(true);
+    setApiError(null);
+
+    void fetchJobOffersFromApi(filtersToFetchParams(debouncedFilters))
+      .then((offers) => {
+        if (cancelled) return;
+        jobOfferStore.setMany(offers);
+        setApiOffers(offers);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        console.warn('Job API fetch failed, fallback mock:', error);
+        setApiOffers(null);
+        setApiError('Impossible de joindre le backend — données mock affichées.');
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedFilters, usesLiveApi]);
 
   const setFilters = useCallback((partial: Partial<JobSearchFilters>) => {
     setFiltersState((prev) => ({ ...prev, ...partial }));
@@ -91,15 +132,23 @@ function JobSearchProviderInner({ children }: { children: ReactNode }) {
   }, []);
 
   const results = useMemo(() => {
-    // TODO: remplacer MOCK_JOB_OFFERS par fetch API France Travail
-    const scored = enrichOffersWithMatchScore(profile, MOCK_JOB_OFFERS);
-    const filtered = filterOffers(scored, debouncedFilters);
+    const source = apiOffers ?? MOCK_JOB_OFFERS;
+    const scored = enrichOffersWithMatchScore(profile, source);
+    const filtered = filterOffers(scored, debouncedFilters, apiOffers !== null);
     return filtered.sort((a, b) => b.matchScore - a.matchScore);
-  }, [profile, debouncedFilters]);
+  }, [profile, debouncedFilters, apiOffers]);
 
   const value = useMemo(
-    () => ({ filters, setFilters, resetFilters, results, isLoading }),
-    [filters, setFilters, resetFilters, results, isLoading]
+    () => ({
+      filters,
+      setFilters,
+      resetFilters,
+      results,
+      isLoading,
+      usesLiveApi,
+      apiError,
+    }),
+    [filters, setFilters, resetFilters, results, isLoading, usesLiveApi, apiError]
   );
 
   return <JobSearchContext.Provider value={value}>{children}</JobSearchContext.Provider>;

@@ -23,7 +23,7 @@ export default function JobMatchScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { filters, setFilters, results, isLoading } = useJobSearch();
+  const { filters, setFilters, results, isLoading, usesLiveApi, apiError } = useJobSearch();
   const { hasAppliedToJob } = useApplicationTracking();
   const { isJobSaved, toggleSaveJob, savedJobsCount } = useSavedJobs();
   const { isPremium } = usePremiumStatus();
@@ -120,8 +120,15 @@ export default function JobMatchScreen() {
         </View>
 
         <Text variant="bodySmall" color={theme.colors.text.secondary}>
-          {isLoading ? 'Recherche en cours...' : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}`}
+          {isLoading
+            ? 'Recherche en cours...'
+            : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}${usesLiveApi ? ' · France Travail' : ''}`}
         </Text>
+        {apiError && (
+          <Text variant="caption" color={theme.colors.status.warning}>
+            {apiError}
+          </Text>
+        )}
       </View>
 
       {isLoading ? (

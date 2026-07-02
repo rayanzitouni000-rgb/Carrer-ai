@@ -43,7 +43,8 @@
     "extra": {
       "eas": {
         "projectId": "b53b89f3-9625-41a0-be0a-94aba2789fdd"
-      }
+      },
+      "jobApiUrl": "https://careerpilot-backend-xi.vercel.app"
     },
     "updates": {
       "url": "https://u.expo.dev/b53b89f3-9625-41a0-be0a-94aba2789fdd"

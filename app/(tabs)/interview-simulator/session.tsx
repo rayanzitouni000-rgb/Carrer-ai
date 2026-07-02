@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LiveInterviewSessionView } from '@/components/interview/LiveInterviewSessionView';
-import { getMockJobById } from '@/data/mockJobOffers';
+import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { useInterviewSession } from '@/features/interview/hooks';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
@@ -45,7 +45,7 @@ export default function InterviewSessionScreen() {
   const realInterview = params.interviewId
     ? interviews.find((item) => item.id === params.interviewId)
     : undefined;
-  const jobOffer = params.jobOfferId ? getMockJobById(params.jobOfferId) : undefined;
+  const jobOffer = params.jobOfferId ? getJobOfferById(params.jobOfferId) : undefined;
 
   const sessionSource: SessionSource = isAssessment
     ? 'assessment'
