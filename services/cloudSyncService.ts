@@ -15,12 +15,21 @@ import {
 
 const PUSH_DEBOUNCE_MS = 2000;
 
+interface CloudSyncMeta {
+  userId: string;
+  syncedAt: string;
+}
+
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
 let activeUserId: string | null = null;
 let isApplyingRemote = false;
 
 export function isCloudSyncApplyingRemote(): boolean {
   return isApplyingRemote;
+}
+
+export function setActiveCloudUserId(userId: string | null): void {
+  activeUserId = userId;
 }
 
 async function readJsonKey(key: string): Promise<unknown> {
@@ -39,6 +48,49 @@ async function writeJsonKey(key: string, value: unknown): Promise<void> {
     return;
   }
   await AsyncStorage.setItem(key, JSON.stringify(value));
+}
+
+async function getSyncMeta(): Promise<CloudSyncMeta | null> {
+  try {
+    const raw = await AsyncStorage.getItem(STORAGE_KEYS.cloudSyncMeta);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<CloudSyncMeta>;
+    if (typeof parsed.userId === 'string' && typeof parsed.syncedAt === 'string') {
+      return { userId: parsed.userId, syncedAt: parsed.syncedAt };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function setSyncMeta(userId: string, syncedAt: string): Promise<void> {
+  const meta: CloudSyncMeta = { userId, syncedAt };
+  await AsyncStorage.setItem(STORAGE_KEYS.cloudSyncMeta, JSON.stringify(meta));
+}
+
+/** Efface toutes les données locales liées au profil (changement de compte / déconnexion). */
+export async function clearLocalUserData(): Promise<void> {
+  careerProfileStore.resetInMemory();
+  await AsyncStorage.multiRemove([
+    STORAGE_KEYS.careerProfile,
+    STORAGE_KEYS.onboardingStep,
+    STORAGE_KEYS.savedJobs,
+    STORAGE_KEYS.jobMatchApplications,
+    STORAGE_KEYS.applicationEntries,
+    STORAGE_KEYS.cvActionsTracking,
+    STORAGE_KEYS.interviewSessions,
+    STORAGE_KEYS.realInterviews,
+    STORAGE_KEYS.jobSearchPreferences,
+    STORAGE_KEYS.onboardingAssessment,
+    STORAGE_KEYS.usageLimits,
+    STORAGE_KEYS.aiChatHistory,
+    STORAGE_KEYS.appStreak,
+    STORAGE_KEYS.premiumStatusSimulated,
+    STORAGE_KEYS.cloudSyncMeta,
+    STORAGE_KEYS.lastCloudSync,
+  ]);
+  emitCloudDataRefresh();
 }
 
 export async function collectLocalSnapshot(): Promise<UserCloudSnapshot> {
@@ -99,50 +151,58 @@ export async function collectLocalSnapshot(): Promise<UserCloudSnapshot> {
 export async function applyRemoteSnapshot(snapshot: UserCloudSnapshot): Promise<void> {
   isApplyingRemote = true;
   try {
-  const writes: Promise<void>[] = [
-    writeJsonKey(STORAGE_KEYS.savedJobs, snapshot.savedJobs),
-    writeJsonKey(STORAGE_KEYS.jobMatchApplications, snapshot.jobMatchApplications),
-    writeJsonKey(STORAGE_KEYS.applicationEntries, snapshot.applicationEntries),
-    writeJsonKey(STORAGE_KEYS.cvActionsTracking, snapshot.cvActionsTracking),
-    writeJsonKey(STORAGE_KEYS.interviewSessions, snapshot.interviewSessions),
-    writeJsonKey(STORAGE_KEYS.realInterviews, snapshot.realInterviews),
-    writeJsonKey(STORAGE_KEYS.onboardingAssessment, snapshot.onboardingAssessment),
-    writeJsonKey(STORAGE_KEYS.usageLimits, snapshot.usageLimits),
-    writeJsonKey(STORAGE_KEYS.aiChatHistory, snapshot.aiChatHistory),
-    writeJsonKey(STORAGE_KEYS.appStreak, snapshot.appStreak),
-    writeJsonKey(STORAGE_KEYS.premiumStatusSimulated, snapshot.premiumStatus),
-  ];
+    const writes: Promise<void>[] = [
+      writeJsonKey(STORAGE_KEYS.savedJobs, snapshot.savedJobs),
+      writeJsonKey(STORAGE_KEYS.jobMatchApplications, snapshot.jobMatchApplications),
+      writeJsonKey(STORAGE_KEYS.applicationEntries, snapshot.applicationEntries),
+      writeJsonKey(STORAGE_KEYS.cvActionsTracking, snapshot.cvActionsTracking),
+      writeJsonKey(STORAGE_KEYS.interviewSessions, snapshot.interviewSessions),
+      writeJsonKey(STORAGE_KEYS.realInterviews, snapshot.realInterviews),
+      writeJsonKey(STORAGE_KEYS.onboardingAssessment, snapshot.onboardingAssessment),
+      writeJsonKey(STORAGE_KEYS.usageLimits, snapshot.usageLimits),
+      writeJsonKey(STORAGE_KEYS.aiChatHistory, snapshot.aiChatHistory),
+      writeJsonKey(STORAGE_KEYS.appStreak, snapshot.appStreak),
+      writeJsonKey(STORAGE_KEYS.premiumStatusSimulated, snapshot.premiumStatus),
+    ];
 
-  if (snapshot.jobSearchPreferences) {
-    writes.push(writeJsonKey(STORAGE_KEYS.jobSearchPreferences, snapshot.jobSearchPreferences));
-  }
+    if (snapshot.jobSearchPreferences) {
+      writes.push(writeJsonKey(STORAGE_KEYS.jobSearchPreferences, snapshot.jobSearchPreferences));
+    }
 
-  if (snapshot.onboardingStep) {
-    writes.push(persistenceService.saveOnboardingStep(snapshot.onboardingStep as CareerOnboardingStep));
-  }
+    if (snapshot.onboardingStep) {
+      writes.push(
+        persistenceService.saveOnboardingStep(snapshot.onboardingStep as CareerOnboardingStep)
+      );
+    }
 
-  if (snapshot.careerProfile) {
-    const normalized = normalizeCareerProfile(snapshot.careerProfile);
-    careerProfileStore.set(normalized);
-    writes.push(persistenceService.saveCareerProfile(normalized));
-  }
+    if (snapshot.careerProfile) {
+      const normalized = normalizeCareerProfile(snapshot.careerProfile);
+      careerProfileStore.set(normalized);
+      writes.push(persistenceService.saveCareerProfile(normalized));
+    }
 
-  await Promise.all(writes);
-  emitCloudDataRefresh();
+    await Promise.all(writes);
+    emitCloudDataRefresh();
   } finally {
     isApplyingRemote = false;
   }
 }
 
-async function getLastSyncTime(): Promise<string | null> {
-  return AsyncStorage.getItem(STORAGE_KEYS.lastCloudSync);
+async function verifySessionUserId(expectedUserId: string): Promise<boolean> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user?.id === expectedUserId;
 }
 
-async function setLastSyncTime(iso: string): Promise<void> {
-  await AsyncStorage.setItem(STORAGE_KEYS.lastCloudSync, iso);
-}
+export async function pushSnapshotToCloud(
+  userId: string,
+  snapshot?: UserCloudSnapshot
+): Promise<boolean> {
+  const sessionOk = await verifySessionUserId(userId);
+  if (!sessionOk) {
+    console.warn('[CloudSync] push ignoré — session absente ou utilisateur différent');
+    return false;
+  }
 
-export async function pushSnapshotToCloud(userId: string, snapshot?: UserCloudSnapshot): Promise<void> {
   const profileData = snapshot ?? (await collectLocalSnapshot());
   const now = new Date().toISOString();
 
@@ -156,11 +216,12 @@ export async function pushSnapshotToCloud(userId: string, snapshot?: UserCloudSn
   );
 
   if (error) {
-    console.warn('[CloudSync] push failed:', error.message);
-    return;
+    console.warn('[CloudSync] push failed:', error.message, error.code);
+    return false;
   }
 
-  await setLastSyncTime(now);
+  await setSyncMeta(userId, now);
+  return true;
 }
 
 async function pullSnapshotFromCloud(
@@ -173,7 +234,7 @@ async function pullSnapshotFromCloud(
     .maybeSingle();
 
   if (error) {
-    console.warn('[CloudSync] pull failed:', error.message);
+    console.warn('[CloudSync] pull failed:', error.message, error.code);
     return null;
   }
 
@@ -187,14 +248,27 @@ async function pullSnapshotFromCloud(
   return { snapshot, updatedAt: data.updated_at };
 }
 
-/** Synchronise au login : remote récent → local, sinon push local vers le cloud. */
+/** Synchronise au login : isole les données par utilisateur. */
 export async function syncUserDataForAuth(userId: string): Promise<void> {
   activeUserId = userId;
 
   try {
-    const localSnapshot = await collectLocalSnapshot();
-    const lastSync = await getLastSyncTime();
+    const meta = await getSyncMeta();
+    const isDifferentUser = Boolean(meta?.userId && meta.userId !== userId);
     const remote = await pullSnapshotFromCloud(userId);
+
+    if (isDifferentUser) {
+      await clearLocalUserData();
+      if (remote) {
+        await applyRemoteSnapshot(remote.snapshot);
+        await setSyncMeta(userId, remote.updatedAt);
+      } else {
+        await setSyncMeta(userId, new Date().toISOString());
+      }
+      return;
+    }
+
+    const localSnapshot = await collectLocalSnapshot();
 
     if (!remote) {
       await pushSnapshotToCloud(userId, localSnapshot);
@@ -202,11 +276,12 @@ export async function syncUserDataForAuth(userId: string): Promise<void> {
     }
 
     const remoteTime = new Date(remote.updatedAt).getTime();
-    const localSyncTime = lastSync ? new Date(lastSync).getTime() : 0;
+    const localSyncTime =
+      meta?.userId === userId ? new Date(meta.syncedAt).getTime() : 0;
 
     if (remoteTime > localSyncTime) {
       await applyRemoteSnapshot(remote.snapshot);
-      await setLastSyncTime(remote.updatedAt);
+      await setSyncMeta(userId, remote.updatedAt);
       return;
     }
 

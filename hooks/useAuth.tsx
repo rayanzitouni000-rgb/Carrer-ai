@@ -12,7 +12,9 @@ import {
 import { supabase } from '@/lib/supabaseClient';
 import {
   clearCloudSyncUser,
+  clearLocalUserData,
   flushCloudPush,
+  setActiveCloudUserId,
   syncUserDataForAuth,
 } from '@/services/cloudSyncService';
 
@@ -106,8 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(mapped);
       setIsLoading(false);
 
-      if (mapped && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-        scheduleCloudSync(mapped.id, syncedUserIdsRef.current);
+      if (mapped) {
+        setActiveCloudUserId(mapped.id);
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          scheduleCloudSync(mapped.id, syncedUserIdsRef.current);
+        }
       } else if (event === 'SIGNED_OUT') {
         syncedUserIdsRef.current.clear();
         clearCloudSyncUser();
@@ -156,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     syncedUserIdsRef.current.clear();
     clearCloudSyncUser();
     await supabase.auth.signOut();
+    await clearLocalUserData();
   }, []);
 
   const value = useMemo<UseAuthReturn>(
