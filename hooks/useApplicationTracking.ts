@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import type { ApplicationEntry } from '@/types/applicationTracking';
 import { getCountByPeriod } from '@/utils/applicationTrackingUtils';
 
@@ -108,6 +110,7 @@ async function readEntries(): Promise<ApplicationEntry[]> {
 
 function persistEntries(entries: ApplicationEntry[]): void {
   void AsyncStorage.setItem(STORAGE_KEYS.applicationEntries, JSON.stringify(entries));
+  notifyCloudDataChanged();
 }
 
 export function useApplicationTracking(): UseApplicationTrackingReturn {
@@ -116,13 +119,18 @@ export function useApplicationTracking(): UseApplicationTrackingReturn {
 
   useEffect(() => {
     let mounted = true;
-    void readEntries().then((stored) => {
-      if (!mounted) return;
-      setEntries(stored);
-      setIsReady(true);
-    });
+    const reload = () => {
+      void readEntries().then((stored) => {
+        if (!mounted) return;
+        setEntries(stored);
+        setIsReady(true);
+      });
+    };
+    reload();
+    const unsub = subscribeCloudDataRefresh(reload);
     return () => {
       mounted = false;
+      unsub();
     };
   }, []);
 

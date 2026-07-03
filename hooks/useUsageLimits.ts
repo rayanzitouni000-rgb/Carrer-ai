@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import {
   FREE_CHAT_MESSAGES_PER_DAY,
@@ -77,6 +79,7 @@ async function readLimits(): Promise<UsageLimits> {
 
 async function writeLimits(limits: UsageLimits): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.usageLimits, JSON.stringify(limits));
+  notifyCloudDataChanged();
 }
 
 export interface UseUsageLimitsReturn {

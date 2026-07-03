@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getApiBaseUrl, isAiApiConfigured, QUOTA_EXCEEDED_MESSAGE } from '@/constants/apiConfig';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import { getMockAiResponse } from '@/data/mockAiChatResponses';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { careerProfileStore } from '@/services/careerProfileStore';
@@ -49,6 +51,7 @@ async function readSession(): Promise<ChatMessage[]> {
 
 async function writeSession(messages: ChatMessage[]): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.aiChatHistory, JSON.stringify({ messages }));
+  notifyCloudDataChanged();
 }
 
 export interface UseAiChatReturn {

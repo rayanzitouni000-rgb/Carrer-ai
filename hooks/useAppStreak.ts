@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 
 interface StreakState {
   currentStreakDays: number;
@@ -39,6 +41,7 @@ async function readState(): Promise<StreakState> {
 
 async function writeState(state: StreakState): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.appStreak, JSON.stringify(state));
+  notifyCloudDataChanged();
 }
 
 export async function recordAppOpen(): Promise<StreakState> {

@@ -16,4 +16,5 @@ export const STORAGE_KEYS = {
   premiumStatusSimulated: 'premium_status_simulated',
   usageLimits: '@careerpilot/usage-limits',
   aiChatHistory: 'ai_chat_history',
+  lastCloudSync: '@careerpilot/last-cloud-sync',
 } as const;

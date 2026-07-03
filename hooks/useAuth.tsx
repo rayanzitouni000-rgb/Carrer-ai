@@ -9,6 +9,11 @@ import {
 } from 'react';
 
 import { supabase } from '@/lib/supabaseClient';
+import {
+  clearCloudSyncUser,
+  flushCloudPush,
+  syncUserDataForAuth,
+} from '@/services/cloudSyncService';
 
 export interface AuthUser {
   id: string;
@@ -81,8 +86,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(mapSupabaseUser(session?.user ?? null));
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const mapped = mapSupabaseUser(session?.user ?? null);
+      if (mapped && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED')) {
+        await syncUserDataForAuth(mapped.id);
+      } else if (event === 'SIGNED_OUT') {
+        clearCloudSyncUser();
+      }
+      setUser(mapped);
       setIsLoading(false);
     });
 
@@ -119,6 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    const userId = data.session?.user?.id;
+    if (userId) {
+      await flushCloudPush(userId);
+    }
+    clearCloudSyncUser();
     await supabase.auth.signOut();
   }, []);
 

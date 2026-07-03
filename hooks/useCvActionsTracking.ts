@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
 
 interface CvActionsState {
   cvAnalyzedCount: number;
@@ -29,6 +30,7 @@ async function readState(): Promise<CvActionsState> {
 
 async function writeState(state: CvActionsState): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.cvActionsTracking, JSON.stringify(state));
+  notifyCloudDataChanged();
 }
 
 async function mutateState(mutator: (state: CvActionsState) => CvActionsState): Promise<CvActionsState> {

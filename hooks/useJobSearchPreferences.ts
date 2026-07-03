@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import {
   DEFAULT_JOB_SEARCH_PREFERENCES,
   type JobSearchPreferences,
@@ -29,6 +31,8 @@ async function readPreferences(): Promise<JobSearchPreferences> {
 
 async function writePreferences(preferences: JobSearchPreferences): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.jobSearchPreferences, JSON.stringify(preferences));
+  notifyCloudDataChanged();
+  notifyJobSearchPreferences();
 }
 
 export interface UseJobSearchPreferencesReturn {
@@ -55,9 +59,13 @@ export function useJobSearchPreferences(): UseJobSearchPreferencesReturn {
       setIsReady(true);
     });
     listeners.add(refresh);
+    const unsubCloud = subscribeCloudDataRefresh(() => {
+      void refresh().then(() => setIsReady(true));
+    });
     return () => {
       mounted = false;
       listeners.delete(refresh);
+      unsubCloud();
     };
   }, [refresh]);
 

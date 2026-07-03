@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { CareerOnboardingStep, CareerProfile } from '@/features/career-onboarding/types';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
 
 async function readJson<T>(key: string): Promise<T | null> {
   try {
@@ -24,6 +25,7 @@ export const persistenceService = {
 
   async saveCareerProfile(profile: CareerProfile): Promise<void> {
     await writeJson(STORAGE_KEYS.careerProfile, profile);
+    notifyCloudDataChanged();
   },
 
   async getOnboardingStep(): Promise<CareerOnboardingStep | null> {
@@ -32,6 +34,7 @@ export const persistenceService = {
 
   async saveOnboardingStep(step: CareerOnboardingStep): Promise<void> {
     await writeJson(STORAGE_KEYS.onboardingStep, step);
+    notifyCloudDataChanged();
   },
 
   async clearCareerOnboarding(): Promise<void> {

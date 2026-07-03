@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import type { PremiumProductId, PremiumStatus } from '@/types/premium';
 import { PREMIUM_PRODUCTS } from '@/types/premium';
 
@@ -56,6 +58,7 @@ async function readStatus(): Promise<PremiumStatus> {
 
 async function writeStatus(status: PremiumStatus): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.premiumStatusSimulated, JSON.stringify(status));
+  notifyCloudDataChanged();
 }
 
 export interface UsePremiumStatusReturn {

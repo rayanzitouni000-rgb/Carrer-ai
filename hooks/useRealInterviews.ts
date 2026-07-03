@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import type { CompanyBriefing, RealInterview } from '@/types/interviewSimulator';
 
 interface RealInterviewState {
@@ -57,6 +59,7 @@ async function readState(): Promise<RealInterviewState> {
 
 async function writeState(state: RealInterviewState): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.realInterviews, JSON.stringify(state));
+  notifyCloudDataChanged();
 }
 
 export async function incrementRealInterviewCount(): Promise<void> {
@@ -102,13 +105,18 @@ export function useRealInterviews(): UseRealInterviewsReturn {
 
   useEffect(() => {
     let mounted = true;
-    void readState().then((stored) => {
-      if (!mounted) return;
-      setState(stored);
-      setIsReady(true);
-    });
+    const reload = () => {
+      void readState().then((stored) => {
+        if (!mounted) return;
+        setState(stored);
+        setIsReady(true);
+      });
+    };
+    reload();
+    const unsub = subscribeCloudDataRefresh(reload);
     return () => {
       mounted = false;
+      unsub();
     };
   }, []);
 

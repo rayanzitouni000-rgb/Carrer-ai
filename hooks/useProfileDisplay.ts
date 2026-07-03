@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { CareerProfile } from '@/features/career-onboarding/types';
 import { careerProfileStore } from '@/services/careerProfileStore';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UseProfileDisplayReturn {
@@ -25,6 +26,9 @@ export function useProfileDisplay(): UseProfileDisplayReturn {
 
   useEffect(() => {
     void refresh();
+    return subscribeCloudDataRefresh(() => {
+      void refresh();
+    });
   }, [refresh]);
 
   const trimmedFirstName = profile.firstName.trim();

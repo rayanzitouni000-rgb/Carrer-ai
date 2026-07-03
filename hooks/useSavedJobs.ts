@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { notifyCloudDataChanged } from '@/services/cloudSyncNotify';
+import { subscribeCloudDataRefresh } from '@/services/cloudSyncEvents';
 import type { JobOffer, SavedJob } from '@/types/jobMatch';
 import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { jobOfferStore } from '@/services/jobOfferStore';
@@ -93,6 +95,7 @@ async function writeState(state: JobMatchState): Promise<void> {
       JSON.stringify(state.jobApplicationsFromMatchCount)
     ),
   ]);
+  notifyCloudDataChanged();
 }
 
 export async function incrementJobApplicationFromMatch(): Promise<void> {
@@ -119,14 +122,19 @@ export function useSavedJobs(): UseSavedJobsReturn {
 
   useEffect(() => {
     let mounted = true;
-    void readState().then((stored) => {
-      if (!mounted) return;
-      stored.savedJobs.forEach((saved) => jobOfferStore.set(saved.jobOffer));
-      setState(stored);
-      setIsReady(true);
-    });
+    const reload = () => {
+      void readState().then((stored) => {
+        if (!mounted) return;
+        stored.savedJobs.forEach((saved) => jobOfferStore.set(saved.jobOffer));
+        setState(stored);
+        setIsReady(true);
+      });
+    };
+    reload();
+    const unsub = subscribeCloudDataRefresh(reload);
     return () => {
       mounted = false;
+      unsub();
     };
   }, []);
 
