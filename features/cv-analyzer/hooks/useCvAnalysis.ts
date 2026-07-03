@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import { getApiBaseUrl, isAiApiConfigured, QUOTA_EXCEEDED_MESSAGE } from '@/constants/apiConfig';
 import { ANALYSIS_STEPS } from '../constants/mockData';
@@ -18,10 +18,22 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   webp: 'image/webp',
 };
 
+const FILE_READ_ERROR_MESSAGE =
+  'Impossible de lire ce fichier sur ton appareil. Réessaie ou choisis une autre photo/PDF.';
+const NETWORK_ERROR_MESSAGE =
+  'Impossible de joindre le serveur. Vérifie ta connexion et réessaie.';
+const API_NOT_CONFIGURED_MESSAGE =
+  "L'analyse IA n'est pas configurée sur cette version de l'app.";
+
 function resolveMimeType(fileName: string, pickerMime?: string | null): string | null {
   if (pickerMime?.trim()) return pickerMime;
   const extension = fileName.split('.').pop()?.toLowerCase() ?? '';
   return MIME_BY_EXTENSION[extension] ?? null;
+}
+
+function formatUnknownError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
 }
 
 export function useCvAnalysis() {
@@ -75,79 +87,97 @@ export function useCvAnalysis() {
     setProgress(8);
     setStepIndex(0);
 
-    try {
-      const baseUrl = getApiBaseUrl();
-      if (!baseUrl || !isAiApiConfigured()) {
-        throw new Error('API non configurée');
-      }
+    const baseUrl = getApiBaseUrl();
+    if (!baseUrl || !isAiApiConfigured()) {
+      setPhase('error');
+      setErrorMessage(API_NOT_CONFIGURED_MESSAGE);
+      return;
+    }
 
-      const fileBase64 = await FileSystem.readAsStringAsync(asset.uri, {
+    let fileBase64: string;
+    try {
+      fileBase64 = await FileSystem.readAsStringAsync(asset.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      console.log('[CV Analysis] Fichier lu en base64 — longueur:', fileBase64.length);
+    } catch (error) {
+      console.log('[CV Analysis] ERREUR lecture fichier (readAsStringAsync):', error);
+      setPhase('error');
+      setErrorMessage(FILE_READ_ERROR_MESSAGE);
+      return;
+    }
 
-      const response = await fetch(`${baseUrl}/api/analyze-cv`, {
+    let response: Response;
+    try {
+      response = await fetch(`${baseUrl}/api/analyze-cv`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileBase64, mimeType }),
       });
-
-      const responseText = await response.text();
-      let data: {
-        analysis?: CvAnalysisApiResult;
-        analyzedAt?: string;
-        error?: string;
-        message?: string;
-      };
-      try {
-        data = JSON.parse(responseText) as typeof data;
-      } catch {
-        data = { error: responseText };
-      }
-
-      if (response.status === 429 && data.error === 'QUOTA_EXCEEDED') {
-        setPhase('error');
-        setErrorMessage(QUOTA_EXCEEDED_MESSAGE);
-        return;
-      }
-
-      if (response.status === 422 && data.error === 'PDF_TEXT_EXTRACTION_FAILED') {
-        setPhase('error');
-        setErrorMessage(
-          data.message ??
-            'Impossible de lire ce PDF. Essaie avec un autre fichier ou une photo de ton CV.'
-        );
-        return;
-      }
-
-      if (!response.ok || !data.analysis) {
-        setPhase('error');
-        setErrorMessage(data.error ?? "Erreur lors de l'analyse du CV. Réessaie.");
-        return;
-      }
-
-      const analyzedAt = data.analyzedAt ?? new Date().toISOString();
-      const analysisResult: CvAnalysisResult = {
-        ...data.analysis,
-        fileName: selectedName,
-        analyzedAt,
-      };
-
-      setResult(analysisResult);
-      setProgress(100);
-      setPhase('complete');
-
-      cvAnalysisContextStore.set({
-        improvements: analysisResult.improvements,
-        aiRecommendation: analysisResult.improvements[0] ?? null,
-        careerScore: Math.round(analysisResult.score * 10),
-        sourceFileName: selectedName,
-        analyzedAt,
-      });
-
-      await incrementCvAnalyzedCount();
-    } catch {
+    } catch (error) {
+      console.log('[CV Analysis] ERREUR réseau (fetch):', error);
       setPhase('error');
-      setErrorMessage('Impossible de joindre le serveur. Vérifie ta connexion et réessaie.');
+      setErrorMessage(NETWORK_ERROR_MESSAGE);
+      return;
+    }
+
+    const responseText = await response.text();
+    let data: {
+      analysis?: CvAnalysisApiResult;
+      analyzedAt?: string;
+      error?: string;
+      message?: string;
+    };
+    try {
+      data = JSON.parse(responseText) as typeof data;
+    } catch {
+      data = { error: responseText };
+    }
+
+    if (response.status === 429 && data.error === 'QUOTA_EXCEEDED') {
+      setPhase('error');
+      setErrorMessage(QUOTA_EXCEEDED_MESSAGE);
+      return;
+    }
+
+    if (response.status === 422 && data.error === 'PDF_TEXT_EXTRACTION_FAILED') {
+      setPhase('error');
+      setErrorMessage(
+        data.message ??
+          'Impossible de lire ce PDF. Essaie avec un autre fichier ou une photo de ton CV.'
+      );
+      return;
+    }
+
+    if (!response.ok || !data.analysis) {
+      setPhase('error');
+      setErrorMessage(data.error ?? "Erreur lors de l'analyse du CV. Réessaie.");
+      return;
+    }
+
+    const analyzedAt = data.analyzedAt ?? new Date().toISOString();
+    const analysisResult: CvAnalysisResult = {
+      ...data.analysis,
+      fileName: selectedName,
+      analyzedAt,
+    };
+
+    setResult(analysisResult);
+    setProgress(100);
+    setPhase('complete');
+
+    cvAnalysisContextStore.set({
+      improvements: analysisResult.improvements,
+      aiRecommendation: analysisResult.improvements[0] ?? null,
+      careerScore: Math.round(analysisResult.score * 10),
+      sourceFileName: selectedName,
+      analyzedAt,
+    });
+
+    try {
+      await incrementCvAnalyzedCount();
+    } catch (error) {
+      console.log('[CV Analysis] ERREUR post-analyse (incrementCvAnalyzedCount):', error);
     }
   }, []);
 
