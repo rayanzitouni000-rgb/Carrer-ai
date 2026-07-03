@@ -53,7 +53,7 @@ export const CHAT_SMART_ACTIONS: SmartAction[] = [
   { id: '1', label: 'Analyze CV', icon: 'document-text-outline', route: '/cv-analyzer', gradient: ['#2563EB', '#6366F1'] },
   { id: '2', label: 'Practice Interview', icon: 'mic-outline', route: '/(tabs)/interview-simulator', gradient: ['#06B6D4', '#3B82F6'] },
   { id: '3', label: 'Cover Letter', icon: 'create-outline', route: '/ai-chat', gradient: ['#8B5CF6', '#EC4899'] },
-  { id: '4', label: 'Career Roadmap', icon: 'map-outline', route: '/roadmap', gradient: ['#3B82F6', '#8B5CF6'] },
+  { id: '4', label: 'Job Match', icon: 'briefcase-outline', route: '/(tabs)/job-match', gradient: ['#3B82F6', '#8B5CF6'] },
   { id: '5', label: 'Salary Analysis', icon: 'cash-outline', route: '/premium', gradient: ['#F59E0B', '#EF4444'] },
   { id: '6', label: 'LinkedIn Review', icon: 'logo-linkedin', route: '/(tabs)/profile', gradient: ['#0A66C2', '#3B82F6'] },
 ];

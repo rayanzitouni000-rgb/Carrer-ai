@@ -1,5 +1,3 @@
-export type AgeRange = '15-17' | '18-24' | '25-34' | '35-44' | '45-54' | '55+';
-
 export type CurrentSituation =
   | 'lyceen'
   | 'bac2'
@@ -66,7 +64,7 @@ export { MIN_USER_SKILLS, SKILL_LEVEL_CONFIG } from './skills/types';
 
 export interface CareerProfile {
   firstName: string;
-  ageRange: AgeRange | null;
+  dateOfBirth: string | null;
   currentSituation: CurrentSituation | null;
   situationDetails: SituationDetails;
   educationLevel: EducationLevel | null;
@@ -81,7 +79,7 @@ export interface CareerProfile {
 
 export const EMPTY_CAREER_PROFILE: CareerProfile = {
   firstName: '',
-  ageRange: null,
+  dateOfBirth: null,
   currentSituation: null,
   situationDetails: { ...EMPTY_SITUATION_DETAILS },
   educationLevel: null,

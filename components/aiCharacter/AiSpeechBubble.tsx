@@ -17,6 +17,11 @@ export function AiSpeechBubble({ message, onTypingStart, onTypingEnd }: AiSpeech
   const [displayedText, setDisplayedText] = useState('');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const endTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onTypingStartRef = useRef(onTypingStart);
+  const onTypingEndRef = useRef(onTypingEnd);
+
+  onTypingStartRef.current = onTypingStart;
+  onTypingEndRef.current = onTypingEnd;
 
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -25,7 +30,7 @@ export function AiSpeechBubble({ message, onTypingStart, onTypingEnd }: AiSpeech
     setDisplayedText('');
     if (!message) return;
 
-    onTypingStart?.();
+    onTypingStartRef.current?.();
 
     let index = 0;
     intervalRef.current = setInterval(() => {
@@ -35,7 +40,7 @@ export function AiSpeechBubble({ message, onTypingStart, onTypingEnd }: AiSpeech
       if (index >= message.length) {
         if (intervalRef.current) clearInterval(intervalRef.current);
         endTimeoutRef.current = setTimeout(() => {
-          onTypingEnd?.();
+          onTypingEndRef.current?.();
         }, END_DELAY_MS);
       }
     }, CHAR_DELAY_MS);
@@ -44,7 +49,7 @@ export function AiSpeechBubble({ message, onTypingStart, onTypingEnd }: AiSpeech
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
     };
-  }, [message, onTypingStart, onTypingEnd]);
+  }, [message]);
 
   if (!message) return null;
 

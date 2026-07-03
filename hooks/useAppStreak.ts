@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
-import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 
 interface StreakState {
   currentStreakDays: number;
@@ -60,7 +59,6 @@ export async function recordAppOpen(): Promise<StreakState> {
     lastOpenDate: today,
   };
   await writeState(next);
-  notifyGamification();
   return next;
 }
 
@@ -74,10 +72,6 @@ export function useAppStreak(): UseAppStreakReturn {
   const [state, setState] = useState<StreakState>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setState(await readState());
-  }, []);
-
   useEffect(() => {
     let mounted = true;
     void readState().then((stored) => {
@@ -85,14 +79,10 @@ export function useAppStreak(): UseAppStreakReturn {
       setState(stored);
       setIsReady(true);
     });
-    const unsubscribe = subscribeGamification(() => {
-      void refresh();
-    });
     return () => {
       mounted = false;
-      unsubscribe();
     };
-  }, [refresh]);
+  }, []);
 
   const handleRecordAppOpen = useCallback(async () => {
     const next = await recordAppOpen();

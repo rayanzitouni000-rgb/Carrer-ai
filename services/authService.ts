@@ -21,18 +21,18 @@ export const authService = {
     const firstName = input.firstName.trim();
 
     if (!firstName) {
-      return { success: false, error: 'First name is required.' };
+      return { success: false, error: 'Le prénom est requis.' };
     }
     if (!isValidEmail(email)) {
-      return { success: false, error: 'Please enter a valid email address.' };
+      return { success: false, error: 'Veuillez saisir une adresse email valide.' };
     }
     if (password.length < 6) {
-      return { success: false, error: 'Password must be at least 6 characters.' };
+      return { success: false, error: 'Le mot de passe doit contenir au moins 6 caractères.' };
     }
 
     const existing = await persistenceService.getUserAccount();
     if (existing && existing.email === email) {
-      return { success: false, error: 'An account with this email already exists.' };
+      return { success: false, error: 'Un compte existe déjà avec cet email.' };
     }
 
     const account: UserAccount = {
@@ -70,12 +70,12 @@ export const authService = {
     const password = input.password.trim();
 
     if (!isValidEmail(email)) {
-      return { success: false, error: 'Please enter a valid email address.' };
+      return { success: false, error: 'Veuillez saisir une adresse email valide.' };
     }
 
     const account = await persistenceService.getUserAccount();
     if (!account || account.email !== email || account.password !== password) {
-      return { success: false, error: 'Invalid email or password.' };
+      return { success: false, error: 'Email ou mot de passe incorrect.' };
     }
 
     const session: UserSession = {

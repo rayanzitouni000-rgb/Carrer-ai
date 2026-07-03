@@ -2,8 +2,6 @@ import type {
   ChatMessage,
   GoalOption,
   OnboardingSlide,
-  RoadmapStep,
-  SkillProgress,
   UserProfile,
 } from '@/types';
 
@@ -35,7 +33,7 @@ export const ONBOARDING_SLIDES: OnboardingSlide[] = [
     id: '3',
     title: 'Atteignez vos objectifs',
     description:
-      'Suivez votre progression, découvrez des offres adaptées et construisez votre roadmap de carrière.',
+      'Obtenez des conseils personnalisés, analysez votre CV et préparez vos entretiens avec notre assistant IA.',
     icon: 'trending-up-outline',
   },
 ];
@@ -96,56 +94,16 @@ export const MOCK_CHAT_MESSAGES: ChatMessage[] = [
   },
 ];
 
-export const MOCK_ROADMAP: RoadmapStep[] = [
-  {
-    id: '1',
-    title: 'Optimiser votre CV',
-    description: 'Adapter votre CV aux offres ciblées',
-    status: 'completed',
-    progress: 100,
-  },
-  {
-    id: '2',
-    title: 'Renforcer vos compétences',
-    description: 'Compléter les formations recommandées',
-    status: 'in-progress',
-    progress: 65,
-  },
-  {
-    id: '3',
-    title: 'Préparer les entretiens',
-    description: 'S\'entraîner avec le simulateur IA',
-    status: 'locked',
-    progress: 0,
-  },
-  {
-    id: '4',
-    title: 'Postuler activement',
-    description: 'Envoyer 5 candidatures par semaine',
-    status: 'locked',
-    progress: 0,
-  },
-];
-
-export const MOCK_SKILLS: SkillProgress[] = [
-  { id: '1', name: 'React Native', progress: 75, category: 'Technique' },
-  { id: '2', name: 'TypeScript', progress: 68, category: 'Technique' },
-  { id: '3', name: 'Communication', progress: 82, category: 'Soft Skills' },
-  { id: '4', name: 'Entretien', progress: 45, category: 'Carrière' },
-  { id: '5', name: 'Réseau professionnel', progress: 30, category: 'Carrière' },
-];
-
 export const QUICK_ACTIONS = [
   { id: '1', label: 'Analyser CV', icon: 'document-text-outline', route: '/cv-analyzer' },
   { id: '2', label: 'Entretien', icon: 'mic-outline', route: '/(tabs)/interview-simulator' },
-  { id: '3', label: 'Roadmap', icon: 'map-outline', route: '/roadmap' },
+  { id: '3', label: 'Job Match', icon: 'briefcase-outline', route: '/(tabs)/job-match' },
   { id: '4', label: 'Premium', icon: 'diamond-outline', route: '/premium' },
 ];
 
 export const PROFILE_MENU = [
   { id: '1', label: 'Paramètres', icon: 'settings-outline', route: '/settings' },
-  { id: '2', label: 'Ma progression', icon: 'map-outline', route: '/roadmap' },
-  { id: '3', label: 'Analyser mon CV', icon: 'document-text-outline', route: '/cv-analyzer' },
-  { id: '4', label: 'Entretien', icon: 'mic-outline', route: '/(tabs)/interview-simulator' },
-  { id: '5', label: 'Premium', icon: 'diamond-outline', route: '/premium' },
+  { id: '2', label: 'Analyser mon CV', icon: 'document-text-outline', route: '/cv-analyzer' },
+  { id: '3', label: 'Entretien', icon: 'mic-outline', route: '/(tabs)/interview-simulator' },
+  { id: '4', label: 'Premium', icon: 'diamond-outline', route: '/premium' },
 ];

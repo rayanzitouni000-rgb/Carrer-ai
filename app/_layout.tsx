@@ -61,7 +61,6 @@ function RootNavigator() {
         <Stack.Screen name="cv-manager/generate/preview" options={{ presentation: 'card' }} />
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal' }} />
         <Stack.Screen name="interview" options={{ presentation: 'card' }} />
-        <Stack.Screen name="roadmap" options={{ presentation: 'card' }} />
         <Stack.Screen name="cover-letter/index" options={{ presentation: 'card' }} />
         <Stack.Screen name="cover-letter/template" options={{ presentation: 'card' }} />
         <Stack.Screen name="cover-letter/generate" options={{ presentation: 'card' }} />

@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { CompanyBriefing, RealInterview } from '@/types/interviewSimulator';
-import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 
 interface RealInterviewState {
   count: number;
@@ -63,7 +62,6 @@ async function writeState(state: RealInterviewState): Promise<void> {
 export async function incrementRealInterviewCount(): Promise<void> {
   const current = await readState();
   await writeState({ ...current, count: current.count + 1 });
-  notifyGamification();
 }
 
 function createId(): string {
@@ -102,10 +100,6 @@ export function useRealInterviews(): UseRealInterviewsReturn {
   const [state, setState] = useState<RealInterviewState>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setState(await readState());
-  }, []);
-
   useEffect(() => {
     let mounted = true;
     void readState().then((stored) => {
@@ -113,14 +107,10 @@ export function useRealInterviews(): UseRealInterviewsReturn {
       setState(stored);
       setIsReady(true);
     });
-    const unsubscribe = subscribeGamification(() => {
-      void refresh();
-    });
     return () => {
       mounted = false;
-      unsubscribe();
     };
-  }, [refresh]);
+  }, []);
 
   const nextInterview =
     state.interviews.find((item) => deriveStatus(item.scheduledAt) === 'upcoming') ?? null;
@@ -153,7 +143,6 @@ export function useRealInterviews(): UseRealInterviewsReturn {
         interviews: [interview, ...current.interviews],
       };
       await writeState(next);
-      notifyGamification();
       setState(next);
       return interview;
     },

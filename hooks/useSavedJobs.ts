@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { JobOffer, SavedJob } from '@/types/jobMatch';
 import { getJobOfferById } from '@/utils/jobOfferResolver';
-import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 import { jobOfferStore } from '@/services/jobOfferStore';
 
 interface JobMatchState {
@@ -102,7 +101,6 @@ export async function incrementJobApplicationFromMatch(): Promise<void> {
     ...current,
     jobApplicationsFromMatchCount: current.jobApplicationsFromMatchCount + 1,
   });
-  notifyGamification();
 }
 
 export interface UseSavedJobsReturn {
@@ -119,10 +117,6 @@ export function useSavedJobs(): UseSavedJobsReturn {
   const [state, setState] = useState<JobMatchState>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setState(await readState());
-  }, []);
-
   useEffect(() => {
     let mounted = true;
     void readState().then((stored) => {
@@ -131,14 +125,10 @@ export function useSavedJobs(): UseSavedJobsReturn {
       setState(stored);
       setIsReady(true);
     });
-    const unsubscribe = subscribeGamification(() => {
-      void refresh();
-    });
     return () => {
       mounted = false;
-      unsubscribe();
     };
-  }, [refresh]);
+  }, []);
 
   const isJobSaved = useCallback(
     (jobOfferId: string) => state.savedJobs.some((job) => job.jobOffer.id === jobOfferId),
@@ -157,7 +147,6 @@ export function useSavedJobs(): UseSavedJobsReturn {
           : [{ jobOffer: offer, savedAt: new Date().toISOString() }, ...current.savedJobs],
       };
       await writeState(next);
-      notifyGamification();
       setState(next);
     })();
   }, []);

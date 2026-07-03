@@ -22,21 +22,6 @@ export interface ChatMessage {
   timestamp: string;
 }
 
-export interface RoadmapStep {
-  id: string;
-  title: string;
-  description: string;
-  status: 'completed' | 'in-progress' | 'locked';
-  progress: number;
-}
-
-export interface SkillProgress {
-  id: string;
-  name: string;
-  progress: number;
-  category: string;
-}
-
 export interface OnboardingSlide {
   id: string;
   title: string;

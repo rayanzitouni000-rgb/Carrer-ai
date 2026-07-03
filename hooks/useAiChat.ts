@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getApiBaseUrl, isAiApiConfigured, QUOTA_EXCEEDED_MESSAGE } from '@/constants/apiConfig';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { getMockAiResponse } from '@/data/mockAiChatResponses';
-import { useCareerScore } from '@/hooks/useCareerScore';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import type { ChatMessage } from '@/types/aiChat';
@@ -63,7 +62,6 @@ export interface UseAiChatReturn {
 
 export function useAiChat(): UseAiChatReturn {
   const { canSendChatMessage, incrementChatMessages } = useUsageLimits();
-  const { score: careerScore } = useCareerScore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -125,7 +123,6 @@ export function useAiChat(): UseAiChatReturn {
                 firstName: profile.firstName,
                 targetRoles: profile.targetRoles,
                 currentSituation: profile.currentSituation,
-                careerScore,
               },
             }),
           });
@@ -159,7 +156,7 @@ export function useAiChat(): UseAiChatReturn {
         }
       })();
     },
-    [canSendChatMessage, careerScore, incrementChatMessages, isTyping, messages, persistMessages]
+    [canSendChatMessage, incrementChatMessages, isTyping, messages, persistMessages]
   );
 
   const clearChat = useCallback(async () => {

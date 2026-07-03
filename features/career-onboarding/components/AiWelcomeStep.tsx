@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
@@ -26,21 +26,26 @@ export function AiWelcomeStep({
   const { animatedStyle, start } = useFadeIn(0, duration.slower);
   const { characterState, message: spokenMessage, speak, onTypingStart, onTypingEnd } =
     useAiCharacterState('');
+  const hasSpokenRef = useRef(false);
+  const onIntroCompleteRef = useRef(onIntroComplete);
+
+  onIntroCompleteRef.current = onIntroComplete;
 
   useEffect(() => {
-    onIntroComplete?.(false);
+    onIntroCompleteRef.current?.(false);
     const loadingTimer = setTimeout(() => {
       setPhase('intro');
       start();
     }, LOADING_DURATION_MS);
 
     return () => clearTimeout(loadingTimer);
-  }, [onIntroComplete, start]);
+  }, [start]);
 
   useEffect(() => {
-    if (phase !== 'intro') return;
+    if (phase !== 'intro' || hasSpokenRef.current) return;
 
     const bubbleTimer = setTimeout(() => {
+      hasSpokenRef.current = true;
       speak(message);
       setShowBubble(true);
     }, BUBBLE_DELAY_MS);
@@ -48,10 +53,10 @@ export function AiWelcomeStep({
     return () => clearTimeout(bubbleTimer);
   }, [message, phase, speak]);
 
-  const handleTypingEnd = () => {
+  const handleTypingEnd = useCallback(() => {
     onTypingEnd();
-    onIntroComplete?.(true);
-  };
+    onIntroCompleteRef.current?.(true);
+  }, [onTypingEnd]);
 
   if (phase === 'loading') {
     return (

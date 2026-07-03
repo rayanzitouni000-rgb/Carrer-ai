@@ -3,7 +3,7 @@ import type { CareerProfile } from '@/features/career-onboarding/types';
 export const SUGGESTED_PROMPTS: string[] = [
   'Comment améliorer mon CV ?',
   'Aide-moi à préparer mon prochain entretien',
-  'Explique-moi mon Career Score',
+  'Comment structurer ma recherche d\'emploi ?',
   'Quelles compétences dois-je développer ?',
 ];
 
@@ -20,8 +20,8 @@ export function getMockAiResponse(userMessage: string, profile: CareerProfile): 
   if (lower.includes('entretien')) {
     return `Pour te préparer, je te conseille de faire une simulation d'entretien ciblée sur le poste de ${profile.targetRoles[0] ?? 'ton choix'}. Tu peux la lancer directement depuis l'onglet Entretien.`;
   }
-  if (lower.includes('score') || lower.includes('career score')) {
-    return "Ton Career Score reflète ta progression sur plusieurs axes : profil complété, CV analysé/généré, compétences, candidatures, simulations d'entretien. Plus tu avances sur ces actions, plus il augmente !";
+  if (lower.includes('score') || lower.includes('recherche')) {
+    return "Concentre-toi sur trois leviers : un profil à jour, un CV analysé et des candidatures régulières. L'onglet Accueil te donne un résumé de où tu en es.";
   }
   if (lower.includes('compétence') || lower.includes('competence')) {
     return "Regarde les offres qui t'intéressent dans Job Match : les compétences les plus demandées pour ton poste visé y apparaissent souvent. Tu peux ensuite les ajouter à ton profil.";

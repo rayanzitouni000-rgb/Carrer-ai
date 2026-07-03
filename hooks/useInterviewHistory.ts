@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { InterviewSession } from '@/types/interviewSimulator';
-import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 
 interface StoredInterviewHistory {
   sessions: InterviewSession[];
@@ -46,7 +45,6 @@ async function writeState(state: StoredInterviewHistory): Promise<void> {
 export async function incrementInterviewSessionCount(): Promise<void> {
   const current = await readState();
   await writeState({ ...current, count: current.count + 1 });
-  notifyGamification();
 }
 
 export interface UseInterviewHistoryReturn {
@@ -61,10 +59,6 @@ export function useInterviewHistory(): UseInterviewHistoryReturn {
   const [state, setState] = useState<StoredInterviewHistory>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setState(await readState());
-  }, []);
-
   useEffect(() => {
     let mounted = true;
     void readState().then((stored) => {
@@ -72,14 +66,10 @@ export function useInterviewHistory(): UseInterviewHistoryReturn {
       setState(stored);
       setIsReady(true);
     });
-    const unsubscribe = subscribeGamification(() => {
-      void refresh();
-    });
     return () => {
       mounted = false;
-      unsubscribe();
     };
-  }, [refresh]);
+  }, []);
 
   const saveSession = useCallback(async (session: InterviewSession) => {
     const current = await readState();
@@ -88,7 +78,6 @@ export function useInterviewHistory(): UseInterviewHistoryReturn {
       count: current.count + 1,
     };
     await writeState(next);
-    notifyGamification();
     setState(next);
   }, []);
 

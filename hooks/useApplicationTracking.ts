@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { ApplicationEntry } from '@/types/applicationTracking';
 import { getCountByPeriod } from '@/utils/applicationTrackingUtils';
-import { notifyGamification } from '@/utils/gamificationSync';
 
 /** Ancien format stocké sous @careerpilot/cv-sent-entries (CV Manager manuel). */
 interface LegacyCvSentEntry {
@@ -109,7 +108,6 @@ async function readEntries(): Promise<ApplicationEntry[]> {
 
 function persistEntries(entries: ApplicationEntry[]): void {
   void AsyncStorage.setItem(STORAGE_KEYS.applicationEntries, JSON.stringify(entries));
-  notifyGamification();
 }
 
 export function useApplicationTracking(): UseApplicationTrackingReturn {

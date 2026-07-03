@@ -4,7 +4,6 @@ import {
 } from '@/features/career-onboarding/types';
 import { normalizeCareerProfile } from '@/features/career-onboarding/skills/skillUtils';
 import { persistenceService } from '@/services/persistence';
-import { notifyGamification } from '@/utils/gamificationSync';
 
 let profile: CareerProfile = { ...EMPTY_CAREER_PROFILE };
 let hydrated = false;
@@ -17,13 +16,11 @@ export const careerProfileStore = {
   set(next: CareerProfile): void {
     profile = normalizeCareerProfile(next);
     void persistenceService.saveCareerProfile(profile);
-    notifyGamification();
   },
 
   update(partial: Partial<CareerProfile>): CareerProfile {
     profile = normalizeCareerProfile({ ...profile, ...partial });
     void persistenceService.saveCareerProfile(profile);
-    notifyGamification();
     return profile;
   },
 

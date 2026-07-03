@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
-import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 
 interface CvActionsState {
   cvAnalyzedCount: number;
@@ -36,7 +35,6 @@ async function mutateState(mutator: (state: CvActionsState) => CvActionsState): 
   const current = await readState();
   const next = mutator(current);
   await writeState(next);
-  notifyGamification();
   return next;
 }
 
@@ -64,10 +62,6 @@ export function useCvActionsTracking(): UseCvActionsTrackingReturn {
   const [state, setState] = useState<CvActionsState>(DEFAULT_STATE);
   const [isReady, setIsReady] = useState(false);
 
-  const refresh = useCallback(async () => {
-    setState(await readState());
-  }, []);
-
   useEffect(() => {
     let mounted = true;
     void readState().then((stored) => {
@@ -75,14 +69,10 @@ export function useCvActionsTracking(): UseCvActionsTrackingReturn {
       setState(stored);
       setIsReady(true);
     });
-    const unsubscribe = subscribeGamification(() => {
-      void refresh();
-    });
     return () => {
       mounted = false;
-      unsubscribe();
     };
-  }, [refresh]);
+  }, []);
 
   return {
     cvAnalyzedCount: state.cvAnalyzedCount,

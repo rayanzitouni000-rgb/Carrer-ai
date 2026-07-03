@@ -9,10 +9,9 @@ import { useAppStreak } from '@/hooks/useAppStreak';
 import {
   AnimatedEntrance,
   ApplicationsStatsCard,
-  CareerScoreCard,
   HomeHeader,
+  ProfileSummaryCard,
   QuickActionsGrid,
-  RoadmapPreviewCard,
   UpcomingInterviewCard,
 } from '@/features/home/components';
 
@@ -49,7 +48,7 @@ export default function HomeScreen() {
         <HomeHeader />
 
         <AnimatedEntrance delay={80}>
-          <CareerScoreCard />
+          <ProfileSummaryCard />
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={160}>
@@ -62,10 +61,6 @@ export default function HomeScreen() {
 
         <AnimatedEntrance delay={320}>
           <ApplicationsStatsCard />
-        </AnimatedEntrance>
-
-        <AnimatedEntrance delay={400}>
-          <RoadmapPreviewCard />
         </AnimatedEntrance>
       </ScrollView>
     </View>

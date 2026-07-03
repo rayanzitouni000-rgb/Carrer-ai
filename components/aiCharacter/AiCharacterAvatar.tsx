@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Image } from 'expo-image';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,7 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { AI_CHARACTER_IMAGE } from '@/assets/aiCharacter';
+import { AiCoachBustIllustration } from './AiCoachBustIllustration';
 
 export type AiCharacterState = 'idle' | 'speaking';
 export type AiCharacterSize = 'small' | 'medium' | 'large';
@@ -21,9 +20,9 @@ interface AiCharacterAvatarProps {
 }
 
 const SIZE_MAP: Record<AiCharacterSize, { width: number; height: number; clip: number }> = {
-  small: { width: 48, height: 48, clip: 48 },
-  medium: { width: 120, height: 160, clip: 112 },
-  large: { width: 250, height: 350, clip: 220 },
+  small: { width: 48, height: 56, clip: 48 },
+  medium: { width: 120, height: 140, clip: 112 },
+  large: { width: 200, height: 230, clip: 180 },
 };
 
 export function AiCharacterAvatar({
@@ -41,17 +40,26 @@ export function AiCharacterAvatar({
 
   useEffect(() => {
     floatY.value = withRepeat(
-      withTiming(isSpeaking ? -4 : -6, { duration: isSpeaking ? 900 : 1500, easing: Easing.inOut(Easing.sin) }),
+      withTiming(isSpeaking ? -3 : -5, {
+        duration: isSpeaking ? 900 : 1500,
+        easing: Easing.inOut(Easing.sin),
+      }),
       -1,
       true
     );
     haloScale.value = withRepeat(
-      withTiming(isSpeaking ? 1.18 : 1.08, { duration: isSpeaking ? 700 : 1250, easing: Easing.inOut(Easing.sin) }),
+      withTiming(isSpeaking ? 1.12 : 1.06, {
+        duration: isSpeaking ? 700 : 1250,
+        easing: Easing.inOut(Easing.sin),
+      }),
       -1,
       true
     );
     haloOpacity.value = withRepeat(
-      withTiming(isSpeaking ? 1 : 0.75, { duration: isSpeaking ? 700 : 1250, easing: Easing.inOut(Easing.sin) }),
+      withTiming(isSpeaking ? 0.9 : 0.65, {
+        duration: isSpeaking ? 700 : 1250,
+        easing: Easing.inOut(Easing.sin),
+      }),
       -1,
       true
     );
@@ -66,11 +74,14 @@ export function AiCharacterAvatar({
     transform: [{ scale: haloScale.value }],
   }));
 
+  const illustrationWidth = clipSize * 0.82;
+  const illustrationHeight = illustrationWidth * 1.2;
+
   return (
     <Animated.View
       style={[styles.wrapper, { width: dimensions.width, height: dimensions.height }, style]}
       accessibilityRole="image"
-      accessibilityLabel="Assistant IA carrière"
+      accessibilityLabel="Coach carrière IA"
     >
       <Animated.View
         style={[
@@ -87,30 +98,31 @@ export function AiCharacterAvatar({
               width: clipSize,
               height: clipSize,
               borderRadius: clipRadius,
-              backgroundColor: isSpeaking ? 'rgba(139, 92, 246, 0.45)' : 'rgba(99, 102, 241, 0.35)',
-              shadowColor: isSpeaking ? '#A78BFA' : '#818CF8',
-              shadowRadius: isSpeaking ? 32 : 24,
+              backgroundColor: isSpeaking ? 'rgba(59, 130, 246, 0.28)' : 'rgba(30, 64, 175, 0.2)',
+              shadowColor: isSpeaking ? '#60A5FA' : '#3B82F6',
+              shadowRadius: isSpeaking ? 28 : 20,
             },
           ]}
         />
 
         <View
           style={[
-            styles.imageFrame,
+            styles.frame,
             {
               width: clipSize,
               height: clipSize,
               borderRadius: clipRadius,
+              borderColor: isSpeaking ? 'rgba(96, 165, 250, 0.45)' : 'rgba(148, 163, 184, 0.25)',
             },
           ]}
         >
-          <Image
-            source={AI_CHARACTER_IMAGE}
-            style={styles.image}
-            contentFit="cover"
-            contentPosition="top center"
-            transition={0}
-          />
+          <View style={styles.illustrationWrap}>
+            <AiCoachBustIllustration
+              state={state}
+              width={illustrationWidth}
+              height={illustrationHeight}
+            />
+          </View>
         </View>
       </Animated.View>
     </Animated.View>
@@ -129,20 +141,20 @@ const styles = StyleSheet.create({
   },
   halo: {
     position: 'absolute',
-    backgroundColor: 'rgba(99, 102, 241, 0.35)',
-    shadowColor: '#818CF8',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 24,
+    shadowOpacity: 0.85,
     elevation: 8,
   },
-  imageFrame: {
+  frame: {
     overflow: 'hidden',
-    backgroundColor: '#000000',
+    backgroundColor: '#0b1220',
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 4,
   },
-  image: {
-    width: '100%',
-    height: '100%',
-    transform: [{ scale: 0.94 }],
+  illustrationWrap: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
 });

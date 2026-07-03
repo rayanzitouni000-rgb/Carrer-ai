@@ -29,7 +29,7 @@ export function SignupScreen() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('Les mots de passe ne correspondent pas.');
       return;
     }
 
@@ -53,10 +53,10 @@ export function SignupScreen() {
     <ScreenContainer scrollable safeAreaBottom>
       <View style={styles.header}>
         <Text variant="h2" color={theme.colors.text.primary}>
-          Create your account
+          Créer un compte
         </Text>
         <Text variant="body" color={theme.colors.text.secondary}>
-          Save your career profile and access CareerPilot AI anywhere.
+          Enregistre ton profil et accède à CareerPilot où que tu sois.
         </Text>
       </View>
 
@@ -65,24 +65,24 @@ export function SignupScreen() {
           label="Email"
           value={email}
           onChangeText={setEmail}
-          placeholder="you@email.com"
+          placeholder="toi@email.com"
           keyboardType="email-address"
           autoCapitalize="none"
           leftIcon="mail-outline"
         />
         <Input
-          label="Password"
+          label="Mot de passe"
           value={password}
           onChangeText={setPassword}
-          placeholder="At least 6 characters"
+          placeholder="Au moins 6 caractères"
           secureTextEntry
           leftIcon="lock-closed-outline"
         />
         <Input
-          label="Confirm password"
+          label="Confirmer le mot de passe"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          placeholder="Repeat your password"
+          placeholder="Répète ton mot de passe"
           secureTextEntry
           leftIcon="lock-closed-outline"
         />
@@ -94,7 +94,7 @@ export function SignupScreen() {
         )}
 
         <PrimaryButton
-          label="Create account"
+          label="Créer un compte"
           onPress={handleSignup}
           loading={loading}
           disabled={!email.trim() || !password.trim() || !confirmPassword.trim()}
@@ -104,13 +104,13 @@ export function SignupScreen() {
       </Card>
 
       <OutlineButton
-        label="Already have an account? Sign in"
+        label="Déjà un compte ? Se connecter"
         onPress={() => router.replace('/login')}
         fullWidth
       />
 
       <Text variant="caption" color={theme.colors.text.muted} align="center">
-        Your profile and account are saved locally on this device.
+        Ton profil et ton compte sont enregistrés localement sur cet appareil.
       </Text>
     </ScreenContainer>
   );

@@ -13,7 +13,6 @@ export const navigationService = {
     interview: '/(tabs)/interview-simulator',
     profile: '/(tabs)/profile',
     cvAnalyzer: '/cv-analyzer',
-    roadmap: '/roadmap',
     premium: '/premium',
     settings: '/settings',
   },

@@ -1,5 +1,4 @@
 import type {
-  AgeRange,
   CareerGoalId,
   CurrentSituation,
   EducationLevel,
@@ -11,15 +10,6 @@ export interface SelectOption<T extends string = string> {
   description?: string;
   emoji?: string;
 }
-
-export const AGE_OPTIONS: SelectOption<AgeRange>[] = [
-  { id: '15-17', label: '15-17' },
-  { id: '18-24', label: '18-24' },
-  { id: '25-34', label: '25-34' },
-  { id: '35-44', label: '35-44' },
-  { id: '45-54', label: '45-54' },
-  { id: '55+', label: '55+' },
-];
 
 export const EDUCATION_LEVEL_OPTIONS: SelectOption<EducationLevel>[] = [
   { id: 'college', label: 'Collège' },

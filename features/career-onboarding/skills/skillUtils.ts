@@ -27,9 +27,26 @@ type LegacyCareerProfile = Partial<CareerProfile> & {
   opportunityType?: unknown;
   opportunityTypes?: unknown;
   fieldOfStudy?: unknown;
+  ageRange?: string | null;
   situationDetails?: LegacySituationDetails;
   currentSituation?: CurrentSituation | 'etudiant-grande-ecole' | null;
 };
+
+function migrateLegacyAgeRange(ageRange?: string | null): string | null {
+  if (!ageRange) return null;
+  const midAges: Record<string, number> = {
+    '15-17': 16,
+    '18-24': 21,
+    '25-34': 30,
+    '35-44': 40,
+    '45-54': 50,
+    '55+': 58,
+  };
+  const age = midAges[ageRange];
+  if (!age) return null;
+  const year = new Date().getFullYear() - age;
+  return `${year}-06-15`;
+}
 
 function migrateLegacyCursus(details: LegacySituationDetails): SituationDetails {
   if (details.typeCursus) {
@@ -78,7 +95,13 @@ function migrateCurrentSituation(
 }
 
 export function normalizeCareerProfile(raw: LegacyCareerProfile): CareerProfile {
-  const { opportunityType: _o, opportunityTypes: _os, fieldOfStudy: _f, ...rest } = raw;
+  const {
+    opportunityType: _o,
+    opportunityTypes: _os,
+    fieldOfStudy: _f,
+    ageRange: legacyAgeRange,
+    ...rest
+  } = raw;
 
   const currentSituation = migrateCurrentSituation(rest.currentSituation ?? null);
   const situationDetails = migrateLegacyCursus({
@@ -92,6 +115,7 @@ export function normalizeCareerProfile(raw: LegacyCareerProfile): CareerProfile 
   return {
     ...EMPTY_CAREER_PROFILE,
     ...rest,
+    dateOfBirth: rest.dateOfBirth ?? migrateLegacyAgeRange(legacyAgeRange ?? null),
     currentSituation,
     situationDetails,
     educationLevel,

@@ -3,7 +3,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-import { RankBadge } from '@/components/gamification';
 import { PaywallScreen, PremiumBadge } from '@/components/premium';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -14,13 +13,11 @@ import { PROFILE_MENU } from '@/constants/mockData';
 import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
-import { useCareerScore } from '@/hooks/useCareerScore';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useProfileDisplay } from '@/hooks/useProfileDisplay';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { rank } = useCareerScore();
   const { isPremium, simulateTogglePremium } = usePremiumStatus();
   const { displayName, fullName, jobTitle, email } = useProfileDisplay();
   const [paywallVisible, setPaywallVisible] = useState(false);
@@ -29,7 +26,6 @@ export default function ProfileScreen() {
     <ScreenLayout title="Profil" scrollable safeAreaBottom={false}>
       <Card variant="elevated" style={styles.profileCard}>
         <Avatar name={fullName} size="xl" />
-        <RankBadge rank={rank} size="medium" />
         <Text style={styles.name}>{displayName}</Text>
         <Text style={styles.email}>{email}</Text>
         <Text style={styles.title}>{jobTitle}</Text>

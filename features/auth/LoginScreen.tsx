@@ -40,10 +40,10 @@ export function LoginScreen() {
     <ScreenContainer scrollable safeAreaBottom>
       <View style={styles.header}>
         <Text variant="h2" color={theme.colors.text.primary}>
-          Welcome back
+          Bon retour
         </Text>
         <Text variant="body" color={theme.colors.text.secondary}>
-          Sign in to continue your AI career journey.
+          Connecte-toi pour poursuivre ton parcours avec CareerPilot.
         </Text>
       </View>
 
@@ -52,16 +52,16 @@ export function LoginScreen() {
           label="Email"
           value={email}
           onChangeText={setEmail}
-          placeholder="you@email.com"
+          placeholder="toi@email.com"
           keyboardType="email-address"
           autoCapitalize="none"
           leftIcon="mail-outline"
         />
         <Input
-          label="Password"
+          label="Mot de passe"
           value={password}
           onChangeText={setPassword}
-          placeholder="Your password"
+          placeholder="Ton mot de passe"
           secureTextEntry
           leftIcon="lock-closed-outline"
         />
@@ -73,7 +73,7 @@ export function LoginScreen() {
         )}
 
         <PrimaryButton
-          label="Sign in"
+          label="Se connecter"
           onPress={handleLogin}
           loading={loading}
           disabled={!email.trim() || !password.trim()}
@@ -83,7 +83,7 @@ export function LoginScreen() {
       </Card>
 
       <OutlineButton
-        label="Create an account"
+        label="Créer un compte"
         onPress={() => router.replace('/signup')}
         fullWidth
       />

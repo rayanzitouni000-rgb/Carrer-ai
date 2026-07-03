@@ -1,5 +1,3 @@
-import type { CareerProfile } from '../../types';
-import { inferSkillSuggestionKey } from '../../utils/inferSkillSuggestion';
 import type { Skill, UserSkill } from '../types';
 
 export const SKILLS: Skill[] = [
@@ -52,26 +50,60 @@ export const SUGGESTIONS_BY_FIELD: Record<string, string[]> = {
   default: ['communication', 'travail-equipe', 'adaptabilite'],
 };
 
-const FIELD_OF_STUDY_TO_SUGGESTION_KEY: Record<string, string> = {
-  Informatique: 'Informatique',
-  'Commerce / Gestion': 'Commerce / Gestion',
-  Ingénierie: 'Ingénierie',
-  'Marketing / Communication': 'Marketing / Communication',
-  Finance: 'Finance',
-  'Design / Arts': 'Design / Arts',
-  'Santé / Social': 'Santé / Social',
-  Droit: 'Droit',
-  default: 'default',
+export const SUGGESTIONS_BY_ROLE_KEYWORD: Record<string, string[]> = {
+  développeur: ['dev-web', 'python', 'data-analyse', 'ia'],
+  developpeur: ['dev-web', 'python', 'data-analyse', 'ia'],
+  informatique: ['dev-web', 'python', 'cybersecurite', 'cloud'],
+  commercial: ['vente-negociation', 'communication', 'negociation'],
+  vente: ['vente-negociation', 'communication'],
+  marketing: ['marketing-digital', 'reseaux-sociaux', 'redaction'],
+  communication: ['redaction', 'reseaux-sociaux', 'communication'],
+  finance: ['finance-compta', 'data-analyse'],
+  comptab: ['finance-compta', 'gestion-projet'],
+  design: ['design', 'photo-video'],
+  rh: ['rh', 'communication'],
+  'ressources humaines': ['rh', 'communication'],
+  santé: ['soins', 'travail-social'],
+  sante: ['soins', 'travail-social'],
+  social: ['travail-social', 'communication'],
+  enseign: ['enseignement', 'communication'],
+  formation: ['enseignement', 'communication'],
+  ingénieur: ['gestion-projet', 'data-analyse'],
+  ingenieur: ['gestion-projet', 'data-analyse'],
+  'chef de projet': ['gestion-projet', 'leadership', 'communication'],
+  data: ['data-analyse', 'python', 'ia'],
+  product: ['product-ux', 'gestion-projet', 'communication'],
+  juriste: ['droit', 'communication'],
+  infirmier: ['soins', 'communication'],
+  btp: ['btp', 'gestion-projet'],
+  logistique: ['logistique', 'gestion-projet'],
 };
 
-export function getSuggestedSkills(educationField: string): Skill[] {
-  const ids = SUGGESTIONS_BY_FIELD[educationField] ?? SUGGESTIONS_BY_FIELD.default;
-  return SKILLS.filter((skill) => ids.includes(skill.id));
+export function getSuggestedSkills(targetRoles: string[]): Skill[] {
+  if (!targetRoles || targetRoles.length === 0) {
+    return SKILLS.filter((skill) => SUGGESTIONS_BY_FIELD.default.includes(skill.id));
+  }
+
+  const matchedIds = new Set<string>();
+
+  for (const role of targetRoles) {
+    const roleLower = role.toLowerCase();
+    for (const [keyword, skillIds] of Object.entries(SUGGESTIONS_BY_ROLE_KEYWORD)) {
+      if (roleLower.includes(keyword)) {
+        skillIds.forEach((id) => matchedIds.add(id));
+      }
+    }
+  }
+
+  if (matchedIds.size === 0) {
+    return SKILLS.filter((skill) => SUGGESTIONS_BY_FIELD.default.includes(skill.id));
+  }
+
+  return SKILLS.filter((skill) => matchedIds.has(skill.id)).slice(0, 6);
 }
 
-export function getSuggestedSkillsForProfile(profile: CareerProfile): Skill[] {
-  const key = inferSkillSuggestionKey(profile);
-  return getSuggestedSkills(FIELD_OF_STUDY_TO_SUGGESTION_KEY[key] ?? key);
+export function getSuggestedSkillsForProfile(profile: { targetRoles: string[] }): Skill[] {
+  return getSuggestedSkills(profile.targetRoles);
 }
 
 export function searchSkills(query: string, excludeIds: string[]): Skill[] {

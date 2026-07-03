@@ -92,7 +92,7 @@ export function useCareerOnboarding() {
       case 'welcome':
         return true;
       case 'personal':
-        return profile.firstName.trim().length > 0 && profile.ageRange !== null;
+        return profile.firstName.trim().length > 0 && profile.dateOfBirth !== null;
       case 'educationDetails': {
         const situationComplete =
           profile.currentSituation !== null &&
