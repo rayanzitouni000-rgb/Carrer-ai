@@ -76,7 +76,7 @@ export function LiveInterviewPreview({ isLive, timer, onEnd }: LiveInterviewPrev
                   key={msg.id}
                   style={[styles.msgRow, !isRecruiter && styles.msgRowCandidate]}
                 >
-                  {isRecruiter && <Avatar name={RECRUITER.name} size="xs" variant="person" />}
+                  {isRecruiter && <Avatar name={RECRUITER.name} size="xs" />}
                   {isRecruiter ? (
                     <View
                       style={[
