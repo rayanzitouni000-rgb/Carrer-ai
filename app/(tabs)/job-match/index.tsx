@@ -35,6 +35,7 @@ export default function JobMatchScreen() {
     lastSearchAt,
     usesLiveApi,
     apiError,
+    sourceSummary,
   } = useJobSearch();
   const { hasBeenSet, isReady: preferencesReady } = useJobSearchPreferences();
   const { hasAppliedToJob } = useApplicationTracking();
@@ -95,7 +96,7 @@ export default function JobMatchScreen() {
                 <Bell size={18} color={theme.colors.brand.primaryLight} />
               </View>
             </PressableScale>
-            <PressableScale scale={0.92} onPress={() => router.push('./saved')}>
+            <PressableScale scale={0.92} onPress={() => router.push('/(tabs)/job-match/saved')}>
               <View style={[styles.iconBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
                 <Heart size={18} color={theme.colors.status.danger} />
                 {savedJobsCount > 0 && (
@@ -141,7 +142,7 @@ export default function JobMatchScreen() {
               onChangeText={(query) => setFilters({ query })}
             />
           </View>
-          <PressableScale scale={0.92} onPress={() => router.push('./filters')}>
+          <PressableScale scale={0.92} onPress={() => router.push('/(tabs)/job-match/filters')}>
             <View style={[styles.filterBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
               <SlidersHorizontal size={18} color={theme.colors.text.primary} />
             </View>
@@ -151,7 +152,7 @@ export default function JobMatchScreen() {
         <Text variant="bodySmall" color={theme.colors.text.secondary}>
           {isLoading && !isRefreshing
             ? 'Recherche en cours...'
-            : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}${usesLiveApi ? ' · France Travail' : ''}`}
+            : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}${usesLiveApi ? sourceSummary : ''}`}
         </Text>
         {lastSearchLabel && (
           <Text variant="caption" color={theme.colors.text.muted}>
@@ -197,7 +198,7 @@ export default function JobMatchScreen() {
               <Text variant="bodySmall" color={theme.colors.text.secondary} align="center">
                 Essaie d'élargir tes filtres ou de modifier ta recherche.
               </Text>
-              <PressableScale scale={0.96} onPress={() => router.push('./filters')}>
+              <PressableScale scale={0.96} onPress={() => router.push('/(tabs)/job-match/filters')}>
                 <Text variant="label" color={theme.colors.brand.primaryLight}>
                   Modifier les filtres
                 </Text>

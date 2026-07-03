@@ -23,6 +23,11 @@ import {
 } from '@/types/jobMatch';
 import { buildDefaultJobSearchFilters } from '@/utils/jobSearchDefaults';
 import { enrichOffersWithMatchScore } from '@/utils/matchScoreCalculator';
+import {
+  countOfferSources,
+  formatSourceSummary,
+  type JobSearchSourceCounts,
+} from '@/utils/jobOfferSource';
 
 export interface UseJobSearchReturn {
   filters: JobSearchFilters;
@@ -35,6 +40,8 @@ export interface UseJobSearchReturn {
   lastSearchAt: number | null;
   usesLiveApi: boolean;
   apiError: string | null;
+  sourceCounts: JobSearchSourceCounts | null;
+  sourceSummary: string;
 }
 
 const JobSearchContext = createContext<UseJobSearchReturn | null>(null);
@@ -137,7 +144,7 @@ function JobSearchProviderInner({ children }: { children: ReactNode }) {
       setApiError(null);
 
       try {
-        const offers = await fetchJobOffersFromApi(filtersToFetchParams(activeFilters));
+        const { offers } = await fetchJobOffersFromApi(filtersToFetchParams(activeFilters));
         if (generation !== fetchGenerationRef.current) return;
         jobOfferStore.setMany(offers);
         setApiOffers(offers);
@@ -183,6 +190,13 @@ function JobSearchProviderInner({ children }: { children: ReactNode }) {
     return filtered.sort((a, b) => b.matchScore - a.matchScore);
   }, [profile, debouncedFilters, apiOffers]);
 
+  const sourceCounts = useMemo(() => {
+    if (apiOffers === null) return null;
+    return countOfferSources(results);
+  }, [apiOffers, results]);
+
+  const sourceSummary = useMemo(() => formatSourceSummary(sourceCounts), [sourceCounts]);
+
   const value = useMemo(
     () => ({
       filters,
@@ -195,6 +209,8 @@ function JobSearchProviderInner({ children }: { children: ReactNode }) {
       lastSearchAt,
       usesLiveApi,
       apiError,
+      sourceCounts,
+      sourceSummary,
     }),
     [
       filters,
@@ -207,6 +223,8 @@ function JobSearchProviderInner({ children }: { children: ReactNode }) {
       lastSearchAt,
       usesLiveApi,
       apiError,
+      sourceCounts,
+      sourceSummary,
     ]
   );
 
