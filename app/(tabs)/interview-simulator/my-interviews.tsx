@@ -183,8 +183,16 @@ export default function MyInterviewsScreen() {
           )}
         </View>
 
-        <PrimaryButton label="Ajouter un entretien réel" fullWidth onPress={() => router.push('./add-interview')} />
-        <OutlineButton label="Lancer une simulation libre" fullWidth onPress={() => router.push('./setup')} />
+        <PrimaryButton
+          label="Ajouter un entretien réel"
+          fullWidth
+          onPress={() => router.push('/(tabs)/interview-simulator/add-interview')}
+        />
+        <OutlineButton
+          label="Lancer une simulation libre"
+          fullWidth
+          onPress={() => router.push('/(tabs)/interview-simulator/setup')}
+        />
       </ScrollView>
 
       <Modal

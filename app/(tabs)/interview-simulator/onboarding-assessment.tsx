@@ -18,7 +18,7 @@ export default function OnboardingAssessmentScreen() {
 
   const handleStart = () => {
     router.replace({
-      pathname: './session',
+      pathname: '/(tabs)/interview-simulator/session',
       params: { isAssessment: 'true', targetRole },
     });
   };

@@ -149,7 +149,7 @@ export default function InterviewSessionScreen() {
   const finishAndNavigate = useCallback(
     async (completed: NonNullable<Awaited<ReturnType<typeof sessionApi.endSession>>>) => {
       router.replace({
-        pathname: './feedback',
+        pathname: '/(tabs)/interview-simulator/feedback',
         params: { sessionId: completed.id },
       });
     },

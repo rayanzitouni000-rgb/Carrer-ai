@@ -32,7 +32,7 @@ export default function InterviewHubScreen() {
       setPaywallVisible(true);
       return;
     }
-    router.push('./setup');
+    router.push('/(tabs)/interview-simulator/setup');
   };
 
   const renderLevelCard = () => {
@@ -76,7 +76,7 @@ export default function InterviewHubScreen() {
           </Text>
           <OutlineButton
             label="Évaluer mon niveau maintenant"
-            onPress={() => router.push('./onboarding-assessment')}
+            onPress={() => router.push('/(tabs)/interview-simulator/onboarding-assessment')}
           />
         </View>
       );
@@ -146,14 +146,17 @@ export default function InterviewHubScreen() {
                 size="sm"
                 onPress={() =>
                   router.push({
-                    pathname: './session',
+                    pathname: '/(tabs)/interview-simulator/session',
                     params: { interviewId: nextInterview.id },
                   })
                 }
               />
             </>
           ) : (
-            <PressableScale scale={0.98} onPress={() => router.push('./add-interview')}>
+            <PressableScale
+              scale={0.98}
+              onPress={() => router.push('/(tabs)/interview-simulator/add-interview')}
+            >
               <Text variant="label" color={theme.colors.brand.primaryLight}>
                 + Ajouter un entretien à venir
               </Text>
@@ -161,7 +164,11 @@ export default function InterviewHubScreen() {
           )}
         </View>
 
-        <OutlineButton label="📋 Mes entretiens" fullWidth onPress={() => router.push('./my-interviews')} />
+        <OutlineButton
+          label="📋 Mes entretiens"
+          fullWidth
+          onPress={() => router.push('/(tabs)/interview-simulator/my-interviews')}
+        />
       </ScrollView>
 
       <PaywallScreen

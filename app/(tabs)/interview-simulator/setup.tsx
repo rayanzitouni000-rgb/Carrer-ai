@@ -32,7 +32,7 @@ export default function InterviewSetupScreen() {
       return;
     }
     router.push({
-      pathname: './session',
+      pathname: '/(tabs)/interview-simulator/session',
       params: {
         targetRole: targetRole.trim(),
         type,

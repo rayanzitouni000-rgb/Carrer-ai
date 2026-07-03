@@ -68,7 +68,11 @@ export default function InterviewFeedbackScreen() {
             onPress={() => router.replace('/(tabs)' as Href)}
           />
         ) : (
-          <PrimaryButton label="Retour au Hub Entretien" fullWidth onPress={() => router.replace('./')} />
+          <PrimaryButton
+            label="Retour au Hub Entretien"
+            fullWidth
+            onPress={() => router.replace('/(tabs)/interview-simulator')}
+          />
         )}
       </ScrollView>
     </View>
