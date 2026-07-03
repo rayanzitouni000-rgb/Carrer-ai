@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system/legacy';
+import { File } from 'expo-file-system';
 
 import { getApiBaseUrl, isAiApiConfigured, QUOTA_EXCEEDED_MESSAGE } from '@/constants/apiConfig';
 import { ANALYSIS_STEPS } from '../constants/mockData';
@@ -96,12 +96,10 @@ export function useCvAnalysis() {
 
     let fileBase64: string;
     try {
-      fileBase64 = await FileSystem.readAsStringAsync(asset.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      fileBase64 = await new File(asset.uri).base64();
       console.log('[CV Analysis] Fichier lu en base64 — longueur:', fileBase64.length);
     } catch (error) {
-      console.log('[CV Analysis] ERREUR lecture fichier (readAsStringAsync):', error);
+      console.log('[CV Analysis] ERREUR lecture fichier (File.base64):', error);
       setPhase('error');
       setErrorMessage(FILE_READ_ERROR_MESSAGE);
       return;
