@@ -30,7 +30,7 @@ export function GenerateCvCtaSection({ sourceFileName }: GenerateCvCtaSectionPro
   return (
     <Animated.View entering={FadeInDown.delay(460).duration(500).springify()}>
       <LinearGradient
-        colors={['rgba(139, 92, 246, 0.12)', 'rgba(59, 130, 246, 0.08)']}
+        colors={['rgba(139, 92, 246, 0.12)', 'rgba(43, 108, 255, 0.08)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[

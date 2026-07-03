@@ -22,14 +22,14 @@ export function UploadCard({ onUpload, disabled }: UploadCardProps) {
             style={[
               styles.glow,
               glowStyle,
-              { backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: theme.radius.xl },
+              { backgroundColor: 'rgba(43, 108, 255, 0.1)', borderRadius: theme.radius.xl },
             ]}
           />
           <View
             style={[
               styles.card,
               {
-                borderColor: 'rgba(59, 130, 246, 0.35)',
+                borderColor: 'rgba(43, 108, 255, 0.35)',
                 borderRadius: theme.radius.xl,
                 backgroundColor: theme.colors.card.default,
               },

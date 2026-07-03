@@ -178,8 +178,8 @@ export default function JobMatchScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={refresh}
-              tintColor="#8B5CF6"
-              colors={['#8B5CF6']}
+              tintColor="#2B6CFF"
+              colors={['#2B6CFF']}
             />
           }
           contentContainerStyle={[

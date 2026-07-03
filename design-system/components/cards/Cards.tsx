@@ -336,11 +336,11 @@ export function SkillBadge({ label, variant = 'default' }: SkillBadgeProps) {
 
   const colors_map = {
     default: { bg: theme.colors.card.elevated, text: theme.colors.text.secondary },
-    primary: { bg: 'rgba(59, 130, 246, 0.15)', text: theme.colors.brand.primaryLight },
+    primary: { bg: 'rgba(43, 108, 255, 0.15)', text: theme.colors.brand.primaryLight },
     success: { bg: theme.colors.status.successMuted, text: theme.colors.status.success },
     warning: { bg: theme.colors.status.warningMuted, text: theme.colors.status.warning },
     error: { bg: theme.colors.status.dangerMuted, text: theme.colors.status.danger },
-    info: { bg: 'rgba(59, 130, 246, 0.12)', text: theme.colors.status.info },
+    info: { bg: 'rgba(43, 108, 255, 0.12)', text: theme.colors.status.info },
   };
 
   const c = colors_map[variant];

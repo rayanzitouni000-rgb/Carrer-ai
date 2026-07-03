@@ -204,14 +204,14 @@ export default function CoverLetterIndexScreen() {
           title="Modèle guidé"
           subtitle="Choisis des phrases types et personnalise-les"
           icon="create-outline"
-          gradient={['#2563EB', '#6366F1']}
+          gradient={['#1D4ED8', '#1D4ED8']}
           onPress={handleGuidedMode}
         />
         <ModeCard
           title="Génération IA"
           subtitle="Lettre entièrement rédigée par l'IA (Premium)"
           icon="sparkles-outline"
-          gradient={['#8B5CF6', '#EC4899']}
+          gradient={['#2B6CFF', '#EC4899']}
           isPremiumFeature
           onPress={handleAiMode}
         />

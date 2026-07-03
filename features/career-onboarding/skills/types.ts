@@ -40,7 +40,7 @@ export const SKILL_LEVEL_CONFIG: Record<
   expert: {
     label: 'Expert',
     description: "Je peux former d'autres personnes",
-    color: '#2563EB',
+    color: '#1D4ED8',
   },
 };
 

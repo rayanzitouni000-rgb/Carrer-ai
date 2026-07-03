@@ -79,7 +79,7 @@ export default function CoverLetterPreviewScreen() {
         <PreviewSection label="Destinataire">{data.company}</PreviewSection>
 
         <View style={styles.section}>
-          <Text variant="label" color="#2563EB">
+          <Text variant="label" color="#1D4ED8">
             Objet
           </Text>
           <Text variant="bodySmall" color="#444444">

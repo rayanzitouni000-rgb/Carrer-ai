@@ -2,7 +2,7 @@ import { ViewStyle } from 'react-native';
 
 export const shadowColor = {
   dark: '#000000',
-  brand: '#3B82F6',
+  brand: '#2B6CFF',
   premium: '#F59E0B',
 } as const;
 

@@ -30,7 +30,7 @@ export function SelectableOptionCard({
             borderRadius: theme.radius.lg,
             borderColor: selected ? theme.colors.brand.primary : theme.colors.border.subtle,
             backgroundColor: selected
-              ? 'rgba(59, 130, 246, 0.12)'
+              ? 'rgba(43, 108, 255, 0.12)'
               : theme.colors.card.default,
           },
           selected && theme.shadows.sm,
@@ -114,7 +114,7 @@ export function ChipSelector<T extends string>({
                   borderRadius: theme.radius.full,
                   borderColor: active ? theme.colors.brand.primary : theme.colors.border.subtle,
                   backgroundColor: active
-                    ? 'rgba(59, 130, 246, 0.15)'
+                    ? 'rgba(43, 108, 255, 0.15)'
                     : theme.colors.card.elevated,
                 },
               ]}

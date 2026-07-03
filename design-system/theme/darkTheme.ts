@@ -3,7 +3,7 @@ import { Theme, ThemeColors } from './types';
 
 const darkColors: ThemeColors = {
   background: {
-    primary: palette.ink950,
+    primary: palette.navyBg,
     secondary: palette.ink900,
   },
   card: {
@@ -21,8 +21,8 @@ const darkColors: ThemeColors = {
     primaryLight: palette.blue400,
     primaryDark: palette.blue600,
     gradient: gradients.brand,
-    accent: palette.violet500,
-    accentLight: palette.violet400,
+    accent: palette.blueGlow,
+    accentLight: palette.blue400,
   },
   status: {
     success: palette.emerald400,

@@ -21,8 +21,8 @@ const lightColors: ThemeColors = {
     primaryLight: palette.blue500,
     primaryDark: '#1D4ED8',
     gradient: gradients.brand,
-    accent: palette.violet500,
-    accentLight: palette.violet400,
+    accent: palette.blueGlow,
+    accentLight: palette.blue400,
   },
   status: {
     success: palette.emerald500,

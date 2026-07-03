@@ -1,6 +1,7 @@
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
+
+import { USER_AVATAR_DEFAULT } from '@/assets/userAvatar';
 
 import { useTheme } from '../../theme';
 import { Text } from '../primitives/Text';
@@ -10,6 +11,8 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 interface AvatarProps {
   name: string;
   imageUrl?: string;
+  /** `profile` = image par défaut costume ; `person` = initiales si pas de photo */
+  variant?: 'profile' | 'person';
   size?: AvatarSize;
   style?: ViewStyle;
   showOnline?: boolean;
@@ -23,7 +26,14 @@ const sizeMap: Record<AvatarSize, number> = {
   xl: 80,
 };
 
-export function Avatar({ name, imageUrl, size = 'md', style, showOnline }: AvatarProps) {
+export function Avatar({
+  name,
+  imageUrl,
+  variant = 'profile',
+  size = 'md',
+  style,
+  showOnline,
+}: AvatarProps) {
   const theme = useTheme();
   const dimension = sizeMap[size];
   const initials = name
@@ -33,25 +43,30 @@ export function Avatar({ name, imageUrl, size = 'md', style, showOnline }: Avata
     .toUpperCase()
     .slice(0, 2);
 
-  const content = imageUrl ? (
-    <Image
-      source={{ uri: imageUrl }}
-      style={{ width: dimension, height: dimension, borderRadius: dimension / 2 }}
-      contentFit="cover"
-    />
-  ) : (
-    <LinearGradient
-      colors={[...theme.colors.brand.gradient]}
-      style={{ width: dimension, height: dimension, borderRadius: dimension / 2, alignItems: 'center', justifyContent: 'center' }}
-    >
-      <Text
-        variant={size === 'xl' ? 'title' : 'caption'}
-        color={theme.colors.text.primary}
+  const content =
+    imageUrl || variant === 'profile' ? (
+      <Image
+        source={imageUrl ? { uri: imageUrl } : USER_AVATAR_DEFAULT}
+        style={{ width: dimension, height: dimension, borderRadius: dimension / 2 }}
+        contentFit="cover"
+        accessibilityLabel="Photo de profil"
+      />
+    ) : (
+      <View
+        style={{
+          width: dimension,
+          height: dimension,
+          borderRadius: dimension / 2,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: theme.colors.brand.primaryDark,
+        }}
       >
-        {initials}
-      </Text>
-    </LinearGradient>
-  );
+        <Text variant={size === 'xl' ? 'title' : 'caption'} color={theme.colors.text.primary}>
+          {initials}
+        </Text>
+      </View>
+    );
 
   return (
     <View style={style}>

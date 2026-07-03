@@ -56,7 +56,7 @@ export default function CvPreviewScreen() {
             {data.fullName.trim() || 'Ton nom'}
           </Text>
           {data.headline.trim().length > 0 && (
-            <Text variant="label" color="#2563EB">
+            <Text variant="label" color="#1D4ED8">
               {data.headline}
             </Text>
           )}
@@ -123,7 +123,7 @@ export default function CvPreviewScreen() {
             <View style={styles.chips}>
               {skills.map((skill) => (
                 <View key={skill} style={styles.chip}>
-                  <Text variant="caption" color="#2563EB">
+                  <Text variant="caption" color="#1D4ED8">
                     {skill}
                   </Text>
                 </View>
@@ -151,7 +151,7 @@ export default function CvPreviewScreen() {
 function PreviewSection({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View style={styles.section}>
-      <Text variant="caption" color="#2563EB" style={styles.sectionLabel}>
+      <Text variant="caption" color="#1D4ED8" style={styles.sectionLabel}>
         {label.toUpperCase()}
       </Text>
       <View style={styles.sectionDivider} />
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   sheetHeader: {
     gap: 4,
     borderBottomWidth: 2,
-    borderBottomColor: '#2563EB',
+    borderBottomColor: '#1D4ED8',
     paddingBottom: 12,
   },
   section: {

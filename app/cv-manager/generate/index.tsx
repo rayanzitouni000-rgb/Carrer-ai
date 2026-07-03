@@ -180,7 +180,7 @@ export default function GenerateModeScreen() {
           title="Remplir un formulaire"
           subtitle="Complète tes infos et génère un PDF propre immédiatement"
           icon="create-outline"
-          gradient={['#2563EB', '#6366F1']}
+          gradient={['#1D4ED8', '#1D4ED8']}
           disabled={isGenerating}
           onPress={() => router.push('/cv-manager/generate/form')}
         />
@@ -189,7 +189,7 @@ export default function GenerateModeScreen() {
           title="Laisser l'IA rédiger mon CV"
           subtitle="L'IA rédige ton CV à partir de ton profil"
           icon="sparkles-outline"
-          gradient={['#8B5CF6', '#EC4899']}
+          gradient={['#2B6CFF', '#EC4899']}
           isPremiumFeature
           disabled={isGenerating}
           onPress={() => void handleAiWriteCv()}

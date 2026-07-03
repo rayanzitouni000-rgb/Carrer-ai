@@ -15,12 +15,12 @@ export interface InterviewType {
 }
 
 export const INTERVIEW_TYPES: InterviewType[] = [
-  { id: '1', label: 'Behavioral', icon: 'people-outline', gradient: ['#2563EB', '#6366F1'] },
-  { id: '2', label: 'Technical', icon: 'code-slash-outline', gradient: ['#06B6D4', '#3B82F6'] },
-  { id: '3', label: 'HR', icon: 'briefcase-outline', gradient: ['#8B5CF6', '#EC4899'] },
+  { id: '1', label: 'Behavioral', icon: 'people-outline', gradient: ['#1D4ED8', '#1D4ED8'] },
+  { id: '2', label: 'Technical', icon: 'code-slash-outline', gradient: ['#06B6D4', '#2B6CFF'] },
+  { id: '3', label: 'HR', icon: 'briefcase-outline', gradient: ['#2B6CFF', '#EC4899'] },
   { id: '4', label: 'Case Study', icon: 'analytics-outline', gradient: ['#F59E0B', '#EF4444'] },
   { id: '5', label: 'Leadership', icon: 'ribbon-outline', gradient: ['#10B981', '#06B6D4'] },
-  { id: '6', label: 'System Design', icon: 'git-network-outline', gradient: ['#6366F1', '#8B5CF6'] },
+  { id: '6', label: 'System Design', icon: 'git-network-outline', gradient: ['#1D4ED8', '#2B6CFF'] },
 ];
 
 export const QUESTION_PREVIEW = {

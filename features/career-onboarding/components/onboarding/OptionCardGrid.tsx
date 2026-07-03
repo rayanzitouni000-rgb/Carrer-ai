@@ -54,7 +54,7 @@ export function OptionCardGrid({
                     borderRadius: theme.radius.lg,
                     borderColor: selected ? theme.colors.brand.primary : theme.colors.border.subtle,
                     backgroundColor: selected
-                      ? 'rgba(59, 130, 246, 0.12)'
+                      ? 'rgba(43, 108, 255, 0.12)'
                       : theme.colors.card.default,
                     minHeight: 90,
                   },

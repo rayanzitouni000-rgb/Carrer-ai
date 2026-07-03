@@ -325,7 +325,7 @@ export default function CvFormScreen() {
                   style={[
                     styles.chip,
                     {
-                      backgroundColor: 'rgba(59, 130, 246, 0.14)',
+                      backgroundColor: 'rgba(43, 108, 255, 0.14)',
                       borderColor: theme.colors.brand.primary,
                       borderRadius: theme.radius.full,
                     },

@@ -12,9 +12,9 @@ export function AiCoachBustIllustration({ state, width, height }: AiCoachBustIll
   const suitMid = '#163a5f';
   const suitHighlight = '#1e4d7b';
   const shirt = '#f8fafc';
-  const tie = isSpeaking ? '#60a5fa' : '#3b82f6';
-  const tieDeep = isSpeaking ? '#2563eb' : '#1e40af';
-  const lapelGlow = isSpeaking ? 'rgba(96, 165, 250, 0.4)' : 'rgba(59, 130, 246, 0.22)';
+  const tie = isSpeaking ? '#60a5fa' : '#2B6CFF';
+  const tieDeep = isSpeaking ? '#2B6CFF' : '#1D4ED8';
+  const lapelGlow = isSpeaking ? 'rgba(96, 165, 250, 0.4)' : 'rgba(43, 108, 255, 0.22)';
 
   return (
     <Svg width={width} height={height} viewBox="0 0 100 120" fill="none">

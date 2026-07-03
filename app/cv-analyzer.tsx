@@ -30,7 +30,7 @@ export default function CvAnalyzerScreen() {
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary }]}>
       <LinearGradient
-        colors={['rgba(6, 182, 212, 0.1)', 'rgba(59, 130, 246, 0.06)', 'transparent']}
+        colors={['rgba(6, 182, 212, 0.1)', 'rgba(43, 108, 255, 0.06)', 'transparent']}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 0.35 }}
         style={StyleSheet.absoluteFill}

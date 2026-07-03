@@ -184,7 +184,7 @@ export function SummaryStep({ profile }: SummaryStepProps) {
 
                   styles.avatar,
 
-                  { backgroundColor: 'rgba(59, 130, 246, 0.2)', borderRadius: theme.radius.full },
+                  { backgroundColor: 'rgba(43, 108, 255, 0.2)', borderRadius: theme.radius.full },
 
                 ]}
 
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
 
     borderWidth: 1,
 
-    borderColor: 'rgba(59, 130, 246, 0.25)',
+    borderColor: 'rgba(43, 108, 255, 0.25)',
 
   },
 

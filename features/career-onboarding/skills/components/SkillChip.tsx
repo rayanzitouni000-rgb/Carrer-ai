@@ -23,14 +23,14 @@ function getLevelStyles(level: SkillLevel, theme: ReturnType<typeof useTheme>) {
       };
     case SkillLevel.INTERMEDIATE:
       return {
-        backgroundColor: 'rgba(59, 130, 246, 0.14)',
+        backgroundColor: 'rgba(43, 108, 255, 0.14)',
         borderColor: theme.colors.brand.primary,
         textColor: theme.colors.brand.primary,
       };
     case SkillLevel.EXPERT:
       return {
         backgroundColor: 'rgba(37, 99, 235, 0.28)',
-        borderColor: '#2563EB',
+        borderColor: '#1D4ED8',
         textColor: theme.colors.text.primary,
       };
     default:
@@ -56,7 +56,7 @@ export function SkillChip({
   const levelStyle = userSkill
     ? getLevelStyles(userSkill.level, theme)
     : {
-        backgroundColor: isPending ? 'rgba(59, 130, 246, 0.08)' : theme.colors.card.default,
+        backgroundColor: isPending ? 'rgba(43, 108, 255, 0.08)' : theme.colors.card.default,
         borderColor: isPending ? theme.colors.brand.primary : theme.colors.border.subtle,
         textColor: theme.colors.text.secondary,
       };

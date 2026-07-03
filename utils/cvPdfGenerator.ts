@@ -94,14 +94,14 @@ export function generateCvHtml(
     font-size: 13px;
     line-height: 1.5;
   }
-  header { border-bottom: 2px solid #2563EB; padding-bottom: 16px; margin-bottom: 20px; }
+  header { border-bottom: 2px solid #1D4ED8; padding-bottom: 16px; margin-bottom: 20px; }
   h1 { font-size: 26px; margin: 0 0 4px; color: #0f172a; }
-  .headline { font-size: 15px; color: #2563EB; font-weight: 600; margin: 0 0 8px; }
+  .headline { font-size: 15px; color: #1D4ED8; font-weight: 600; margin: 0 0 8px; }
   .contact { font-size: 12px; color: #555; }
   section { margin-bottom: 18px; }
   h2 {
     font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
-    color: #2563EB; border-bottom: 1px solid #e2e8f0;
+    color: #1D4ED8; border-bottom: 1px solid #e2e8f0;
     padding-bottom: 4px; margin: 0 0 10px;
   }
   .item { margin-bottom: 12px; }
@@ -112,7 +112,7 @@ export function generateCvHtml(
   .summary { margin: 0; color: #444; }
   .skills { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
-    background: #eff6ff; color: #2563EB; border-radius: 999px;
+    background: #eff6ff; color: #1D4ED8; border-radius: 999px;
     padding: 4px 10px; font-size: 11px;
   }
 </style>

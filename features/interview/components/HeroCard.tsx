@@ -25,9 +25,9 @@ export function HeroCard({ onStart }: HeroCardProps) {
   return (
     <Animated.View style={floatStyle}>
       <View style={styles.wrapper}>
-        <Animated.View style={[styles.glow, glowStyle, { backgroundColor: 'rgba(59, 130, 246, 0.12)' }]} />
+        <Animated.View style={[styles.glow, glowStyle, { backgroundColor: 'rgba(43, 108, 255, 0.12)' }]} />
         <LinearGradient
-          colors={['#1e3a5f', '#2563EB', '#6366F1']}
+          colors={['#1e3a5f', '#1D4ED8', '#1D4ED8']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.card, { borderRadius: theme.radius.xl }]}

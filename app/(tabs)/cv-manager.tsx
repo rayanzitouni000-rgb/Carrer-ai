@@ -25,21 +25,21 @@ export default function CvManagerScreen() {
           title="Analyser mon CV"
           subtitle="Score ATS, points forts et axes d'amélioration"
           icon="document-text-outline"
-          gradient={['#2563EB', '#6366F1']}
+          gradient={['#1D4ED8', '#1D4ED8']}
           onPress={() => router.push('/cv-analyzer')}
         />
         <CvManagerActionCard
           title="Générer mon CV"
           subtitle="Crée un CV propre à partir de ton profil"
           icon="create-outline"
-          gradient={['#06B6D4', '#3B82F6']}
+          gradient={['#06B6D4', '#2B6CFF']}
           onPress={() => router.push('/cv-manager/generate')}
         />
         <CvManagerActionCard
           title="Lettre de motivation"
           subtitle="Rédige une lettre adaptée à ton offre cible"
           icon="mail-outline"
-          gradient={['#8B5CF6', '#EC4899']}
+          gradient={['#2B6CFF', '#EC4899']}
           onPress={() => router.push('/cover-letter' as never)}
         />
       </View>

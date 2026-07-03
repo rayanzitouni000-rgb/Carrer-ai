@@ -27,7 +27,7 @@ export default function HomeScreen() {
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background.primary }]}>
       <LinearGradient
-        colors={['rgba(6, 182, 212, 0.12)', 'rgba(59, 130, 246, 0.08)', 'transparent']}
+        colors={['rgba(43, 108, 255, 0.1)', 'rgba(30, 107, 255, 0.06)', 'transparent']}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 0.45 }}
         style={StyleSheet.absoluteFill}

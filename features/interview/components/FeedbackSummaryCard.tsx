@@ -15,7 +15,7 @@ export function FeedbackSummaryCard({ feedback, isAssessment }: FeedbackSummaryC
 
   return (
     <LinearGradient
-      colors={['#8B5CF6', '#3B82F6']}
+      colors={['#2B6CFF', '#2B6CFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.card, { borderRadius: theme.radius.lg }]}

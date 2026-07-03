@@ -2,9 +2,9 @@
 
 export const palette = {
   // Neutrals — Dark
-  ink950: '#050508',
-  ink900: '#0B0B0F',
-  ink850: '#111116',
+  ink950: '#0A0F1E',
+  ink900: '#0D1424',
+  ink850: '#111827',
   ink800: '#16161D',
   ink750: '#1C1C26',
   ink700: '#252530',
@@ -18,13 +18,13 @@ export const palette = {
   white: '#FFFFFF',
   black: '#000000',
 
-  // Brand
-  blue500: '#3B82F6',
-  blue600: '#2563EB',
+  // Brand — bleu coach (cohérent avatar utilisateur)
+  blue500: '#2B6CFF',
+  blue600: '#1D4ED8',
   blue400: '#60A5FA',
-  indigo500: '#6366F1',
-  violet500: '#8B5CF6',
-  violet400: '#A78BFA',
+  blueGlow: '#2E6BFF',
+  navyBg: '#0A0F1E',
+  indigo500: '#1D4ED8',
   cyan400: '#22D3EE',
   cyan500: '#06B6D4',
 
@@ -43,13 +43,13 @@ export const palette = {
 } as const;
 
 export const gradients = {
-  brand: ['#2563EB', '#6366F1', '#8B5CF6'] as const,
-  brandSoft: ['#1E3A5F', '#3B82F6', '#8B5CF6'] as const,
-  ai: ['#06B6D4', '#3B82F6', '#8B5CF6'] as const,
+  brand: ['#1D4ED8', '#2B6CFF', '#60A5FA'] as const,
+  brandSoft: ['#0A0F1E', '#1D4ED8', '#2B6CFF'] as const,
+  ai: ['#1D4ED8', '#2B6CFF', '#2E6BFF'] as const,
   premium: ['#F59E0B', '#EF4444', '#EC4899'] as const,
   premiumGold: ['#FBBF24', '#F59E0B', '#EF4444'] as const,
-  surface: ['#111116', '#16161D'] as const,
-  glow: ['rgba(59,130,246,0.3)', 'rgba(139,92,246,0.1)', 'transparent'] as const,
+  surface: ['#0A0F1E', '#111827'] as const,
+  glow: ['rgba(43,108,255,0.35)', 'rgba(46,107,255,0.12)', 'transparent'] as const,
   glass: ['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.04)'] as const,
 } as const;
 

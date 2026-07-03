@@ -78,7 +78,7 @@ function OptionRow({ option, selected, disabled, mode, onPress }: OptionRowProps
       disabled={disabled}
       style={[
         styles.row,
-        selected && { backgroundColor: 'rgba(59, 130, 246, 0.1)' },
+        selected && { backgroundColor: 'rgba(43, 108, 255, 0.1)' },
         disabled && styles.rowDisabled,
       ]}
       accessibilityRole={mode === 'single' ? 'radio' : 'checkbox'}

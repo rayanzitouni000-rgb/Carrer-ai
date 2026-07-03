@@ -48,7 +48,7 @@ export function SkillLevelPopover({ selectedLevel, onSelect, onClose }: SkillLev
             style={[
               styles.option,
               {
-                backgroundColor: active ? 'rgba(59, 130, 246, 0.12)' : theme.colors.card.default,
+                backgroundColor: active ? 'rgba(43, 108, 255, 0.12)' : theme.colors.card.default,
                 borderColor: active ? config.color : theme.colors.border.subtle,
                 borderRadius: theme.radius.md,
               },

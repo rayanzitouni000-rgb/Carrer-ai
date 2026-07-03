@@ -39,7 +39,7 @@ export default function InterviewHubScreen() {
     if (lastAssessmentScore !== null) {
       return (
         <LinearGradient
-          colors={['#8B5CF6', '#3B82F6']}
+          colors={['#2B6CFF', '#2B6CFF']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.levelCard, { borderRadius: theme.radius.lg }]}

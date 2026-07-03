@@ -25,12 +25,12 @@ export function CareerScoreResult({ analysis }: CareerScoreResultProps) {
   return (
     <Animated.View entering={FadeInDown.delay(80).duration(500).springify()}>
       <View style={styles.wrapper}>
-        <Animated.View style={[styles.glow, glowStyle, { backgroundColor: 'rgba(59, 130, 246, 0.12)' }]} />
+        <Animated.View style={[styles.glow, glowStyle, { backgroundColor: 'rgba(43, 108, 255, 0.12)' }]} />
         <LinearGradient
           colors={['#111827', '#1E293B', '#0F172A']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.card, { borderRadius: theme.radius.xl, borderColor: 'rgba(59, 130, 246, 0.25)' }]}
+          style={[styles.card, { borderRadius: theme.radius.xl, borderColor: 'rgba(43, 108, 255, 0.25)' }]}
         >
           <View style={styles.content}>
             <View style={styles.left}>

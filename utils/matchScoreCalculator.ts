@@ -110,7 +110,7 @@ export function getCompanyInitials(company: string): string {
 }
 
 export function getCompanyColor(company: string): string {
-  const palette = ['#6366F1', '#06B6D4', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'];
+  const palette = ['#1D4ED8', '#06B6D4', '#2B6CFF', '#EC4899', '#F59E0B', '#10B981', '#2B6CFF'];
   let hash = 0;
   for (let i = 0; i < company.length; i += 1) {
     hash = company.charCodeAt(i) + ((hash << 5) - hash);

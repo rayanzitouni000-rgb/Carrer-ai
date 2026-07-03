@@ -53,7 +53,7 @@ function PhraseSection({
                   styles.option,
                   {
                     backgroundColor: selected
-                      ? 'rgba(59, 130, 246, 0.12)'
+                      ? 'rgba(43, 108, 255, 0.12)'
                       : theme.colors.card.elevated,
                     borderColor: selected
                       ? theme.colors.brand.primaryLight

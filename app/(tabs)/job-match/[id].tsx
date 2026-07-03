@@ -172,7 +172,7 @@ export default function JobDetailScreen() {
         </View>
 
         <LinearGradient
-          colors={['#8B5CF6', '#3B82F6']}
+          colors={['#2B6CFF', '#2B6CFF']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.matchBanner, { borderRadius: theme.radius.lg }]}

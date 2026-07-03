@@ -19,7 +19,7 @@ export function WelcomeCard() {
           styles.card,
           {
             borderRadius: theme.radius.xl,
-            borderColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgba(43, 108, 255, 0.2)',
           },
         ]}
       >

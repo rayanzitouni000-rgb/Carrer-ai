@@ -137,7 +137,7 @@ export function PaywallScreen({ visible, triggerContext, onClose }: PaywallScree
           </View>
 
           <LinearGradient
-            colors={['#F59E0B', '#EC4899', '#8B5CF6']}
+            colors={['#F59E0B', '#EC4899', '#2B6CFF']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.hero, { borderRadius: theme.radius.xl }]}

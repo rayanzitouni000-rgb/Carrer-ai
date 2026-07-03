@@ -39,7 +39,7 @@ export function LiveInterviewSessionView({
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['rgba(6, 182, 212, 0.08)', 'rgba(59, 130, 246, 0.05)', 'transparent']}
+        colors={['rgba(6, 182, 212, 0.08)', 'rgba(43, 108, 255, 0.05)', 'transparent']}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />

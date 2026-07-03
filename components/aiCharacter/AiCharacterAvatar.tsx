@@ -98,8 +98,8 @@ export function AiCharacterAvatar({
               width: clipSize,
               height: clipSize,
               borderRadius: clipRadius,
-              backgroundColor: isSpeaking ? 'rgba(59, 130, 246, 0.28)' : 'rgba(30, 64, 175, 0.2)',
-              shadowColor: isSpeaking ? '#60A5FA' : '#3B82F6',
+              backgroundColor: isSpeaking ? 'rgba(43, 108, 255, 0.28)' : 'rgba(30, 107, 255, 0.2)',
+              shadowColor: isSpeaking ? '#60A5FA' : '#2B6CFF',
               shadowRadius: isSpeaking ? 28 : 20,
             },
           ]}
@@ -112,7 +112,7 @@ export function AiCharacterAvatar({
               width: clipSize,
               height: clipSize,
               borderRadius: clipRadius,
-              borderColor: isSpeaking ? 'rgba(96, 165, 250, 0.45)' : 'rgba(148, 163, 184, 0.25)',
+              borderColor: isSpeaking ? 'rgba(96, 165, 250, 0.5)' : 'rgba(43, 108, 255, 0.35)',
             },
           ]}
         >
