@@ -12,11 +12,15 @@ import {
   useTheme,
 } from '@/design-system';
 import { careerProfileStore } from '@/services/careerProfileStore';
-import { authService } from '@/services/authService';
+import { useOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabaseClient';
 
 export function SignupScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { signUp } = useAuth();
+  const { shouldOfferAssessmentAfterWizard } = useOnboardingAssessment();
   const profile = careerProfileStore.get();
 
   const [email, setEmail] = useState('');
@@ -28,21 +32,39 @@ export function SignupScreen() {
   const handleSignup = async () => {
     setError(null);
 
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas.');
       return;
     }
 
     setLoading(true);
-    const result = await authService.register({
-      email,
-      password,
-      firstName: profile.firstName,
-    });
+    const result = await signUp(email, password);
     setLoading(false);
 
-    if (!result.success) {
+    if (result.error) {
       setError(result.error);
+      return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      setError('Compte créé. Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.');
+      return;
+    }
+
+    const firstName = profile.firstName.trim();
+    if (firstName) {
+      careerProfileStore.update({ firstName });
+    }
+
+    const offerAssessment = await shouldOfferAssessmentAfterWizard();
+    if (offerAssessment) {
+      router.replace('/(tabs)/interview-simulator/onboarding-assessment');
       return;
     }
 
@@ -110,7 +132,7 @@ export function SignupScreen() {
       />
 
       <Text variant="caption" color={theme.colors.text.muted} align="center">
-        Ton profil et ton compte sont enregistrés localement sur cet appareil.
+        Ton compte est sécurisé via Supabase. Tes données restent sur cet appareil en attendant la synchronisation cloud.
       </Text>
     </ScreenContainer>
   );

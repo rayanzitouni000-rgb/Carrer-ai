@@ -18,23 +18,6 @@ export const navigationService = {
   },
 };
 
-export const mockAuthService = {
-  isAuthenticated: false,
-  login: async (email: string, password: string) => {
-    const { authService } = await import('./authService');
-    return authService.login({ email, password });
-  },
-  register: async (email: string, password: string, firstName: string) => {
-    const { authService } = await import('./authService');
-    return authService.register({ email, password, firstName });
-  },
-  logout: async () => {
-    const { authService } = await import('./authService');
-    await authService.logout();
-    return { success: true };
-  },
-};
-
 export const mockAiService = {
   sendMessage: async (_message: string) => {
     return {

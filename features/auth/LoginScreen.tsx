@@ -11,11 +11,12 @@ import {
   Text,
   useTheme,
 } from '@/design-system';
-import { authService } from '@/services/authService';
+import { useAuth } from '@/hooks/useAuth';
 
 export function LoginScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { signIn } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,10 +26,10 @@ export function LoginScreen() {
   const handleLogin = async () => {
     setError(null);
     setLoading(true);
-    const result = await authService.login({ email, password });
+    const result = await signIn(email, password);
     setLoading(false);
 
-    if (!result.success) {
+    if (result.error) {
       setError(result.error);
       return;
     }

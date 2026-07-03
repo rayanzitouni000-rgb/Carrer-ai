@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { CareerProfile } from '@/features/career-onboarding/types';
 import { careerProfileStore } from '@/services/careerProfileStore';
-import { authService } from '@/services/authService';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface UseProfileDisplayReturn {
   displayName: string;
@@ -13,17 +13,13 @@ export interface UseProfileDisplayReturn {
 }
 
 export function useProfileDisplay(): UseProfileDisplayReturn {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<CareerProfile>(careerProfileStore.get());
-  const [email, setEmail] = useState('');
   const [isReady, setIsReady] = useState(false);
 
   const refresh = useCallback(async () => {
-    const [storedProfile, account] = await Promise.all([
-      careerProfileStore.hydrate(),
-      authService.getCurrentAccount(),
-    ]);
+    const storedProfile = await careerProfileStore.hydrate();
     setProfile(storedProfile);
-    setEmail(account?.email ?? '');
     setIsReady(true);
   }, []);
 
@@ -40,7 +36,7 @@ export function useProfileDisplay(): UseProfileDisplayReturn {
     displayName,
     fullName,
     jobTitle,
-    email: email || 'Complète ton inscription pour ajouter ton email',
+    email: user?.email || 'Connecte-toi pour afficher ton email',
     isReady,
   };
 }

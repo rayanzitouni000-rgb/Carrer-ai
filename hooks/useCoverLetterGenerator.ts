@@ -1,11 +1,5 @@
 import { useCallback, useState } from 'react';
 
-import {
-  CLOSING_OPTIONS,
-  INTRO_OPTIONS,
-  MOTIVATION_OPTIONS,
-  fillTemplate,
-} from '@/data/coverLetterTemplates';
 import { getJobOfferById } from '@/utils/jobOfferResolver';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import { coverLetterStore } from '@/services/coverLetterStore';
@@ -20,29 +14,8 @@ function buildInitialFromProfile(): CoverLetterData {
   };
 }
 
-function getTemplateVars(data: CoverLetterData): Record<string, string> {
-  const profile = careerProfileStore.get();
-  const mainExperience =
-    profile.experiences.find((exp) => exp.jobTitle.trim())?.jobTitle.trim() ??
-    profile.targetRoles[0]?.trim() ??
-    '';
-
-  return {
-    firstName: profile.firstName.trim() || data.fullName.split(' ')[0] || '',
-    jobTitle: data.jobTitle.trim(),
-    company: data.company.trim(),
-    mainExperience,
-  };
-}
-
 export interface UseCoverLetterGeneratorReturn {
   data: CoverLetterData;
-  selectedIntroId: string | null;
-  selectedMotivationId: string | null;
-  selectedClosingId: string | null;
-  setIntroOption: (optionId: string) => void;
-  setMotivationOption: (optionId: string) => void;
-  setClosingOption: (optionId: string) => void;
   updateField: (field: keyof CoverLetterData, value: string) => void;
   loadFromJobOffer: (jobOfferId: string) => void;
   resetDraft: () => void;
@@ -54,9 +27,6 @@ export function useCoverLetterGenerator(): UseCoverLetterGeneratorReturn {
     const stored = coverLetterStore.get();
     return stored ?? buildInitialFromProfile();
   });
-  const [selectedIntroId, setSelectedIntroId] = useState<string | null>(null);
-  const [selectedMotivationId, setSelectedMotivationId] = useState<string | null>(null);
-  const [selectedClosingId, setSelectedClosingId] = useState<string | null>(null);
 
   const commit = useCallback((updater: (current: CoverLetterData) => CoverLetterData) => {
     setData((current) => {
@@ -70,9 +40,6 @@ export function useCoverLetterGenerator(): UseCoverLetterGeneratorReturn {
     const initial = buildInitialFromProfile();
     coverLetterStore.set(initial);
     setData(initial);
-    setSelectedIntroId(null);
-    setSelectedMotivationId(null);
-    setSelectedClosingId(null);
   }, []);
 
   const syncFromStore = useCallback(() => {
@@ -102,53 +69,8 @@ export function useCoverLetterGenerator(): UseCoverLetterGeneratorReturn {
     [commit]
   );
 
-  const setIntroOption = useCallback(
-    (optionId: string) => {
-      const option = INTRO_OPTIONS.find((item) => item.id === optionId);
-      if (!option) return;
-      setSelectedIntroId(optionId);
-      commit((current) => ({
-        ...current,
-        introText: fillTemplate(option.template, getTemplateVars(current)),
-      }));
-    },
-    [commit]
-  );
-
-  const setMotivationOption = useCallback(
-    (optionId: string) => {
-      const option = MOTIVATION_OPTIONS.find((item) => item.id === optionId);
-      if (!option) return;
-      setSelectedMotivationId(optionId);
-      commit((current) => ({
-        ...current,
-        motivationText: fillTemplate(option.template, getTemplateVars(current)),
-      }));
-    },
-    [commit]
-  );
-
-  const setClosingOption = useCallback(
-    (optionId: string) => {
-      const option = CLOSING_OPTIONS.find((item) => item.id === optionId);
-      if (!option) return;
-      setSelectedClosingId(optionId);
-      commit((current) => ({
-        ...current,
-        closingText: fillTemplate(option.template, getTemplateVars(current)),
-      }));
-    },
-    [commit]
-  );
-
   return {
     data,
-    selectedIntroId,
-    selectedMotivationId,
-    selectedClosingId,
-    setIntroOption,
-    setMotivationOption,
-    setClosingOption,
     updateField,
     loadFromJobOffer,
     resetDraft,

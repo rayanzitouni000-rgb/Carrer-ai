@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter, type Href } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import {
   Icon,
@@ -9,7 +9,6 @@ import {
   PressableScale,
   PrimaryButton,
   ScreenContainer,
-  SecondaryButton,
   useTheme,
 } from '@/design-system';
 
@@ -27,7 +26,6 @@ import { TargetRoleStep } from './components/TargetRoleStep';
 import { AiWelcomeStep } from './components/AiWelcomeStep';
 import { FORM_STEPS } from './constants';
 import { useCareerOnboarding } from './hooks/useCareerOnboarding';
-import { useOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
 import { useResetCareerProfile } from './hooks/useResetCareerProfile';
 import type { CareerOnboardingStep } from './types';
 
@@ -98,7 +96,6 @@ export function CareerOnboardingScreen() {
     isReady,
     resetOnboarding,
   } = useCareerOnboarding();
-  const { shouldOfferAssessmentAfterWizard } = useOnboardingAssessment();
   const skillsScrollDismissRef = useRef<(() => void) | null>(null);
   const [welcomeIntroComplete, setWelcomeIntroComplete] = useState(false);
 
@@ -142,11 +139,6 @@ export function CareerOnboardingScreen() {
   const handleContinue = async () => {
     if (isSummary) {
       completeOnboarding();
-      const offerAssessment = await shouldOfferAssessmentAfterWizard();
-      if (offerAssessment) {
-        router.replace('/(tabs)/interview-simulator/onboarding-assessment' as Href);
-        return;
-      }
       router.replace('/signup');
       return;
     }
@@ -211,13 +203,6 @@ export function CareerOnboardingScreen() {
         />
         {!isFirstStep && !isSummary && (
           <OutlineButton label="Retour" onPress={goBack} fullWidth />
-        )}
-        {step === 'welcome' && (
-          <SecondaryButton
-            label="Passer pour l'instant"
-            onPress={() => router.replace('/(tabs)')}
-            fullWidth
-          />
         )}
       </View>
     </ScreenContainer>

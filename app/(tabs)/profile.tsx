@@ -15,12 +15,22 @@ import { spacing } from '@/constants/spacing';
 import { typography } from '@/constants/typography';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
 import { useProfileDisplay } from '@/hooks/useProfileDisplay';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { signOut } = useAuth();
   const { isPremium, simulateTogglePremium } = usePremiumStatus();
   const { displayName, fullName, jobTitle, email } = useProfileDisplay();
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await signOut();
+    setSigningOut(false);
+    router.replace('/login');
+  };
 
   return (
     <ScreenLayout title="Profil" scrollable safeAreaBottom={false}>
@@ -81,6 +91,15 @@ export default function ProfileScreen() {
         ))}
       </View>
 
+      <Button
+        title="Se déconnecter"
+        variant="outline"
+        size="md"
+        onPress={() => void handleSignOut()}
+        loading={signingOut}
+        style={styles.signOutButton}
+      />
+
       <PaywallScreen
         visible={paywallVisible}
         triggerContext="generic"
@@ -139,5 +158,8 @@ const styles = StyleSheet.create({
   menuLabel: {
     ...typography.body,
     color: colors.textPrimary,
+  },
+  signOutButton: {
+    marginTop: spacing.md,
   },
 });

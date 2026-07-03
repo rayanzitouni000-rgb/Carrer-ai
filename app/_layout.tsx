@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { GlobalFloatingAI } from '@/components/layout/GlobalFloatingAI';
+import { AuthProvider } from '@/hooks/useAuth';
 import {
   ThemeProvider,
   ToastProvider,
@@ -62,7 +63,6 @@ function RootNavigator() {
         <Stack.Screen name="ai-chat" options={{ presentation: 'modal' }} />
         <Stack.Screen name="interview" options={{ presentation: 'card' }} />
         <Stack.Screen name="cover-letter/index" options={{ presentation: 'card' }} />
-        <Stack.Screen name="cover-letter/template" options={{ presentation: 'card' }} />
         <Stack.Screen name="cover-letter/generate" options={{ presentation: 'card' }} />
         <Stack.Screen name="cover-letter/preview" options={{ presentation: 'card' }} />
         <Stack.Screen name="premium" options={{ presentation: 'modal' }} />
@@ -84,8 +84,10 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider initialMode="dark">
           <ToastProvider>
-            <RootNavigator />
-            <GlobalFloatingAI />
+            <AuthProvider>
+              <RootNavigator />
+              <GlobalFloatingAI />
+            </AuthProvider>
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>

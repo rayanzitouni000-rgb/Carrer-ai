@@ -2,9 +2,10 @@ import { EMPTY_CAREER_PROFILE } from '@/features/career-onboarding/types';
 
 import { careerProfileStore } from './careerProfileStore';
 import { persistenceService } from './persistence';
+import { supabase } from '@/lib/supabaseClient';
 
 export interface ResetCareerOnboardingOptions {
-  /** Déconnecte aussi la session locale (utile pour retester tout le flux). */
+  /** Déconnecte aussi la session Supabase (utile pour retester tout le flux). */
   clearSession?: boolean;
 }
 
@@ -19,7 +20,7 @@ export async function resetCareerOnboarding(
   await persistenceService.clearCareerOnboarding();
 
   if (options.clearSession) {
-    await persistenceService.clearSession();
+    await supabase.auth.signOut();
   }
 }
 

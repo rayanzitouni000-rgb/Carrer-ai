@@ -104,9 +104,9 @@ export default function CoverLetterPreviewScreen() {
           onPress={() => void handleShare()}
         />
         <OutlineButton
-          label="Modifier"
+          label="Régénérer"
           fullWidth
-          onPress={() => router.push('/cover-letter/template' as Href)}
+          onPress={() => router.push('/cover-letter/generate' as Href)}
         />
       </View>
     </ScreenContainer>

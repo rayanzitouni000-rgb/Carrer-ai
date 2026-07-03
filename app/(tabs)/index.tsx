@@ -10,6 +10,7 @@ import {
   AnimatedEntrance,
   ApplicationsStatsCard,
   HomeHeader,
+  LastAssessmentCard,
   ProfileSummaryCard,
   QuickActionsGrid,
   UpcomingInterviewCard,
@@ -48,18 +49,22 @@ export default function HomeScreen() {
         <HomeHeader />
 
         <AnimatedEntrance delay={80}>
-          <ProfileSummaryCard />
+          <LastAssessmentCard />
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={160}>
-          <UpcomingInterviewCard />
+          <ProfileSummaryCard />
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={240}>
-          <QuickActionsGrid />
+          <UpcomingInterviewCard />
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={320}>
+          <QuickActionsGrid />
+        </AnimatedEntrance>
+
+        <AnimatedEntrance delay={400}>
           <ApplicationsStatsCard />
         </AnimatedEntrance>
       </ScrollView>

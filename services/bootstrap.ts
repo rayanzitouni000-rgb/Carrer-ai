@@ -1,12 +1,13 @@
 import { persistenceService } from '@/services/persistence';
-import { authService } from '@/services/authService';
 import { careerProfileStore } from '@/services/careerProfileStore';
+import { getAuthUserFromSession } from '@/hooks/useAuth';
 import type { CareerOnboardingStep } from '@/features/career-onboarding/types';
 
 export type BootstrapRoute =
   | '/(tabs)'
   | '/career-onboarding'
   | '/signup'
+  | '/login'
   | '/onboarding';
 
 function normalizeStoredStep(step: string | null): CareerOnboardingStep | null {
@@ -19,8 +20,8 @@ function normalizeStoredStep(step: string | null): CareerOnboardingStep | null {
 }
 
 export async function resolveBootstrapRoute(): Promise<BootstrapRoute> {
-  const [session, storedProfile, storedStepRaw] = await Promise.all([
-    persistenceService.getSession(),
+  const [authUser, storedProfile, storedStepRaw] = await Promise.all([
+    getAuthUserFromSession(),
     persistenceService.getCareerProfile(),
     persistenceService.getOnboardingStep(),
   ]);
@@ -43,15 +44,11 @@ export async function resolveBootstrapRoute(): Promise<BootstrapRoute> {
     void persistenceService.saveOnboardingStep('educationDetails');
   }
 
-  if (session) {
+  if (authUser) {
     return '/(tabs)';
   }
 
   if (storedProfile?.completedAt) {
-    const account = await persistenceService.getUserAccount();
-    if (!account) {
-      return '/signup';
-    }
     return '/login';
   }
 
@@ -62,4 +59,4 @@ export async function resolveBootstrapRoute(): Promise<BootstrapRoute> {
   return '/onboarding';
 }
 
-export { authService, persistenceService, careerProfileStore };
+export { persistenceService, careerProfileStore };

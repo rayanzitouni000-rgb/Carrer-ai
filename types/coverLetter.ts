@@ -8,12 +8,6 @@ export interface CoverLetterData {
   closingText: string;
 }
 
-export interface CoverLetterPhraseOption {
-  id: string;
-  label: string;
-  template: string;
-}
-
 export const EMPTY_COVER_LETTER: CoverLetterData = {
   jobTitle: '',
   company: '',

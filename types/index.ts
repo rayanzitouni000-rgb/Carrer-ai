@@ -36,8 +36,6 @@ export interface GoalOption {
   icon: string;
 }
 
-export type { UserAccount, UserSession } from './userAccount';
-
 export interface NavItem {
   label: string;
   route: string;

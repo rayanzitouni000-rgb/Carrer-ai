@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import type { CareerOnboardingStep, CareerProfile } from '@/features/career-onboarding/types';
-import type { UserAccount, UserSession } from '@/types/userAccount';
 
 async function readJson<T>(key: string): Promise<T | null> {
   try {
@@ -33,26 +32,6 @@ export const persistenceService = {
 
   async saveOnboardingStep(step: CareerOnboardingStep): Promise<void> {
     await writeJson(STORAGE_KEYS.onboardingStep, step);
-  },
-
-  async getUserAccount(): Promise<UserAccount | null> {
-    return readJson<UserAccount>(STORAGE_KEYS.userAccount);
-  },
-
-  async saveUserAccount(account: UserAccount): Promise<void> {
-    await writeJson(STORAGE_KEYS.userAccount, account);
-  },
-
-  async getSession(): Promise<UserSession | null> {
-    return readJson<UserSession>(STORAGE_KEYS.userSession);
-  },
-
-  async saveSession(session: UserSession): Promise<void> {
-    await writeJson(STORAGE_KEYS.userSession, session);
-  },
-
-  async clearSession(): Promise<void> {
-    await AsyncStorage.removeItem(STORAGE_KEYS.userSession);
   },
 
   async clearCareerOnboarding(): Promise<void> {
