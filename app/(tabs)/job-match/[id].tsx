@@ -23,6 +23,7 @@ import { useApplicationTracking } from '@/hooks/useApplicationTracking';
 import { useJobOffer } from '@/hooks/useJobOffer';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
+import { fetchCompanyBrief } from '@/services/companyBriefApi';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import { normalizeRouteId } from '@/utils/jobOfferResolver';
 import { calculateMatchScore, formatSalaryRange, getCompanyColor, getCompanyInitials } from '@/utils/matchScoreCalculator';
@@ -48,7 +49,7 @@ export default function JobDetailScreen() {
   const { offer, isLoading } = useJobOffer(id);
   const { isJobSaved, toggleSaveJob, trackApplicationFromMatch } = useSavedJobs();
   const { addApplication, hasAppliedToJob } = useApplicationTracking();
-  const { addInterview } = useRealInterviews();
+  const { addInterview, updateInterview } = useRealInterviews();
 
   const profile = useMemo(() => careerProfileStore.get(), []);
   const matchScore = offer ? calculateMatchScore(profile, offer) : 0;
@@ -108,7 +109,14 @@ export default function JobDetailScreen() {
   };
 
   const handlePrepareInterview = async () => {
-    await addInterview({ company: offer.company, jobTitle: offer.title });
+    const interview = await addInterview({ company: offer.company, jobTitle: offer.title });
+
+    void fetchCompanyBrief(offer.company).then((result) => {
+      if (result.ok) {
+        void updateInterview(interview.id, { companyBriefing: result.brief });
+      }
+    });
+
     router.push({
       pathname: '/(tabs)/interview-simulator/session',
       params: { jobOfferId: offer.id },

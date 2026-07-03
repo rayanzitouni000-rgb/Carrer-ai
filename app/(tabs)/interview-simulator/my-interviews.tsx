@@ -1,8 +1,9 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 
+import { CompanyBriefCard } from '@/components/interview';
 import {
   Icon,
   OutlineButton,
@@ -13,6 +14,7 @@ import {
 } from '@/design-system';
 import { useInterviewHistory } from '@/hooks/useInterviewHistory';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
+import type { RealInterview } from '@/types/interviewSimulator';
 
 type InterviewTab = 'upcoming' | 'past' | 'practice';
 
@@ -27,19 +29,12 @@ export default function MyInterviewsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<InterviewTab>('upcoming');
+  const [briefModalInterview, setBriefModalInterview] = useState<RealInterview | null>(null);
   const { interviews } = useRealInterviews();
   const { sessions } = useInterviewHistory();
 
   const upcomingItems = useMemo(
-    () =>
-      interviews
-        .filter((item) => item.status === 'upcoming')
-        .map((item) => ({
-          id: item.id,
-          title: item.jobTitle,
-          company: item.company,
-          subtitle: new Date(item.scheduledAt).toLocaleDateString('fr-FR'),
-        })),
+    () => interviews.filter((item) => item.status === 'upcoming'),
     [interviews]
   );
 
@@ -128,8 +123,39 @@ export default function MyInterviewsScreen() {
         <View style={styles.list}>
           {items.length === 0 ? (
             <Text variant="bodySmall" color={theme.colors.text.muted} align="center">
-              Aucun élément dans cette catégorie pour l'instant.
+              Aucun élément dans cette catégorie pour l&apos;instant.
             </Text>
+          ) : activeTab === 'upcoming' ? (
+            upcomingItems.map((item) => (
+              <View
+                key={item.id}
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: theme.colors.card.elevated,
+                    borderColor: theme.colors.border.subtle,
+                    borderRadius: theme.radius.lg,
+                  },
+                ]}
+              >
+                <Text variant="title" color={theme.colors.text.primary}>
+                  {item.jobTitle}
+                </Text>
+                <Text variant="bodySmall" color={theme.colors.text.secondary}>
+                  {item.company}
+                </Text>
+                <Text variant="caption" color={theme.colors.text.muted}>
+                  {new Date(item.scheduledAt).toLocaleDateString('fr-FR')}
+                </Text>
+                {item.companyBriefing && (
+                  <Pressable onPress={() => setBriefModalInterview(item)}>
+                    <Text variant="caption" color={theme.colors.brand.primaryLight}>
+                      🏢 Fiche disponible
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
+            ))
           ) : (
             items.map((item) => (
               <View
@@ -160,13 +186,55 @@ export default function MyInterviewsScreen() {
         <PrimaryButton label="Ajouter un entretien réel" fullWidth onPress={() => router.push('./add-interview')} />
         <OutlineButton label="Lancer une simulation libre" fullWidth onPress={() => router.push('./setup')} />
       </ScrollView>
+
+      <Modal
+        visible={briefModalInterview !== null}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setBriefModalInterview(null)}
+      >
+        <View style={[styles.modalRoot, { backgroundColor: theme.colors.background.primary }]}>
+          <ScrollView
+            contentContainerStyle={{
+              paddingTop: insets.top + 16,
+              paddingBottom: insets.bottom + 24,
+              paddingHorizontal: theme.spacing['4'],
+              gap: 16,
+            }}
+          >
+            <View style={styles.modalHeader}>
+              <Text variant="h3" color={theme.colors.text.primary}>
+                Fiche entreprise
+              </Text>
+              <PressableScale scale={0.92} onPress={() => setBriefModalInterview(null)}>
+                <View style={[styles.backBtn, { backgroundColor: theme.colors.card.default, borderRadius: theme.radius.full }]}>
+                  <Icon name="close" size="sm" color={theme.colors.text.primary} />
+                </View>
+              </PressableScale>
+            </View>
+
+            {briefModalInterview?.companyBriefing && (
+              <CompanyBriefCard
+                companyName={briefModalInterview.company}
+                briefing={briefModalInterview.companyBriefing}
+              />
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  modalRoot: { flex: 1 },
   headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

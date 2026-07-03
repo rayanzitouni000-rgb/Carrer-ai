@@ -13,7 +13,6 @@ import {
   HomeHeader,
   QuickActionsGrid,
   RoadmapPreviewCard,
-  TodaysTasksCard,
   UpcomingInterviewCard,
 } from '@/features/home/components';
 
@@ -54,14 +53,7 @@ export default function HomeScreen() {
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={160}>
-          <View style={styles.splitRow}>
-            <View style={styles.tasksCol}>
-              <TodaysTasksCard />
-            </View>
-            <View style={styles.interviewCol}>
-              <UpcomingInterviewCard />
-            </View>
-          </View>
+          <UpcomingInterviewCard />
         </AnimatedEntrance>
 
         <AnimatedEntrance delay={240}>
@@ -83,11 +75,4 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { gap: 20 },
-  splitRow: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'stretch',
-  },
-  tasksCol: { flex: 1.55 },
-  interviewCol: { flex: 1 },
 });

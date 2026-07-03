@@ -42,13 +42,25 @@ export interface InterviewSession {
   realInterviewId?: string;
 }
 
+export interface CompanyBriefing {
+  activity: string;
+  sector: string;
+  size: string;
+  values: string[];
+  interviewTips: string[];
+  confidence: 'high' | 'medium' | 'low';
+  generatedAt: string;
+}
+
 export interface RealInterview {
   id: string;
   company: string;
   jobTitle: string;
   scheduledAt: string;
+  notes?: string;
   status: 'upcoming' | 'past';
   linkedSessionId?: string;
+  companyBriefing?: CompanyBriefing;
 }
 
 export interface StartSessionParams {

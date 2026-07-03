@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { STORAGE_KEYS } from '@/constants/storageKeys';
-import type { RealInterview } from '@/types/interviewSimulator';
+import type { CompanyBriefing, RealInterview } from '@/types/interviewSimulator';
 import { notifyGamification, subscribeGamification } from '@/utils/gamificationSync';
 
 interface RealInterviewState {
@@ -88,7 +88,13 @@ export interface UseRealInterviewsReturn {
     company: string;
     jobTitle: string;
     scheduledAt?: string;
+    notes?: string;
+    companyBriefing?: CompanyBriefing;
   }) => Promise<RealInterview>;
+  updateInterview: (
+    interviewId: string,
+    patch: Partial<Pick<RealInterview, 'companyBriefing' | 'notes' | 'linkedSessionId' | 'jobTitle' | 'scheduledAt'>>
+  ) => Promise<void>;
   linkSessionToInterview: (interviewId: string, sessionId: string) => Promise<void>;
 }
 
@@ -125,7 +131,13 @@ export function useRealInterviews(): UseRealInterviewsReturn {
   }, []);
 
   const addInterview = useCallback(
-    async (data: { company: string; jobTitle: string; scheduledAt?: string }) => {
+    async (data: {
+      company: string;
+      jobTitle: string;
+      scheduledAt?: string;
+      notes?: string;
+      companyBriefing?: CompanyBriefing;
+    }) => {
       const current = await readState();
       const interview: RealInterview = {
         id: createId(),
@@ -133,6 +145,8 @@ export function useRealInterviews(): UseRealInterviewsReturn {
         jobTitle: data.jobTitle,
         scheduledAt: data.scheduledAt ?? new Date().toISOString(),
         status: 'upcoming',
+        ...(data.notes?.trim() ? { notes: data.notes.trim() } : {}),
+        ...(data.companyBriefing ? { companyBriefing: data.companyBriefing } : {}),
       };
       const next: RealInterviewState = {
         count: current.count + 1,
@@ -142,6 +156,24 @@ export function useRealInterviews(): UseRealInterviewsReturn {
       notifyGamification();
       setState(next);
       return interview;
+    },
+    []
+  );
+
+  const updateInterview = useCallback(
+    async (
+      interviewId: string,
+      patch: Partial<Pick<RealInterview, 'companyBriefing' | 'notes' | 'linkedSessionId' | 'jobTitle' | 'scheduledAt'>>
+    ) => {
+      const current = await readState();
+      const next: RealInterviewState = {
+        ...current,
+        interviews: current.interviews.map((item) =>
+          item.id === interviewId ? withDerivedStatus({ ...item, ...patch }) : item
+        ),
+      };
+      await writeState(next);
+      setState(next);
     },
     []
   );
@@ -165,6 +197,7 @@ export function useRealInterviews(): UseRealInterviewsReturn {
     isReady,
     scheduleInterview,
     addInterview,
+    updateInterview,
     linkSessionToInterview,
   };
 }

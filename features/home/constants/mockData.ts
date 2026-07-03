@@ -1,18 +1,5 @@
 import { IconName } from '@/design-system';
 
-export interface HomeTask {
-  id: string;
-  label: string;
-  icon: IconName;
-  completed: boolean;
-}
-
-export const TODAYS_TASKS: HomeTask[] = [
-  { id: '1', label: 'Améliorer mon CV', icon: 'document-text-outline', completed: true },
-  { id: '2', label: 'Postuler à 5 offres', icon: 'briefcase-outline', completed: true },
-  { id: '3', label: "S'entraîner à l'entretien", icon: 'mic-outline', completed: false },
-];
-
 export interface QuickAction {
   id: string;
   label: string;
