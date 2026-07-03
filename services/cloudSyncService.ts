@@ -190,25 +190,30 @@ async function pullSnapshotFromCloud(
 /** Synchronise au login : remote récent → local, sinon push local vers le cloud. */
 export async function syncUserDataForAuth(userId: string): Promise<void> {
   activeUserId = userId;
-  const localSnapshot = await collectLocalSnapshot();
-  const lastSync = await getLastSyncTime();
-  const remote = await pullSnapshotFromCloud(userId);
 
-  if (!remote) {
+  try {
+    const localSnapshot = await collectLocalSnapshot();
+    const lastSync = await getLastSyncTime();
+    const remote = await pullSnapshotFromCloud(userId);
+
+    if (!remote) {
+      await pushSnapshotToCloud(userId, localSnapshot);
+      return;
+    }
+
+    const remoteTime = new Date(remote.updatedAt).getTime();
+    const localSyncTime = lastSync ? new Date(lastSync).getTime() : 0;
+
+    if (remoteTime > localSyncTime) {
+      await applyRemoteSnapshot(remote.snapshot);
+      await setLastSyncTime(remote.updatedAt);
+      return;
+    }
+
     await pushSnapshotToCloud(userId, localSnapshot);
-    return;
+  } catch (error) {
+    console.warn('[CloudSync] syncUserDataForAuth error:', error);
   }
-
-  const remoteTime = new Date(remote.updatedAt).getTime();
-  const localSyncTime = lastSync ? new Date(lastSync).getTime() : 0;
-
-  if (remoteTime > localSyncTime) {
-    await applyRemoteSnapshot(remote.snapshot);
-    await setLastSyncTime(remote.updatedAt);
-    return;
-  }
-
-  await pushSnapshotToCloud(userId, localSnapshot);
 }
 
 export function scheduleCloudPush(userId?: string | null): void {

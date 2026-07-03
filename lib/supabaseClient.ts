@@ -1,6 +1,7 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -11,34 +12,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-/** Évite l'accès AsyncStorage/window pendant l'export statique web (EAS Update). */
-const authStorage =
-  typeof window === 'undefined'
-    ? {
-        getItem: async () => null,
-        setItem: async () => undefined,
-        removeItem: async () => undefined,
-      }
-    : AsyncStorage;
+/** SSR web export EAS uniquement — pas sur iOS/Android. */
+const isWebSSR = Platform.OS === 'web' && typeof window === 'undefined';
 
-let client: SupabaseClient | null = null;
-
-function createSupabaseClient(): SupabaseClient {
-  return createClient(supabaseUrl ?? '', supabaseAnonKey ?? '', {
-    auth: {
-      storage: authStorage,
-      autoRefreshToken: typeof window !== 'undefined',
-      persistSession: typeof window !== 'undefined',
-      detectSessionInUrl: false,
-    },
-  });
-}
-
-export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
-  get(_target, prop, receiver) {
-    if (!client) {
-      client = createSupabaseClient();
+const authStorage = isWebSSR
+  ? {
+      getItem: async () => null,
+      setItem: async () => undefined,
+      removeItem: async () => undefined,
     }
-    return Reflect.get(client, prop, receiver);
+  : AsyncStorage;
+
+export const supabase = createClient(supabaseUrl ?? '', supabaseAnonKey ?? '', {
+  auth: {
+    storage: authStorage,
+    autoRefreshToken: !isWebSSR,
+    persistSession: !isWebSSR,
+    detectSessionInUrl: false,
   },
 });

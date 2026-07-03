@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -71,9 +72,23 @@ export async function getAuthUserFromSession(): Promise<AuthUser | null> {
   return mapSupabaseUser(data.session?.user ?? null);
 }
 
+/** Ne jamais await de requêtes Supabase dans onAuthStateChange (deadlock RN). */
+function scheduleCloudSync(userId: string, syncedUserIds: Set<string>): void {
+  if (syncedUserIds.has(userId)) return;
+  syncedUserIds.add(userId);
+
+  setTimeout(() => {
+    void syncUserDataForAuth(userId).catch((error) => {
+      console.warn('[CloudSync] sync au démarrage échouée:', error);
+      syncedUserIds.delete(userId);
+    });
+  }, 0);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const syncedUserIdsRef = useRef(new Set<string>());
 
   useEffect(() => {
     let mounted = true;
@@ -86,15 +101,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       const mapped = mapSupabaseUser(session?.user ?? null);
-      if (mapped && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED')) {
-        await syncUserDataForAuth(mapped.id);
-      } else if (event === 'SIGNED_OUT') {
-        clearCloudSyncUser();
-      }
       setUser(mapped);
       setIsLoading(false);
+
+      if (mapped && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        scheduleCloudSync(mapped.id, syncedUserIdsRef.current);
+      } else if (event === 'SIGNED_OUT') {
+        syncedUserIdsRef.current.clear();
+        clearCloudSyncUser();
+      }
     });
 
     return () => {
@@ -117,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
+    syncedUserIdsRef.current.clear();
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password: password.trim(),
@@ -135,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (userId) {
       await flushCloudPush(userId);
     }
+    syncedUserIdsRef.current.clear();
     clearCloudSyncUser();
     await supabase.auth.signOut();
   }, []);

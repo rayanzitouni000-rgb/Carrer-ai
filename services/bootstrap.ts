@@ -27,8 +27,8 @@ export async function resolveBootstrapRoute(): Promise<BootstrapRoute> {
   ]);
 
   if (storedProfile) {
-    careerProfileStore.set(storedProfile);
     careerProfileStore.markHydrated();
+    careerProfileStore.set(storedProfile);
   }
 
   const storedStep = normalizeStoredStep(storedStepRaw);
