@@ -10,6 +10,15 @@ export type InterviewSessionType =
 
 export type InterviewDifficulty = 'easy' | 'medium' | 'hard';
 
+export interface TranscriptEntry {
+  id: string;
+  role: 'ai' | 'user';
+  text: string;
+  timestamp: string;
+  isPending?: boolean;
+  isError?: boolean;
+}
+
 export interface InterviewQuestion {
   id: string;
   text: string;

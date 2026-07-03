@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { LiveInterviewSessionView } from '@/components/interview/LiveInterviewSessionView';
-import { Text } from '@/design-system';
+import { AiCharacterAvatar } from '@/components/aiCharacter';
+import { InterviewSessionTranscriptView } from '@/components/interview/InterviewSessionTranscriptView';
+import { Text, useTheme } from '@/design-system';
 import { useInterviewSession } from '@/features/interview/hooks';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import {
@@ -21,9 +22,8 @@ function parseBool(value?: string): boolean {
   return value === 'true' || value === '1';
 }
 
-const AI_SPEAK_DURATION_MS = 3200;
-
 export default function InterviewSessionScreen() {
+  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -40,12 +40,9 @@ export default function InterviewSessionScreen() {
   const { incrementInterviewSessions } = useUsageLimits();
   const sessionApi = useInterviewSession();
   const startedRef = useRef(false);
-  const speakTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [aiSpeaking, setAiSpeaking] = useState(true);
-  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -77,14 +74,6 @@ export default function InterviewSessionScreen() {
       ? suggestDifficultyFromSkills(profile)
       : ((params.difficulty as InterviewDifficulty) ?? suggestDifficultyFromSkills(profile))
   ) as InterviewDifficulty;
-
-  const triggerAiSpeaking = useCallback(() => {
-    if (speakTimeoutRef.current) clearTimeout(speakTimeoutRef.current);
-    setAiSpeaking(true);
-    speakTimeoutRef.current = setTimeout(() => {
-      setAiSpeaking(false);
-    }, AI_SPEAK_DURATION_MS);
-  }, []);
 
   useEffect(() => {
     if (startedRef.current || sessionApi.isLive) return;
@@ -124,7 +113,7 @@ export default function InterviewSessionScreen() {
       }
 
       setIsLoadingQuestions(false);
-      triggerAiSpeaking();
+      sessionApi.playQuestion();
     })();
   }, [
     sessionApi,
@@ -136,15 +125,8 @@ export default function InterviewSessionScreen() {
     params.interviewId,
     isAssessment,
     incrementInterviewSessions,
-    triggerAiSpeaking,
     profile,
   ]);
-
-  useEffect(() => {
-    return () => {
-      if (speakTimeoutRef.current) clearTimeout(speakTimeoutRef.current);
-    };
-  }, []);
 
   const finishAndNavigate = useCallback(
     async (completed: NonNullable<Awaited<ReturnType<typeof sessionApi.endSession>>>) => {
@@ -153,60 +135,92 @@ export default function InterviewSessionScreen() {
         params: { sessionId: completed.id },
       });
     },
-    [router, sessionApi]
+    [router]
   );
 
-  const handleHangUp = useCallback(async () => {
+  const runEndSession = useCallback(async () => {
+    setIsAnalyzing(true);
     const completed = await sessionApi.endSession({ realInterviewId: params.interviewId });
     if (completed) {
       await finishAndNavigate(completed);
     } else {
+      setIsAnalyzing(false);
       router.back();
     }
   }, [sessionApi, params.interviewId, finishAndNavigate, router]);
 
-  const advanceAfterAnswer = useCallback(async () => {
-    sessionApi.submitAnswer('Réponse orale simulée');
+  const handleHangUp = useCallback(() => {
+    void runEndSession();
+  }, [runEndSession]);
 
+  const handleQuit = useCallback(() => {
+    sessionApi.resetSession();
+    router.back();
+  }, [sessionApi, router]);
+
+  const advanceAfterAnswer = useCallback(async () => {
     if (sessionApi.isLastQuestion) {
-      const completed = await sessionApi.endSession({ realInterviewId: params.interviewId });
-      if (completed) {
-        await finishAndNavigate(completed);
-      }
+      await runEndSession();
       return;
     }
 
     sessionApi.goToNextQuestion();
-    triggerAiSpeaking();
-  }, [sessionApi, params.interviewId, finishAndNavigate, triggerAiSpeaking]);
+    sessionApi.playQuestion();
+  }, [sessionApi, runEndSession]);
 
-  const handleStartSpeaking = () => {
-    if (sessionApi.isPaused || aiSpeaking || isMuted || isLoadingQuestions) return;
-    setIsUserSpeaking(true);
+  const handleStartRecording = () => {
+    sessionApi.startRecording();
   };
 
-  const handleStopSpeaking = () => {
-    if (!isUserSpeaking) return;
-    setIsUserSpeaking(false);
-    void advanceAfterAnswer();
+  const handleStopRecording = () => {
+    void (async () => {
+      const result = await sessionApi.stopRecording();
+      if (result.success) {
+        await advanceAfterAnswer();
+      }
+    })();
   };
 
-  const handleTogglePause = () => {
-    if (sessionApi.isPaused) {
-      sessionApi.resumeSession();
-      return;
-    }
-    sessionApi.pauseSession();
-    setIsUserSpeaking(false);
-  };
+  const characterState = sessionApi.isAiSpeaking ? 'speaking' : 'idle';
 
   if (isLoadingQuestions) {
     return (
-      <View style={[styles.root, styles.center, { paddingTop: insets.top + 12 }]}>
-        <ActivityIndicator size="large" color="#60A5FA" />
-        <Text variant="body" color="#94A3B8" style={styles.loadingText}>
-          Préparation des questions d'entretien…
+      <View
+        style={[
+          styles.root,
+          styles.center,
+          { paddingTop: insets.top + 12, backgroundColor: theme.colors.background.primary },
+        ]}
+      >
+        <ActivityIndicator size="large" color={theme.colors.brand.primaryLight} />
+        <Text variant="body" color={theme.colors.text.secondary} style={styles.loadingText}>
+          Préparation des questions d&apos;entretien…
         </Text>
+      </View>
+    );
+  }
+
+  if (isAnalyzing) {
+    return (
+      <View
+        style={[
+          styles.root,
+          styles.center,
+          {
+            paddingTop: insets.top + 12,
+            paddingBottom: insets.bottom + 16,
+            backgroundColor: theme.colors.background.primary,
+          },
+        ]}
+      >
+        <AiCharacterAvatar state="idle" size="medium" />
+        <Text variant="title" color={theme.colors.text.primary} align="center">
+          Analyse de ton entretien en cours…
+        </Text>
+        <Text variant="body" color={theme.colors.text.secondary} align="center" style={styles.analyzingHint}>
+          Notre coach IA prépare ton feedback personnalisé.
+        </Text>
+        <ActivityIndicator size="small" color={theme.colors.brand.primaryLight} />
       </View>
     );
   }
@@ -216,28 +230,30 @@ export default function InterviewSessionScreen() {
       style={[
         styles.root,
         {
-          paddingTop: insets.top + 12,
-          paddingBottom: insets.bottom + 16,
+          paddingTop: insets.top + 8,
+          paddingBottom: insets.bottom + 8,
+          backgroundColor: theme.colors.background.primary,
         },
       ]}
     >
       {loadError ? (
-        <Text variant="caption" color="#94A3B8" style={styles.fallbackHint}>
+        <Text variant="caption" color={theme.colors.text.muted} style={styles.fallbackHint}>
           {loadError}
         </Text>
       ) : null}
-      <LiveInterviewSessionView
+
+      <InterviewSessionTranscriptView
         timer={sessionApi.timer}
-        questionText={sessionApi.currentQuestion?.text}
-        aiSpeaking={aiSpeaking}
-        isUserSpeaking={isUserSpeaking}
-        isMuted={isMuted}
+        transcript={sessionApi.transcript}
+        characterState={characterState}
+        isRecording={sessionApi.isRecording}
+        isProcessingTranscription={sessionApi.isProcessingTranscription}
+        canRecord={sessionApi.canRecord}
         isPaused={sessionApi.isPaused}
-        onToggleMute={() => setIsMuted((value) => !value)}
-        onHangUp={() => void handleHangUp()}
-        onTogglePause={handleTogglePause}
-        onStartSpeaking={handleStartSpeaking}
-        onStopSpeaking={handleStopSpeaking}
+        onQuit={handleQuit}
+        onHangUp={handleHangUp}
+        onStartRecording={handleStartRecording}
+        onStopRecording={handleStopRecording}
       />
     </View>
   );
@@ -246,15 +262,19 @@ export default function InterviewSessionScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0E17',
   },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 16,
+    paddingHorizontal: 32,
   },
   loadingText: {
     marginTop: 8,
+  },
+  analyzingHint: {
+    maxWidth: 280,
+    lineHeight: 22,
   },
   fallbackHint: {
     textAlign: 'center',
