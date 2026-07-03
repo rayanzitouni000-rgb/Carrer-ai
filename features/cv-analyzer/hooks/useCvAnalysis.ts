@@ -91,15 +91,31 @@ export function useCvAnalysis() {
         body: JSON.stringify({ fileBase64, mimeType }),
       });
 
-      const data = (await response.json()) as {
+      const responseText = await response.text();
+      let data: {
         analysis?: CvAnalysisApiResult;
         analyzedAt?: string;
         error?: string;
+        message?: string;
       };
+      try {
+        data = JSON.parse(responseText) as typeof data;
+      } catch {
+        data = { error: responseText };
+      }
 
       if (response.status === 429 && data.error === 'QUOTA_EXCEEDED') {
         setPhase('error');
         setErrorMessage(QUOTA_EXCEEDED_MESSAGE);
+        return;
+      }
+
+      if (response.status === 422 && data.error === 'PDF_TEXT_EXTRACTION_FAILED') {
+        setPhase('error');
+        setErrorMessage(
+          data.message ??
+            'Impossible de lire ce PDF. Essaie avec un autre fichier ou une photo de ton CV.'
+        );
         return;
       }
 
