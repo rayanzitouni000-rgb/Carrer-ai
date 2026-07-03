@@ -90,9 +90,8 @@ function migrateLegacyEntries(raw: unknown): ApplicationEntry[] {
 async function readEntries(): Promise<ApplicationEntry[]> {
   try {
     const currentRaw = await AsyncStorage.getItem(STORAGE_KEYS.applicationEntries);
-    if (currentRaw) {
-      const parsed = parseApplicationEntries(JSON.parse(currentRaw));
-      if (parsed.length > 0) return parsed;
+    if (currentRaw !== null) {
+      return parseApplicationEntries(JSON.parse(currentRaw));
     }
 
     const legacyRaw = await AsyncStorage.getItem(STORAGE_KEYS.cvSentEntries);
@@ -101,6 +100,7 @@ async function readEntries(): Promise<ApplicationEntry[]> {
     const migrated = migrateLegacyEntries(JSON.parse(legacyRaw));
     if (migrated.length > 0) {
       await AsyncStorage.setItem(STORAGE_KEYS.applicationEntries, JSON.stringify(migrated));
+      await AsyncStorage.removeItem(STORAGE_KEYS.cvSentEntries);
     }
     return migrated;
   } catch {

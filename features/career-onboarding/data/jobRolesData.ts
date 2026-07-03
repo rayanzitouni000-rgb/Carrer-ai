@@ -101,6 +101,32 @@ export function buildJobRoleSelectOptions(selectedLabels: string[] = []): Select
   return [...JOB_ROLE_SELECT_OPTIONS, ...customOptions];
 }
 
+/** Options limitées au parcours utilisateur + postes déjà sélectionnés (custom). */
+export function buildProfileAwareJobRoleOptions(
+  relevantRoles: JobRole[],
+  selectedLabels: string[] = []
+): SelectOption[] {
+  const relevantOptions = relevantRoles.map((role) => ({
+    id: role.id,
+    label: role.label,
+    icon: Briefcase,
+  }));
+
+  const knownLabels = new Set(
+    [...relevantRoles.map((role) => role.label.toLowerCase()), ...JOB_ROLES.map((role) => role.label.toLowerCase())]
+  );
+
+  const customOptions = selectedLabels
+    .filter((label) => !knownLabels.has(label.toLowerCase()))
+    .map((label) => ({
+      id: jobRoleLabelToId(label),
+      label,
+      icon: Briefcase,
+    }));
+
+  return [...relevantOptions, ...customOptions];
+}
+
 export function labelsToRoleIds(labels: string[]): string[] {
   return labels.map(jobRoleLabelToId);
 }

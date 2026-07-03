@@ -171,7 +171,9 @@ export function AiFormSelect(props: AiFormSelectProps) {
   const filteredOptions = useMemo(() => {
     if (props.mode === 'multi' && props.searchable) {
       const normalized = searchQuery.trim().toLowerCase();
-      if (!normalized) return props.options;
+      if (!normalized) {
+        return props.options.filter((option) => props.selectedIds.includes(option.id));
+      }
       return props.options.filter((option) =>
         option.label.toLowerCase().includes(normalized)
       );
@@ -262,7 +264,7 @@ export function AiFormSelect(props: AiFormSelectProps) {
           <Text variant="body" color={theme.colors.text.muted}>
             {trimmedSearch
               ? 'Aucun résultat — tu peux ajouter un poste personnalisé ci-dessous'
-              : 'Aucune option disponible'}
+              : 'Commence à taper pour voir des suggestions adaptées à ton profil'}
           </Text>
         </View>
       ) : null}

@@ -78,6 +78,7 @@ export async function clearLocalUserData(): Promise<void> {
     STORAGE_KEYS.savedJobs,
     STORAGE_KEYS.jobMatchApplications,
     STORAGE_KEYS.applicationEntries,
+    STORAGE_KEYS.cvSentEntries,
     STORAGE_KEYS.cvActionsTracking,
     STORAGE_KEYS.interviewSessions,
     STORAGE_KEYS.realInterviews,

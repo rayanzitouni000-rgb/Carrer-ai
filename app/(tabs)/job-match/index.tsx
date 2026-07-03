@@ -33,9 +33,7 @@ export default function JobMatchScreen() {
     isRefreshing,
     refresh,
     lastSearchAt,
-    usesLiveApi,
     apiError,
-    sourceSummary,
   } = useJobSearch();
   const { hasBeenSet, isReady: preferencesReady } = useJobSearchPreferences();
   const { hasAppliedToJob } = useApplicationTracking();
@@ -152,7 +150,7 @@ export default function JobMatchScreen() {
         <Text variant="bodySmall" color={theme.colors.text.secondary}>
           {isLoading && !isRefreshing
             ? 'Recherche en cours...'
-            : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}${usesLiveApi ? sourceSummary : ''}`}
+            : `${results.length} offre${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}`}
         </Text>
         {lastSearchLabel && (
           <Text variant="caption" color={theme.colors.text.muted}>

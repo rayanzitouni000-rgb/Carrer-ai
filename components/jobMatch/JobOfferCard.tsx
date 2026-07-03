@@ -17,7 +17,6 @@ import {
   getCompanyColor,
   getCompanyInitials,
 } from '@/utils/matchScoreCalculator';
-import { getJobOfferSource, getJobOfferSourceLabel } from '@/utils/jobOfferSource';
 
 interface JobOfferCardProps {
   offer: JobOffer;
@@ -43,7 +42,6 @@ export function JobOfferCard({
   const theme = useTheme();
   const logoColor = getCompanyColor(offer.company);
   const remoteLabel = offer.remoteLabel ?? (offer.isRemote ? 'Remote' : 'Sur site');
-  const sourceLabel = getJobOfferSourceLabel(getJobOfferSource(offer.id));
 
   return (
     <Animated.View entering={FadeInDown.delay(index * 60).springify()}>
@@ -95,7 +93,6 @@ export function JobOfferCard({
 
             <View style={styles.badgesRow}>
               <SkillBadge label={offer.contractType} variant="primary" />
-              <SkillBadge label={sourceLabel} variant="info" />
               {hasApplied && (
                 <SkillBadge label="Postulé" variant="success" />
               )}

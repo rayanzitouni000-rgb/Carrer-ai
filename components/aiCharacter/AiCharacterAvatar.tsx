@@ -12,7 +12,7 @@ import Animated, {
 import { AI_COACH_AVATAR } from '@/assets/aiCharacter';
 
 export type AiCharacterState = 'idle' | 'speaking';
-export type AiCharacterSize = 'small' | 'medium' | 'large';
+export type AiCharacterSize = 'small' | 'fab' | 'medium' | 'large';
 
 interface AiCharacterAvatarProps {
   state: AiCharacterState;
@@ -22,6 +22,7 @@ interface AiCharacterAvatarProps {
 
 const SIZE_MAP: Record<AiCharacterSize, number> = {
   small: 48,
+  fab: 56,
   medium: 112,
   large: 180,
 };
