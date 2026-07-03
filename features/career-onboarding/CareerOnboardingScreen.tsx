@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 
 import {
   Icon,
@@ -27,6 +27,7 @@ import { AiWelcomeStep } from './components/AiWelcomeStep';
 import { FORM_STEPS } from './constants';
 import { useCareerOnboarding } from './hooks/useCareerOnboarding';
 import { useResetCareerProfile } from './hooks/useResetCareerProfile';
+import { shouldOfferOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
 import type { CareerOnboardingStep } from './types';
 
 const STEP_LABELS: Record<(typeof FORM_STEPS)[number], string> = {
@@ -74,7 +75,7 @@ function renderStep(
 }
 
 function getContinueLabel(step: CareerOnboardingStep): string {
-  if (step === 'summary') return "Continuer vers l'inscription";
+  if (step === 'summary') return "Passer à l'évaluation";
   return 'Continuer';
 }
 
@@ -139,6 +140,11 @@ export function CareerOnboardingScreen() {
   const handleContinue = async () => {
     if (isSummary) {
       completeOnboarding();
+      const offerAssessment = await shouldOfferOnboardingAssessment();
+      if (offerAssessment) {
+        router.replace('/(tabs)/interview-simulator/onboarding-assessment' as Href);
+        return;
+      }
       router.replace('/signup');
       return;
     }

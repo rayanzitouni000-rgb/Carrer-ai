@@ -12,7 +12,6 @@ import {
 import { supabase } from '@/lib/supabaseClient';
 import {
   clearCloudSyncUser,
-  clearLocalUserData,
   flushCloudPush,
   setActiveCloudUserId,
   syncUserDataForAuth,
@@ -161,7 +160,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     syncedUserIdsRef.current.clear();
     clearCloudSyncUser();
     await supabase.auth.signOut();
-    await clearLocalUserData();
   }, []);
 
   const value = useMemo<UseAuthReturn>(

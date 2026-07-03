@@ -38,6 +38,11 @@ async function writeState(state: AssessmentState): Promise<void> {
   notifyCloudDataChanged();
 }
 
+export async function shouldOfferOnboardingAssessment(): Promise<boolean> {
+  const current = await readState();
+  return !current.hasCompletedAssessment && !current.hasSkippedAssessment;
+}
+
 export interface UseOnboardingAssessmentReturn {
   hasCompletedAssessment: boolean;
   hasSkippedAssessment: boolean;
@@ -90,8 +95,7 @@ export function useOnboardingAssessment(): UseOnboardingAssessmentReturn {
   }, []);
 
   const shouldOfferAssessmentAfterWizard = useCallback(async () => {
-    const current = await readState();
-    return !current.hasCompletedAssessment && !current.hasSkippedAssessment;
+    return shouldOfferOnboardingAssessment();
   }, []);
 
   return {

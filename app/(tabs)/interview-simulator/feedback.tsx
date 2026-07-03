@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import {
   FeedbackSummaryCard,
 } from '@/features/interview/components';
 import { useInterviewHistory } from '@/hooks/useInterviewHistory';
+import { getAuthUserFromSession } from '@/hooks/useAuth';
 
 export default function InterviewFeedbackScreen() {
   const theme = useTheme();
@@ -22,6 +23,14 @@ export default function InterviewFeedbackScreen() {
     [sessionId, sessions]
   );
   const isAssessment = session?.sessionSource === 'assessment';
+  const [navigating, setNavigating] = useState(false);
+
+  const handleAssessmentContinue = async () => {
+    setNavigating(true);
+    const user = await getAuthUserFromSession();
+    router.replace((user ? '/(tabs)' : '/signup') as Href);
+    setNavigating(false);
+  };
 
   if (!isReady) {
     return (
@@ -63,9 +72,10 @@ export default function InterviewFeedbackScreen() {
 
         {isAssessment ? (
           <PrimaryButton
-            label="Voir mon Dashboard"
+            label="Continuer"
             fullWidth
-            onPress={() => router.replace('/(tabs)' as Href)}
+            loading={navigating}
+            onPress={() => void handleAssessmentContinue()}
           />
         ) : (
           <PrimaryButton

@@ -18,4 +18,5 @@ export const STORAGE_KEYS = {
   aiChatHistory: 'ai_chat_history',
   lastCloudSync: '@careerpilot/last-cloud-sync',
   cloudSyncMeta: '@careerpilot/cloud-sync-meta',
+  hasRegisteredAccount: '@careerpilot/has-registered-account',
 } as const;

@@ -1,12 +1,18 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { AiCharacterAvatar, AiSpeechBubble } from '@/components/aiCharacter';
 import { OutlineButton, PrimaryButton, ScreenContainer, Text, useTheme } from '@/design-system';
 import { useOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
 import { careerProfileStore } from '@/services/careerProfileStore';
+
+async function getPostAssessmentRoute(): Promise<Href> {
+  const { getAuthUserFromSession } = await import('@/hooks/useAuth');
+  const user = await getAuthUserFromSession();
+  return user ? '/(tabs)' : '/signup';
+}
 
 export default function OnboardingAssessmentScreen() {
   const theme = useTheme();
@@ -25,7 +31,8 @@ export default function OnboardingAssessmentScreen() {
 
   const handleSkip = async () => {
     await markAssessmentSkipped();
-    router.replace('/(tabs)');
+    const route = await getPostAssessmentRoute();
+    router.replace(route);
   };
 
   return (

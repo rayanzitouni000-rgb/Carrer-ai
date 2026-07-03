@@ -89,6 +89,7 @@ export async function clearLocalUserData(): Promise<void> {
     STORAGE_KEYS.premiumStatusSimulated,
     STORAGE_KEYS.cloudSyncMeta,
     STORAGE_KEYS.lastCloudSync,
+    STORAGE_KEYS.hasRegisteredAccount,
   ]);
   emitCloudDataRefresh();
 }

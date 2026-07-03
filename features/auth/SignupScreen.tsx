@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 import {
@@ -11,8 +12,8 @@ import {
   Text,
   useTheme,
 } from '@/design-system';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { careerProfileStore } from '@/services/careerProfileStore';
-import { useOnboardingAssessment } from '@/hooks/useOnboardingAssessment';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -20,7 +21,6 @@ export function SignupScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { signUp } = useAuth();
-  const { shouldOfferAssessmentAfterWizard } = useOnboardingAssessment();
   const profile = careerProfileStore.get();
 
   const [email, setEmail] = useState('');
@@ -62,12 +62,7 @@ export function SignupScreen() {
       careerProfileStore.update({ firstName });
     }
 
-    const offerAssessment = await shouldOfferAssessmentAfterWizard();
-    if (offerAssessment) {
-      router.replace('/(tabs)/interview-simulator/onboarding-assessment');
-      return;
-    }
-
+    await AsyncStorage.setItem(STORAGE_KEYS.hasRegisteredAccount, 'true');
     router.replace('/(tabs)');
   };
 

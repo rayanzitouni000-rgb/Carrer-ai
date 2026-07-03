@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
 import {
@@ -11,6 +12,7 @@ import {
   Text,
   useTheme,
 } from '@/design-system';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { useAuth } from '@/hooks/useAuth';
 
 export function LoginScreen() {
@@ -34,6 +36,7 @@ export function LoginScreen() {
       return;
     }
 
+    await AsyncStorage.setItem(STORAGE_KEYS.hasRegisteredAccount, 'true');
     router.replace('/(tabs)');
   };
 
