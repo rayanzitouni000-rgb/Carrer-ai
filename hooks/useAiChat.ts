@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { getApiBaseUrl, isAiApiConfigured, QUOTA_EXCEEDED_MESSAGE } from '@/constants/apiConfig';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { getMockAiResponse } from '@/data/mockAiChatResponses';
+import { useCareerScore } from '@/hooks/useCareerScore';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import { careerProfileStore } from '@/services/careerProfileStore';
 import type { ChatMessage } from '@/types/aiChat';
@@ -50,10 +52,6 @@ async function writeSession(messages: ChatMessage[]): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEYS.aiChatHistory, JSON.stringify({ messages }));
 }
 
-function randomTypingDelayMs(): number {
-  return 600 + Math.floor(Math.random() * 601);
-}
-
 export interface UseAiChatReturn {
   messages: ChatMessage[];
   isTyping: boolean;
@@ -65,10 +63,10 @@ export interface UseAiChatReturn {
 
 export function useAiChat(): UseAiChatReturn {
   const { canSendChatMessage, incrementChatMessages } = useUsageLimits();
+  const { score: careerScore } = useCareerScore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -82,7 +80,6 @@ export function useAiChat(): UseAiChatReturn {
     });
     return () => {
       mounted = false;
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
     };
   }, []);
 
@@ -107,27 +104,65 @@ export function useAiChat(): UseAiChatReturn {
       void persistMessages(withUser);
       setIsTyping(true);
 
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-
-      typingTimerRef.current = setTimeout(() => {
+      void (async () => {
         const profile = careerProfileStore.get();
+        const conversation = [...withUser];
+        let replyText: string;
+        let shouldIncrement = true;
+
+        try {
+          const baseUrl = getApiBaseUrl();
+          if (!baseUrl || !isAiApiConfigured()) {
+            throw new Error('API non configurée');
+          }
+
+          const response = await fetch(`${baseUrl}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: conversation.map((m) => ({ role: m.role, content: m.content })),
+              profileContext: {
+                firstName: profile.firstName,
+                targetRoles: profile.targetRoles,
+                currentSituation: profile.currentSituation,
+                careerScore,
+              },
+            }),
+          });
+
+          const data = (await response.json()) as { reply?: string; error?: string };
+
+          if (response.status === 429 && data.error === 'QUOTA_EXCEEDED') {
+            replyText = QUOTA_EXCEEDED_MESSAGE;
+            shouldIncrement = false;
+          } else if (!response.ok) {
+            replyText = data.error ?? "Désolé, je n'ai pas pu répondre. Réessaie dans un instant.";
+          } else {
+            replyText =
+              data.reply ?? "Désolé, je n'ai pas pu répondre. Réessaie dans un instant.";
+          }
+        } catch {
+          replyText = getMockAiResponse(trimmed, profile);
+        }
+
         const assistantMessage: ChatMessage = {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: getMockAiResponse(trimmed, profile),
+          content: replyText,
           timestamp: new Date().toISOString(),
         };
 
-        void persistMessages([...withUser, assistantMessage]);
+        await persistMessages([...withUser, assistantMessage]);
         setIsTyping(false);
-        void incrementChatMessages();
-      }, randomTypingDelayMs());
+        if (shouldIncrement) {
+          await incrementChatMessages();
+        }
+      })();
     },
-    [canSendChatMessage, incrementChatMessages, isTyping, messages, persistMessages]
+    [canSendChatMessage, careerScore, incrementChatMessages, isTyping, messages, persistMessages]
   );
 
   const clearChat = useCallback(async () => {
-    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
     setIsTyping(false);
     const welcome = [createWelcomeMessage()];
     await writeSession(welcome);

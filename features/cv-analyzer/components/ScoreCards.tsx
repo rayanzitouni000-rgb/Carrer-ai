@@ -4,11 +4,16 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Card, CircularProgress, Icon, Text, useTheme } from '@/design-system';
 import { useAnimatedCounter } from '@/features/home/hooks';
 
-import { CV_ANALYSIS } from '../constants/mockData';
+import type { CvAnalysisResult } from '../types/cvAnalysisResult';
 
-export function AtsScoreCard() {
+interface ScoreCardsProps {
+  analysis: CvAnalysisResult;
+}
+
+export function AtsScoreCard({ analysis }: ScoreCardsProps) {
   const theme = useTheme();
-  const value = useAnimatedCounter(CV_ANALYSIS.atsScore.value, 1400, 200);
+  const atsValue = Math.min(100, Math.max(0, analysis.score + 4));
+  const value = useAnimatedCounter(atsValue, 1400, 200);
 
   return (
     <Animated.View entering={FadeInDown.delay(160).duration(500).springify()} style={styles.flex}>
@@ -17,14 +22,14 @@ export function AtsScoreCard() {
           <Icon name="checkmark-circle-outline" size="sm" color={theme.colors.status.success} />
         </View>
         <Text variant="caption" color={theme.colors.text.muted}>
-          ATS Score
+          Compatibilité ATS
         </Text>
         <View style={styles.scoreRow}>
           <Text variant="h2" color={theme.colors.text.primary}>
             {value}%
           </Text>
           <CircularProgress
-            progress={CV_ANALYSIS.atsScore.value}
+            progress={atsValue}
             size={48}
             strokeWidth={4}
             color={theme.colors.status.success}
@@ -32,16 +37,18 @@ export function AtsScoreCard() {
           />
         </View>
         <Text variant="caption" color={theme.colors.text.secondary} style={styles.desc}>
-          {CV_ANALYSIS.atsScore.description}
+          Estimation basée sur la structure et les mots-clés du CV analysé.
         </Text>
       </Card>
     </Animated.View>
   );
 }
 
-export function OverallScoreCard() {
+export function OverallScoreCard({ analysis }: ScoreCardsProps) {
   const theme = useTheme();
-  const displayValue = useAnimatedCounter(Math.round(CV_ANALYSIS.overallScore.value * 10), 1400, 250);
+  const overall = Math.round(analysis.score) / 10;
+  const displayValue = useAnimatedCounter(Math.round(overall * 10), 1400, 250);
+  const percentage = Math.min(100, Math.max(0, analysis.score));
 
   return (
     <Animated.View entering={FadeInDown.delay(200).duration(500).springify()} style={styles.flex}>
@@ -50,14 +57,14 @@ export function OverallScoreCard() {
           <Icon name="star" size="sm" color={theme.colors.brand.primaryLight} />
         </View>
         <Text variant="caption" color={theme.colors.text.muted}>
-          Overall Score
+          Note globale
         </Text>
         <View style={styles.scoreRow}>
           <Text variant="h2" color={theme.colors.text.primary}>
             {(displayValue / 10).toFixed(1)}
           </Text>
           <Text variant="bodySmall" color={theme.colors.text.muted}>
-            / {CV_ANALYSIS.overallScore.max}
+            / 10
           </Text>
         </View>
         <View style={[styles.gaugeTrack, { backgroundColor: theme.colors.card.elevated, borderRadius: theme.radius.full }]}>
@@ -65,7 +72,7 @@ export function OverallScoreCard() {
             style={[
               styles.gaugeFill,
               {
-                width: `${CV_ANALYSIS.overallScore.percentage}%`,
+                width: `${percentage}%`,
                 backgroundColor: theme.colors.brand.primary,
                 borderRadius: theme.radius.full,
               },

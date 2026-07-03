@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LiveInterviewSessionView } from '@/components/interview/LiveInterviewSessionView';
-import { getJobOfferById } from '@/utils/jobOfferResolver';
+import { Text } from '@/design-system';
 import { useInterviewSession } from '@/features/interview/hooks';
 import { careerProfileStore } from '@/services/careerProfileStore';
+import {
+  fetchInterviewQuestionsFromApi,
+  getFallbackInterviewQuestions,
+  resolveJobOfferForInterview,
+} from '@/services/interviewQuestionsApi';
 import { useRealInterviews } from '@/hooks/useRealInterviews';
 import { useUsageLimits } from '@/hooks/useUsageLimits';
 import type { InterviewDifficulty, InterviewSessionType, SessionSource } from '@/types/interviewSimulator';
-import { getQuestionsForSession, suggestDifficultyFromSkills } from '@/utils/interviewSimulatorUtils';
+import { suggestDifficultyFromSkills } from '@/utils/interviewSimulatorUtils';
 
 function parseBool(value?: string): boolean {
   return value === 'true' || value === '1';
@@ -30,7 +35,7 @@ export default function InterviewSessionScreen() {
     difficulty?: string;
   }>();
 
-  const profile = useMemo(() => careerProfileStore.get(), []);
+  const [profile, setProfile] = useState(() => careerProfileStore.get());
   const { interviews } = useRealInterviews();
   const { incrementInterviewSessions } = useUsageLimits();
   const sessionApi = useInterviewSession();
@@ -40,12 +45,17 @@ export default function InterviewSessionScreen() {
   const [aiSpeaking, setAiSpeaking] = useState(true);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void careerProfileStore.hydrate().then(setProfile);
+  }, []);
 
   const isAssessment = parseBool(params.isAssessment);
   const realInterview = params.interviewId
     ? interviews.find((item) => item.id === params.interviewId)
     : undefined;
-  const jobOffer = params.jobOfferId ? getJobOfferById(params.jobOfferId) : undefined;
 
   const sessionSource: SessionSource = isAssessment
     ? 'assessment'
@@ -58,7 +68,6 @@ export default function InterviewSessionScreen() {
   const targetRole =
     params.targetRole ??
     realInterview?.jobTitle ??
-    jobOffer?.title ??
     profile.targetRoles[0] ??
     'Poste visé';
 
@@ -81,21 +90,42 @@ export default function InterviewSessionScreen() {
     if (startedRef.current || sessionApi.isLive) return;
     startedRef.current = true;
 
-    const questions = getQuestionsForSession(type, difficulty);
-    // TODO: remplacer par génération IA basée sur jobOffer.description quand le backend sera prêt
-    sessionApi.startSession({
-      targetRole,
-      type,
-      difficulty,
-      sessionSource,
-      jobOfferId: params.jobOfferId,
-      realInterviewId: params.interviewId,
-      questions,
-    });
-    if (!isAssessment) {
-      void incrementInterviewSessions();
-    }
-    triggerAiSpeaking();
+    void (async () => {
+      setIsLoadingQuestions(true);
+      setLoadError(null);
+
+      let questions = getFallbackInterviewQuestions(type, difficulty);
+
+      try {
+        const jobOffer = await resolveJobOfferForInterview(params.jobOfferId);
+        questions = await fetchInterviewQuestionsFromApi({
+          profile,
+          jobOffer,
+          difficulty,
+          sessionType: type,
+        });
+      } catch {
+        questions = getFallbackInterviewQuestions(type, difficulty);
+        setLoadError('Questions par défaut utilisées (connexion ou quota IA).');
+      }
+
+      sessionApi.startSession({
+        targetRole,
+        type,
+        difficulty,
+        sessionSource,
+        jobOfferId: params.jobOfferId,
+        realInterviewId: params.interviewId,
+        questions,
+      });
+
+      if (!isAssessment) {
+        void incrementInterviewSessions();
+      }
+
+      setIsLoadingQuestions(false);
+      triggerAiSpeaking();
+    })();
   }, [
     sessionApi,
     type,
@@ -107,6 +137,7 @@ export default function InterviewSessionScreen() {
     isAssessment,
     incrementInterviewSessions,
     triggerAiSpeaking,
+    profile,
   ]);
 
   useEffect(() => {
@@ -150,7 +181,7 @@ export default function InterviewSessionScreen() {
   }, [sessionApi, params.interviewId, finishAndNavigate, triggerAiSpeaking]);
 
   const handleStartSpeaking = () => {
-    if (sessionApi.isPaused || aiSpeaking || isMuted) return;
+    if (sessionApi.isPaused || aiSpeaking || isMuted || isLoadingQuestions) return;
     setIsUserSpeaking(true);
   };
 
@@ -169,6 +200,17 @@ export default function InterviewSessionScreen() {
     setIsUserSpeaking(false);
   };
 
+  if (isLoadingQuestions) {
+    return (
+      <View style={[styles.root, styles.center, { paddingTop: insets.top + 12 }]}>
+        <ActivityIndicator size="large" color="#60A5FA" />
+        <Text variant="body" color="#94A3B8" style={styles.loadingText}>
+          Préparation des questions d'entretien…
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View
       style={[
@@ -179,6 +221,11 @@ export default function InterviewSessionScreen() {
         },
       ]}
     >
+      {loadError ? (
+        <Text variant="caption" color="#94A3B8" style={styles.fallbackHint}>
+          {loadError}
+        </Text>
+      ) : null}
       <LiveInterviewSessionView
         timer={sessionApi.timer}
         questionText={sessionApi.currentQuestion?.text}
@@ -200,5 +247,18 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#0A0E17',
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    marginTop: 8,
+  },
+  fallbackHint: {
+    textAlign: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 4,
   },
 });

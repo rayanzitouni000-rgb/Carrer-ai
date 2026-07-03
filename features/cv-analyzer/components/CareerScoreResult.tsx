@@ -5,13 +5,22 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { CircularProgress, Text, usePulseAnimation, useTheme } from '@/design-system';
 import { useAnimatedCounter } from '@/features/home/hooks';
 
-import { CV_ANALYSIS } from '../constants/mockData';
+import {
+  scoreToCareerScoreValue,
+  scoreToRating,
+  type CvAnalysisResult,
+} from '../types/cvAnalysisResult';
 
-export function CareerScoreResult() {
+interface CareerScoreResultProps {
+  analysis: CvAnalysisResult;
+}
+
+export function CareerScoreResult({ analysis }: CareerScoreResultProps) {
   const theme = useTheme();
   const glowStyle = usePulseAnimation(0.97, 1.03);
-  const animatedScore = useAnimatedCounter(CV_ANALYSIS.careerScore.current, 1600, 100);
-  const { careerScore } = CV_ANALYSIS;
+  const careerValue = scoreToCareerScoreValue(analysis.score);
+  const animatedScore = useAnimatedCounter(careerValue, 1600, 100);
+  const percentage = Math.min(100, Math.max(0, analysis.score));
 
   return (
     <Animated.View entering={FadeInDown.delay(80).duration(500).springify()}>
@@ -26,22 +35,22 @@ export function CareerScoreResult() {
           <View style={styles.content}>
             <View style={styles.left}>
               <Text variant="label" color={theme.colors.text.secondary}>
-                Career Score
+                Score CV
               </Text>
               <View style={styles.scoreRow}>
                 <Text variant="hero" color={theme.colors.text.primary} style={styles.scoreNum}>
                   {animatedScore}
                 </Text>
                 <Text variant="subtitle" color={theme.colors.text.muted}>
-                  / {careerScore.max}
+                  / 1000
                 </Text>
               </View>
               <Text variant="title" color={theme.colors.status.success}>
-                {careerScore.rating}
+                {scoreToRating(analysis.score)}
               </Text>
             </View>
             <CircularProgress
-              progress={careerScore.percentage}
+              progress={percentage}
               size={96}
               strokeWidth={7}
               color={theme.colors.brand.primaryLight}

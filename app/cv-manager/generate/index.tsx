@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
@@ -13,8 +13,12 @@ import {
   useToast,
 } from '@/design-system';
 import { PaywallScreen, PremiumBadge } from '@/components/premium';
-import { cvAnalysisContextStore } from '@/services/cvAnalysisContextStore';
+import { mergeAiCvIntoProfileData } from '@/features/cv-manager/generate/mergeAiCvContent';
+import { cvGeneratorStore } from '@/features/cv-manager/generate/cvGeneratorStore';
+import { getApiBaseUrl, isAiApiConfigured, QUOTA_EXCEEDED_MESSAGE } from '@/constants/apiConfig';
+import { incrementCvGeneratedCount } from '@/hooks/useCvActionsTracking';
 import { usePremiumStatus } from '@/hooks/usePremiumStatus';
+import { careerProfileStore } from '@/services/careerProfileStore';
 
 interface ModeCardProps {
   title: string;
@@ -22,14 +26,23 @@ interface ModeCardProps {
   icon: IconName;
   gradient: readonly [string, string];
   isPremiumFeature?: boolean;
+  disabled?: boolean;
   onPress: () => void;
 }
 
-function ModeCard({ title, subtitle, icon, gradient, isPremiumFeature, onPress }: ModeCardProps) {
+function ModeCard({
+  title,
+  subtitle,
+  icon,
+  gradient,
+  isPremiumFeature,
+  disabled,
+  onPress,
+}: ModeCardProps) {
   const theme = useTheme();
 
   return (
-    <PressableScale scale={0.98} onPress={onPress}>
+    <PressableScale scale={0.98} onPress={onPress} disabled={disabled}>
       <View
         style={[
           styles.card,
@@ -38,6 +51,7 @@ function ModeCard({ title, subtitle, icon, gradient, isPremiumFeature, onPress }
             backgroundColor: theme.colors.card.elevated,
             borderColor: theme.colors.border.subtle,
             borderRadius: theme.radius.lg,
+            opacity: disabled ? 0.6 : 1,
           },
         ]}
       >
@@ -74,6 +88,7 @@ export default function GenerateModeScreen() {
   const toast = useToast();
   const { isPremium } = usePremiumStatus();
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const showComingSoon = () => {
     toast.show({
@@ -82,16 +97,66 @@ export default function GenerateModeScreen() {
     });
   };
 
-  const handlePremiumCvMode = () => {
+  const handleAiWriteCv = async () => {
     if (!isPremium) {
       setPaywallVisible(true);
       return;
     }
 
-    // TODO: utiliser cvAnalysisContextStore.get() une fois l'appel IA backend en place —
-    // transmettre improvements / aiRecommendation pour personnaliser la génération.
-    const _analysisContext = cvAnalysisContextStore.get();
+    const baseUrl = getApiBaseUrl();
+    if (!baseUrl || !isAiApiConfigured()) {
+      toast.show({ type: 'error', title: 'API non configurée' });
+      return;
+    }
 
+    setIsGenerating(true);
+    try {
+      await careerProfileStore.hydrate();
+      const profile = careerProfileStore.get();
+
+      const response = await fetch(`${baseUrl}/api/generate-cv`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile }),
+      });
+
+      const data = (await response.json()) as {
+        cvContent?: Parameters<typeof mergeAiCvIntoProfileData>[1];
+        error?: string;
+      };
+
+      if (response.status === 429 && data.error === 'QUOTA_EXCEEDED') {
+        toast.show({ type: 'warning', title: QUOTA_EXCEEDED_MESSAGE });
+        return;
+      }
+
+      if (!response.ok || !data.cvContent) {
+        toast.show({
+          type: 'error',
+          title: data.error ?? 'Erreur lors de la génération du CV',
+        });
+        return;
+      }
+
+      const merged = mergeAiCvIntoProfileData(profile, data.cvContent);
+      cvGeneratorStore.set(merged);
+      await incrementCvGeneratedCount();
+      router.push('/cv-manager/generate/form');
+    } catch {
+      toast.show({
+        type: 'error',
+        title: 'Impossible de joindre le serveur. Réessaie plus tard.',
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handlePremiumImportMode = () => {
+    if (!isPremium) {
+      setPaywallVisible(true);
+      return;
+    }
     showComingSoon();
   };
 
@@ -101,37 +166,43 @@ export default function GenerateModeScreen() {
         Choisis comment tu veux créer ton CV.
       </Text>
 
+      {isGenerating && (
+        <View style={styles.loaderRow}>
+          <ActivityIndicator color={theme.colors.brand.primaryLight} />
+          <Text variant="bodySmall" color={theme.colors.text.secondary}>
+            L'IA rédige ton CV…
+          </Text>
+        </View>
+      )}
+
       <View style={styles.cards}>
         <ModeCard
           title="Remplir un formulaire"
           subtitle="Complète tes infos et génère un PDF propre immédiatement"
           icon="create-outline"
           gradient={['#2563EB', '#6366F1']}
+          disabled={isGenerating}
           onPress={() => router.push('/cv-manager/generate/form')}
         />
 
-        {/* TODO: nécessite le backend — appel API qui génère le contenu du CV
-            à partir du profil utilisateur (experiences, skills, targetRoles,
-            educationLevel déjà collectés dans l'onboarding) */}
         <ModeCard
           title="Laisser l'IA rédiger mon CV"
           subtitle="L'IA rédige ton CV à partir de ton profil"
           icon="sparkles-outline"
           gradient={['#8B5CF6', '#EC4899']}
           isPremiumFeature
-          onPress={handlePremiumCvMode}
+          disabled={isGenerating}
+          onPress={() => void handleAiWriteCv()}
         />
 
-        {/* TODO: nécessite le backend — upload du CV existant (PDF/DOCX),
-            extraction du contenu, puis appel IA pour reformuler/améliorer
-            et régénérer un nouveau CV structuré */}
         <ModeCard
           title="Générer à partir d'un CV existant"
           subtitle="Importe ton CV actuel, l'IA le reformule et l'améliore"
           icon="cloud-upload-outline"
           gradient={['#F59E0B', '#EF4444']}
           isPremiumFeature
-          onPress={handlePremiumCvMode}
+          disabled={isGenerating}
+          onPress={handlePremiumImportMode}
         />
       </View>
 
@@ -147,6 +218,12 @@ export default function GenerateModeScreen() {
 const styles = StyleSheet.create({
   intro: {
     marginBottom: 4,
+  },
+  loaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 8,
   },
   cards: {
     gap: 12,

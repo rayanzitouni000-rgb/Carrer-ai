@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Icon, PressableScale, useTheme } from '@/design-system';
+import { Icon, PressableScale, Text, useTheme } from '@/design-system';
 import { useRouter } from 'expo-router';
 
 import {
@@ -14,7 +14,6 @@ import {
   CvAnalyzerHeader,
   GenerateCvCtaSection,
   ImprovementsCard,
-  MissingKeywordsCard,
   OverallScoreCard,
   QuickActionsSection,
   StrengthsCard,
@@ -60,7 +59,20 @@ export default function CvAnalyzerScreen() {
         <CvAnalyzerHeader />
 
         {analysis.isIdle && (
-          <UploadCard onUpload={analysis.startAnalysis} />
+          <UploadCard onUpload={() => void analysis.startAnalysis()} />
+        )}
+
+        {analysis.isError && analysis.errorMessage && (
+          <View style={styles.errorBox}>
+            <Text variant="bodySmall" color={theme.colors.status.danger}>
+              {analysis.errorMessage}
+            </Text>
+            <PressableScale scale={0.96} onPress={analysis.reset}>
+              <Text variant="label" color={theme.colors.brand.primaryLight}>
+                Réessayer
+              </Text>
+            </PressableScale>
+          </View>
         )}
 
         {analysis.isAnalyzing && (
@@ -71,22 +83,21 @@ export default function CvAnalyzerScreen() {
           />
         )}
 
-        {analysis.isComplete && (
+        {analysis.isComplete && analysis.result && (
           <View style={styles.results}>
-            <CareerScoreResult />
+            <CareerScoreResult analysis={analysis.result} />
 
             <View style={styles.scoreRow}>
-              <AtsScoreCard />
-              <OverallScoreCard />
+              <AtsScoreCard analysis={analysis.result} />
+              <OverallScoreCard analysis={analysis.result} />
             </View>
 
             <View style={styles.insightsRow}>
-              <StrengthsCard />
-              <ImprovementsCard />
+              <StrengthsCard analysis={analysis.result} />
+              <ImprovementsCard analysis={analysis.result} />
             </View>
 
-            <MissingKeywordsCard />
-            <AiRecommendationsCard />
+            <AiRecommendationsCard analysis={analysis.result} />
             <GenerateCvCtaSection sourceFileName={analysis.fileName} />
             <QuickActionsSection onAnalyzeAgain={analysis.reset} />
             <AnalysisHistorySection />
@@ -110,4 +121,5 @@ const styles = StyleSheet.create({
   results: { gap: 20 },
   scoreRow: { flexDirection: 'row', gap: 12 },
   insightsRow: { flexDirection: 'row', gap: 12, alignItems: 'stretch' },
+  errorBox: { paddingVertical: 8, gap: 8 },
 });

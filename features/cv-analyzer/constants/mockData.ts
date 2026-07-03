@@ -70,4 +70,4 @@ export const QUICK_ACTIONS = [
   { id: '5', label: 'Interview', icon: 'mic-outline' as const, route: '/(tabs)/interview-simulator' },
 ];
 
-export const SUPPORTED_FORMATS = ['PDF', 'DOCX'] as const;
+export const SUPPORTED_FORMATS = ['PDF', 'JPEG', 'PNG', 'WebP'] as const;

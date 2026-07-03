@@ -3,7 +3,7 @@ import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 
 import { Card, Icon, Text, useTheme } from '@/design-system';
 
-import { CV_ANALYSIS } from '../constants/mockData';
+import type { CvAnalysisResult } from '../types/cvAnalysisResult';
 
 interface ListCardProps {
   title: string;
@@ -30,7 +30,7 @@ function ListCard({ title, items, icon, iconColor, iconBg, delay }: ListCardProp
         </View>
         {items.map((item, index) => (
           <Animated.View
-            key={item}
+            key={`${title}-${index}-${item.slice(0, 24)}`}
             entering={FadeInRight.delay(delay + index * 60).duration(350)}
             style={styles.itemRow}
           >
@@ -47,12 +47,16 @@ function ListCard({ title, items, icon, iconColor, iconBg, delay }: ListCardProp
   );
 }
 
-export function StrengthsCard() {
+interface InsightsCardsProps {
+  analysis: CvAnalysisResult;
+}
+
+export function StrengthsCard({ analysis }: InsightsCardsProps) {
   const theme = useTheme();
   return (
     <ListCard
-      title="Strengths"
-      items={CV_ANALYSIS.strengths}
+      title="Points forts"
+      items={analysis.strengths}
       icon="checkmark-circle-outline"
       iconColor={theme.colors.status.success}
       iconBg={theme.colors.status.successMuted}
@@ -61,12 +65,15 @@ export function StrengthsCard() {
   );
 }
 
-export function ImprovementsCard() {
+export function ImprovementsCard({ analysis }: InsightsCardsProps) {
   const theme = useTheme();
+  const items = [...analysis.weaknesses, ...analysis.improvements].filter(
+    (item, index, arr) => arr.indexOf(item) === index
+  );
   return (
     <ListCard
-      title="Improvements"
-      items={CV_ANALYSIS.improvements}
+      title="Axes d'amélioration"
+      items={items}
       icon="alert-circle-outline"
       iconColor={theme.colors.status.warning}
       iconBg={theme.colors.status.warningMuted}
